@@ -15,10 +15,16 @@
 namespace Authentication;
 
 use Authentication\Authenticator\AuthenticatorCollection;
+use Authentication\Authenticator\FormAuthenticator;
 use Authentication\Authenticator\PersistenceInterface;
+use Authentication\Authenticator\SessionAuthenticator;
 use Authentication\Authenticator\StatelessInterface;
 use Authentication\Identifier\IdentifierCollection;
+use Authentication\Identifier\PasswordIdentifier;
+use Authentication\Identifier\TokenIdentifier;
 use Cake\Core\InstanceConfigTrait;
+use Cake\Http\ServerRequest;
+use PhpParser\Node\Identifier;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -94,8 +100,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @param array $config Configuration options.
      */
-    public function __construct(array $config = [])
-    {
+    public function __construct(array $config = []) {
         $this->setConfig($config);
     }
 
@@ -318,3 +323,28 @@ class AuthenticationService implements AuthenticationServiceInterface
         return $identity;
     }
 }
+
+$request = new ServerRequest();
+
+$identifierCollection = new IdentifierCollection([
+    new PasswordIdentifier(),
+    new TokenIdentifier()
+]);
+
+$authenticatorCollection = new AuthenticatorCollection([
+    new FormAuthenticator($identifierCollection),
+    new SessionAuthenticator($identifierCollection, new SessionPersistence($session)),
+    new CookieAuthenticator($identifierCollection, new CookiePersistence($cookies))
+]);
+
+$service = new AuthenticationServce(
+    $identifierCollection,
+    $authenticatorCollection
+);
+
+// Persists the identity internally
+// DOES NOT generate a response and DOES NOT modify a response object!
+$result = $service->authenticate($request);
+
+// Implements PSRs ResponseEmitterInterface?
+$authMiddleware = new AuthenticationMiddleware($service, new CakeResponseGenerator());

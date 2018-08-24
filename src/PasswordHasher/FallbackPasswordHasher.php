@@ -26,7 +26,7 @@ class FallbackPasswordHasher extends AbstractPasswordHasher
      *
      * @var array
      */
-    protected $_defaultConfig = [
+    protected $defaultConfig = [
         'hashers' => []
     ];
 
@@ -35,7 +35,7 @@ class FallbackPasswordHasher extends AbstractPasswordHasher
      *
      * @var array
      */
-    protected $_hashers = [];
+    protected $hashers = [];
 
     /**
      * Constructor
@@ -47,12 +47,23 @@ class FallbackPasswordHasher extends AbstractPasswordHasher
     public function __construct(array $config = [])
     {
         parent::__construct($config);
-        foreach ($this->_config['hashers'] as $key => $hasher) {
+
+        foreach ($this->config['hashers'] as $key => $hasher) {
             if (is_array($hasher) && !isset($hasher['className'])) {
                 $hasher['className'] = $key;
             }
-            $this->_hashers[] = PasswordHasherFactory::build($hasher);
+
+            $this->addHasher(PasswordHasherFactory::build($hasher));
         }
+    }
+
+    /**
+     * Adds a hasher
+     *
+     * @return void
+     */
+    public function addHasher(PasswordHasherInterface $hasher) {
+        $this->hashers[] = $hasher;
     }
 
     /**
@@ -65,7 +76,7 @@ class FallbackPasswordHasher extends AbstractPasswordHasher
      */
     public function hash($password)
     {
-        return $this->_hashers[0]->hash($password);
+        return $this->hashers[0]->hash($password);
     }
 
     /**
@@ -80,7 +91,7 @@ class FallbackPasswordHasher extends AbstractPasswordHasher
      */
     public function check($password, $hashedPassword)
     {
-        foreach ($this->_hashers as $hasher) {
+        foreach ($this->hashers as $hasher) {
             if ($hasher->check($password, $hashedPassword)) {
                 return true;
             }
@@ -98,6 +109,6 @@ class FallbackPasswordHasher extends AbstractPasswordHasher
      */
     public function needsRehash($password)
     {
-        return $this->_hashers[0]->needsRehash($password);
+        return $this->hashers[0]->needsRehash($password);
     }
 }

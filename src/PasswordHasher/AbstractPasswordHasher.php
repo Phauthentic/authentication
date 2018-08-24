@@ -20,9 +20,6 @@ use Cake\Core\InstanceConfigTrait;
  */
 abstract class AbstractPasswordHasher implements PasswordHasherInterface
 {
-
-    use InstanceConfigTrait;
-
     /**
      * Default config
      *
@@ -30,7 +27,14 @@ abstract class AbstractPasswordHasher implements PasswordHasherInterface
      *
      * @var array
      */
-    protected $_defaultConfig = [];
+    protected $defaultConfig = [];
+
+    /**
+     * Configuration
+     *
+     * @var array
+     */
+    protected $config = [];
 
     /**
      * Constructor
@@ -39,7 +43,7 @@ abstract class AbstractPasswordHasher implements PasswordHasherInterface
      */
     public function __construct(array $config = [])
     {
-        $this->setConfig($config);
+        $this->config = array_merge($this->defaultConfig, $config);
     }
 
     /**

@@ -50,8 +50,7 @@ class PasswordIdentifierTest extends TestCase
             ->with('password', 'h45hedpa55w0rd')
             ->willReturn(true);
 
-        $identifier = new PasswordIdentifier();
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
 
         $result = $identifier->identify([
             'username' => 'mariano',
@@ -88,8 +87,7 @@ class PasswordIdentifierTest extends TestCase
             ->with('h45hedpa55w0rd')
             ->willReturn(true);
 
-        $identifier = new PasswordIdentifier();
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
 
         $result = $identifier->identify([
             'username' => 'mariano',
@@ -120,8 +118,7 @@ class PasswordIdentifierTest extends TestCase
             ->with('exist', '')
             ->willReturn(false);
 
-        $identifier = new PasswordIdentifier();
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
 
         $result = $identifier->identify([
             'username' => 'does-not',
@@ -156,8 +153,7 @@ class PasswordIdentifierTest extends TestCase
             ->with('wrongpassword', 'h45hedpa55w0rd')
             ->willReturn(false);
 
-        $identifier = new PasswordIdentifier();
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
 
         $result = $identifier->identify([
             'username' => 'mariano',
@@ -192,8 +188,7 @@ class PasswordIdentifierTest extends TestCase
             ->with('', 'h45hedpa55w0rd')
             ->willReturn(false);
 
-        $identifier = new PasswordIdentifier();
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
 
         $result = $identifier->identify([
             'username' => 'mariano',
@@ -226,8 +221,7 @@ class PasswordIdentifierTest extends TestCase
         $hasher->expects($this->never())
             ->method('check');
 
-        $identifier = new PasswordIdentifier();
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
 
         $result = $identifier->identify([
             'username' => 'mariano'
@@ -252,8 +246,7 @@ class PasswordIdentifierTest extends TestCase
         $hasher->expects($this->never())
             ->method('check');
 
-        $identifier = new PasswordIdentifier();
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
 
         $result = $identifier->identify([]);
 
@@ -293,10 +286,9 @@ class PasswordIdentifierTest extends TestCase
             ->method('needsRehash')
             ->with('h45hedpa55w0rd');
 
-        $identifier = new PasswordIdentifier([
+        $identifier = new PasswordIdentifier($resolver, $hasher, [
             'fields' => ['username' => ['email', 'username']]
         ]);
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
 
         $result = $identifier->identify([
             'username' => 'mariano@example.com',
@@ -305,31 +297,5 @@ class PasswordIdentifierTest extends TestCase
 
         $this->assertInstanceOf('\ArrayAccess', $result);
         $this->assertSame($user, $result);
-    }
-
-    /**
-     * testDefaultPasswordHasher
-     *
-     * @return void
-     */
-    public function testDefaultPasswordHasher()
-    {
-        $identifier = new PasswordIdentifier();
-        $hasher = $identifier->getPasswordHasher();
-        $this->assertInstanceOf(DefaultPasswordHasher::class, $hasher);
-    }
-
-    /**
-     * testCustomPasswordHasher
-     *
-     * @return void
-     */
-    public function testCustomPasswordHasher()
-    {
-        $identifier = new PasswordIdentifier([
-            'passwordHasher' => 'Authentication.Legacy'
-        ]);
-        $hasher = $identifier->getPasswordHasher();
-        $this->assertInstanceOf(LegacyPasswordHasher::class, $hasher);
     }
 }
