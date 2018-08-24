@@ -14,7 +14,7 @@
  */
 namespace Authentication\Identifier;
 
-use Authentication\Identifier\Resolver\ResolverAwareTrait;
+use Authentication\Identifier\Resolver\ResolverInterface;
 
 /**
  * Token Identifier
@@ -22,33 +22,55 @@ use Authentication\Identifier\Resolver\ResolverAwareTrait;
 class TokenIdentifier extends AbstractIdentifier
 {
 
-    use ResolverAwareTrait;
+    /**
+     * Resolver
+     *
+     * @var \Authentication\Identifier\Resolver\ResolverInterface
+     */
+    protected $resolver;
 
     /**
      * Default configuration.
      *
      * @var array
      */
-    protected $_defaultConfig = [
+    protected $defaultConfig = [
         'tokenField' => 'token',
         'dataField' => self::CREDENTIAL_TOKEN,
-        'resolver' => 'Authentication.Orm'
     ];
+
+    /**
+     * Configuration
+     *
+     * @var array
+     */
+    protected $config = [];
+
+    /**
+     * Constructor
+     *
+     * @param array $config Configuration
+     */
+    public function __construct(ResolverInterface $resolver, array $config = [])
+    {
+        $this->_config = array_merge($this->defaultConfig, $config);
+        $this->resolver = $resolver;
+    }
 
     /**
      * {@inheritDoc}
      */
     public function identify(array $data)
     {
-        $dataField = $this->getConfig('dataField');
+        $dataField = $this->config['dataField'];
         if (!isset($data[$dataField])) {
             return null;
         }
 
         $conditions = [
-            $this->getConfig('tokenField') => $data[$dataField]
+            $this->config['tokenField'] => $data[$dataField]
         ];
 
-        return $this->getResolver()->find($conditions);
+        return $this->resolver->find($conditions);
     }
 }

@@ -14,10 +14,8 @@
  */
 namespace Authentication\Identifier;
 
-use Authentication\Identifier\Resolver\ResolverAwareTrait;
 use Authentication\Identifier\Resolver\ResolverInterface;
-use Authentication\PasswordHasher\PasswordHasherFactory;
-use Authentication\PasswordHasher\PasswordHasherTrait;
+use Authentication\PasswordHasher\PasswordHasherInterface;
 
 /**
  * Password Identifier
@@ -39,20 +37,33 @@ use Authentication\PasswordHasher\PasswordHasherTrait;
 class PasswordIdentifier extends AbstractIdentifier
 {
 
-    use PasswordHasherTrait {
-        getPasswordHasher as protected _getPasswordHasher;
-    }
-    use ResolverAwareTrait;
+    /**
+     * Resolver
+     *
+     * @var \Authentication\Identifier\Resolver\ResolverInterface
+     */
+    protected $resolver;
+
+    /**
+     * Password Hasher
+     *
+     * @var \Authentication\PasswordHasher\PasswordHasherInterface
+     */
+    protected $passwordHasher;
+
+    /**
+     * Whether or not the user authenticated by this class
+     * requires their password to be rehashed with another algorithm.
+     *
+     * @var bool
+     */
+    protected $needsPasswordRehash = false;
 
     /**
      * Default configuration.
      * - `fields` The fields to use to identify a user by:
      *   - `username`: one or many username fields.
      *   - `password`: password field.
-     * - `resolver` The resolver implementation to use.
-     * - `passwordHasher` Password hasher class. Can be a string specifying class name
-     *    or an array containing `className` key, any other keys will be passed as
-     *    config to the class. Defaults to 'Default'.
      *
      * @var array
      */
@@ -66,23 +77,15 @@ class PasswordIdentifier extends AbstractIdentifier
     ];
 
     /**
-     * Return password hasher object.
+     * Constructor
      *
-     * @return \Authentication\PasswordHasher\PasswordHasherInterface Password hasher instance.
+     * @param array $config Configuration
      */
-    public function getPasswordHasher()
+    public function __construct(ResolverInterface $resolver, PasswordHasherInterface $passwordHasher, array $config = [])
     {
-        if ($this->_passwordHasher === null) {
-            $passwordHasher = $this->getConfig('passwordHasher');
-            if ($passwordHasher !== null) {
-                $passwordHasher = PasswordHasherFactory::build($passwordHasher);
-            } else {
-                $passwordHasher = $this->_getPasswordHasher();
-            }
-            $this->_passwordHasher = $passwordHasher;
-        }
-
-        return $this->_passwordHasher;
+        $this->setConfig($config);
+        $this->resolver = $resolver;
+        $this->passwordHasher = $passwordHasher;
     }
 
     /**
@@ -124,15 +127,25 @@ class PasswordIdentifier extends AbstractIdentifier
             ];
         }
 
-        $hasher = $this->getPasswordHasher();
+        $hasher = $this->passwordHasher;
         $hashedPassword = $identity[$passwordField];
         if (!$hasher->check($password, $hashedPassword)) {
             return false;
         }
 
-        $this->_needsPasswordRehash = $hasher->needsRehash($hashedPassword);
+        $this->needsPasswordRehash = $hasher->needsRehash($hashedPassword);
 
         return true;
+    }
+
+    /**
+     * Check if a password needs to be re-hashed
+     *
+     * @return bool
+     */
+    public function needsPasswordRehash()
+    {
+        return $this->needsPasswordRehash;
     }
 
     /**
@@ -149,6 +162,6 @@ class PasswordIdentifier extends AbstractIdentifier
             $conditions[$field] = $identifier;
         }
 
-        return $this->getResolver()->find($conditions, ResolverInterface::TYPE_OR);
+        return $this->resolver->find($conditions, ResolverInterface::TYPE_OR);
     }
 }

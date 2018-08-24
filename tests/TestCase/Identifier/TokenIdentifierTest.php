@@ -23,25 +23,37 @@ class TokenIdentifierTest extends TestCase
 {
 
     /**
+     * Resolver Mock
+     */
+    protected $resolver;
+
+    /**
+     * @inheritDoc
+     */
+    public function setUp()
+    {
+        parent::setUp();
+        $this->resolver = $this->createMock(ResolverInterface::class);
+    }
+
+    /**
      * testIdentify
      *
      * @return void
      */
     public function testIdentify()
     {
-        $resolver = $this->createMock(ResolverInterface::class);
 
-        $identifier = new TokenIdentifier([
+        $identifier = new TokenIdentifier($this->resolver, [
             'dataField' => 'user',
             'tokenField' => 'username'
         ]);
-        $identifier->setResolver($resolver);
 
         $user = new ArrayObject([
             'username' => 'larry'
         ]);
 
-        $resolver->expects($this->once())
+        $this->resolver->expects($this->once())
             ->method('find')
             ->with([
                 'username' => 'larry'
@@ -59,12 +71,9 @@ class TokenIdentifierTest extends TestCase
      */
     public function testIdentifyMissingData()
     {
-        $resolver = $this->createMock(ResolverInterface::class);
+        $identifier = new TokenIdentifier($this->resolver);
 
-        $identifier = new TokenIdentifier();
-        $identifier->setResolver($resolver);
-
-        $resolver->expects($this->never())
+        $this->resolver->expects($this->never())
             ->method('find');
 
         $result = $identifier->identify(['user' => 'larry']);
