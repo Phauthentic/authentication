@@ -173,17 +173,4 @@ class Identity implements IdentityInterface
     {
         return $this->data;
     }
-
-    /**
-     * Debug info
-     *
-     * @return array
-     */
-    public function __debugInfo()
-    {
-        return [
-            'config' => $this->_config,
-            'data' => $this->data
-        ];
-    }
 }

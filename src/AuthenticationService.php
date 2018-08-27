@@ -302,7 +302,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      * @param \ArrayAccess|array $identityData Identity data
      * @return \Authentication\IdentityInterface
      */
-    public function buildIdentity($identityData)
+    public function buildIdentity($identityData): IdentityInterface
     {
         $class = $this->getConfig('identityClass');
 
@@ -312,39 +312,6 @@ class AuthenticationService implements AuthenticationServiceInterface
             $identity = new $class($identityData);
         }
 
-        if (!($identity instanceof IdentityInterface)) {
-            throw new RuntimeException(sprintf(
-                'Object `%s` does not implement `%s`',
-                get_class($identity),
-                IdentityInterface::class
-            ));
-        }
-
         return $identity;
     }
 }
-
-$request = new ServerRequest();
-
-$identifierCollection = new IdentifierCollection([
-    new PasswordIdentifier(),
-    new TokenIdentifier()
-]);
-
-$authenticatorCollection = new AuthenticatorCollection([
-    new FormAuthenticator($identifierCollection),
-    new SessionAuthenticator($identifierCollection, new SessionPersistence($session)),
-    new CookieAuthenticator($identifierCollection, new CookiePersistence($cookies))
-]);
-
-$service = new AuthenticationServce(
-    $identifierCollection,
-    $authenticatorCollection
-);
-
-// Persists the identity internally
-// DOES NOT generate a response and DOES NOT modify a response object!
-$result = $service->authenticate($request);
-
-// Implements PSRs ResponseEmitterInterface?
-$authMiddleware = new AuthenticationMiddleware($service, new CakeResponseGenerator());

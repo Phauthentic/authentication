@@ -86,7 +86,7 @@ class FormAuthenticator extends AbstractAuthenticator
             sprintf(
                 'Login URL `%s` did not match `%s`.',
                 (string)$request->getUri(),
-                implode('` or `', (array)$this->getConfig('loginUrl'))
+                implode('` or `', (array)$this->_config['loginUrl'])
             )
         ];
 
@@ -102,7 +102,7 @@ class FormAuthenticator extends AbstractAuthenticator
      * @param \Psr\Http\Message\ResponseInterface $response Unused response object.
      * @return \Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request, ResponseInterface $response)
+    public function authenticate(ServerRequestInterface $request)
     {
         if (!$this->_checkUrl($request)) {
             return $this->_buildLoginUrlErrorResult($request);

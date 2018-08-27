@@ -27,14 +27,14 @@ class Result implements ResultInterface
      *
      * @var string
      */
-    protected $_status;
+    protected $status;
 
     /**
      * The identity data used in the authentication attempt
      *
      * @var null|array|\ArrayAccess
      */
-    protected $_data;
+    protected $data;
 
     /**
      * An array of string reasons why the authentication attempt was unsuccessful
@@ -43,7 +43,7 @@ class Result implements ResultInterface
      *
      * @var array
      */
-    protected $_errors = [];
+    protected $errors = [];
 
     /**
      * Sets the result status, identity, and failure messages
@@ -67,9 +67,9 @@ class Result implements ResultInterface
             throw new InvalidArgumentException($message);
         }
 
-        $this->_status = $status;
-        $this->_data = $data;
-        $this->_errors = $messages;
+        $this->status = $status;
+        $this->data = $data;
+        $this->errors = $messages;
     }
 
     /**
@@ -79,7 +79,7 @@ class Result implements ResultInterface
      */
     public function isValid()
     {
-        return $this->_status === ResultInterface::SUCCESS;
+        return $this->status === ResultInterface::SUCCESS;
     }
 
     /**
@@ -89,7 +89,7 @@ class Result implements ResultInterface
      */
     public function getStatus()
     {
-        return $this->_status;
+        return $this->status;
     }
 
     /**
@@ -99,7 +99,7 @@ class Result implements ResultInterface
      */
     public function getData()
     {
-        return $this->_data;
+        return $this->data;
     }
 
     /**
@@ -111,6 +111,6 @@ class Result implements ResultInterface
      */
     public function getErrors()
     {
-        return $this->_errors;
+        return $this->errors;
     }
 }

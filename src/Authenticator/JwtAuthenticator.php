@@ -69,7 +69,7 @@ class JwtAuthenticator extends TokenAuthenticator
      * @param \Psr\Http\Message\ResponseInterface $response Unused response object.
      * @return \Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request, ResponseInterface $response)
+    public function authenticate(ServerRequestInterface $request)
     {
         try {
             $result = $this->getPayload($request);
@@ -95,7 +95,7 @@ class JwtAuthenticator extends TokenAuthenticator
             return new Result(null, Result::FAILURE_CREDENTIALS_MISSING);
         }
 
-        if ($this->getConfig('returnPayload')) {
+        if ($this->_config['returnPayload']) {
             $user = new ArrayObject($result);
 
             return new Result($user, Result::SUCCESS);
@@ -146,8 +146,8 @@ class JwtAuthenticator extends TokenAuthenticator
     {
         return JWT::decode(
             $token,
-            $this->getConfig('secretKey'),
-            $this->getConfig('algorithms')
+            $this->_config['secretKey'],
+            $this->_config['algorithms']
         );
     }
 }

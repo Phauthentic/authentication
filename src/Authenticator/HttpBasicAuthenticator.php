@@ -33,7 +33,7 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
      * @param \Psr\Http\Message\ResponseInterface $response The response to add headers to.
      * @return \Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request, ResponseInterface $response)
+    public function authenticate(ServerRequestInterface $request)
     {
         $user = $this->getUser($request);
 
@@ -91,7 +91,7 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
     protected function loginHeaders(ServerRequestInterface $request)
     {
         $server = $request->getServerParams();
-        $realm = $this->getConfig('realm') ?: $server['SERVER_NAME'];
+        $realm = $this->_config['realm'] ?: $server['SERVER_NAME'];
 
         return ['WWW-Authenticate' => sprintf('Basic realm="%s"', $realm)];
     }
