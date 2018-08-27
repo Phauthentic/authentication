@@ -15,14 +15,11 @@
 namespace Authentication\Authenticator;
 
 use Authentication\Identifier\IdentifierInterface;
-use Cake\Core\InstanceConfigTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 abstract class AbstractAuthenticator implements AuthenticatorInterface
 {
-    use InstanceConfigTrait;
-
     /**
      * Default config for this object.
      * - `fields` The fields to use to identify a user by.
@@ -52,7 +49,7 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
     public function __construct(IdentifierInterface $identifier, array $config = [])
     {
         $this->_identifier = $identifier;
-        $this->setConfig($config);
+        $this->_config = array_merge($this->_defaultConfig, $config);
     }
 
     /**
@@ -85,5 +82,5 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
      * @param \Psr\Http\Message\ResponseInterface $response A response object that can have headers added.
      * @return \Authentication\Authenticator\ResultInterface Returns a result object.
      */
-    abstract public function authenticate(ServerRequestInterface $request, ResponseInterface $response);
+    abstract public function authenticate(ServerRequestInterface $request);
 }

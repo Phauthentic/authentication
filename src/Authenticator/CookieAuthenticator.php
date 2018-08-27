@@ -81,10 +81,10 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     /**
      * {@inheritDoc}
      */
-    public function authenticate(ServerRequestInterface $request, ResponseInterface $response)
+    public function authenticate(ServerRequestInterface $request)
     {
         $cookies = $request->getCookieParams();
-        $cookieName = $this->getConfig('cookie.name');
+        $cookieName = $this->_config['cookie']['name'];
         if (!isset($cookies[$cookieName])) {
             return new Result(null, Result::FAILURE_CREDENTIALS_MISSING, [
                 'Login credentials not found'
@@ -125,7 +125,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      */
     public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $identity)
     {
-        $field = $this->getConfig('rememberMeField');
+        $field = $this->_config['rememberMeField'];
         $bodyData = $request->getParsedBody();
 
         if (!$this->_checkUrl($request) || !is_array($bodyData) || empty($bodyData[$field])) {
@@ -154,8 +154,8 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      */
     protected function _createPlainToken($identity)
     {
-        $usernameField = $this->getConfig('fields.username');
-        $passwordField = $this->getConfig('fields.password');
+        $usernameField = $this->_config['fields.username'];
+        $passwordField = $this->_config['fields.password'];
 
         return $identity[$usernameField] . $identity[$passwordField];
     }
@@ -173,7 +173,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
         $plain = $this->_createPlainToken($identity);
         $hash = $this->getPasswordHasher()->hash($plain);
 
-        $usernameField = $this->getConfig('fields.username');
+        $usernameField = $this->_config['fields']['username'];
 
         return json_encode([$identity[$usernameField], $hash]);
     }
@@ -205,26 +205,5 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
         ];
     }
 
-    /**
-     * Creates a cookie instance with configured defaults.
-     *
-     * @param mixed $value Cookie value.
-     * @return \Cake\Http\Cookie\CookieInterface
-     */
-    protected function _createCookie($value)
-    {
-        $data = $this->getConfig('cookie');
 
-        $cookie = new Cookie(
-            $data['name'],
-            $value,
-            $data['expire'],
-            $data['path'],
-            $data['domain'],
-            $data['secure'],
-            $data['httpOnly']
-        );
-
-        return $cookie;
-    }
 }

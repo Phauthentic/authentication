@@ -75,7 +75,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param \Psr\Http\Message\ResponseInterface $response Unused response object.
      * @return \Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request, ResponseInterface $response)
+    public function authenticate(ServerRequestInterface $request)
     {
         $digest = $this->_getDigest($request);
         if ($digest === null) {
@@ -233,8 +233,8 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      */
     protected function generateNonce()
     {
-        $expiryTime = microtime(true) + $this->getConfig('nonceLifetime');
-        $secret = $this->getConfig('secret');
+        $expiryTime = microtime(true) + $this->_config['nonceLifetime'];
+        $secret = $this->_config['secret'];
         $signatureValue = hash_hmac('sha1', $expiryTime . ':' . $secret, $secret);
         $nonceValue = $expiryTime . ':' . $signatureValue;
 
@@ -261,7 +261,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
         if ($expires < microtime(true)) {
             return false;
         }
-        $secret = $this->getConfig('secret');
+        $secret = $this->_config['secret'];
         $check = hash_hmac('sha1', $expires . ':' . $secret, $secret);
 
         return hash_equals($check, $checksum);

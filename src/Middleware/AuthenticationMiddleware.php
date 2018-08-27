@@ -23,6 +23,7 @@ use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
+use Zend\Diactoros\Response\EmitterInterface;
 use Zend\Diactoros\Stream;
 
 /**
@@ -182,4 +183,5 @@ class AuthenticationMiddleware
 
         return $subject;
     }
+
 }

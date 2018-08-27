@@ -20,25 +20,6 @@ use Psr\Http\Message\ServerRequestInterface;
 
 interface AuthenticationServiceInterface extends PersistenceInterface
 {
-
-    /**
-     * Loads an authenticator.
-     *
-     * @param string $name Name or class name.
-     * @param array $config Authenticator configuration.
-     * @return \Authentication\Authenticator\AuthenticatorInterface
-     */
-    public function loadAuthenticator($name, array $config = []);
-
-    /**
-     * Loads an identifier.
-     *
-     * @param string $name Name or class name.
-     * @param array $config Identifier configuration.
-     * @return \Authentication\Identifier\IdentifierInterface
-     */
-    public function loadIdentifier($name, array $config = []);
-
     /**
      * Authenticate the request against the configured authentication adapters.
      *

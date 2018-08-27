@@ -64,10 +64,6 @@ class DefaultUrlChecker implements UrlCheckerInterface
     /**
      * Merges given options with the defaults.
      *
-     * The reason this method exists is that it makes it easy to override the
-     * method and inject additional options without the need to use the
-     * MergeVarsTrait.
-     *
      * @param array $options Options to merge in
      * @return array
      */

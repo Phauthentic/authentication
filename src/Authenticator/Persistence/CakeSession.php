@@ -1,12 +1,13 @@
 <?php
 namespace Cake\Auth\Authenticator\Persistence;
 
-use Cake\Http\Session;
+use Authentication\Authenticator\Persistence\PersistenceInterface;
+use SessionHandlerInterface;
 
 /**
  * CakePHP Session persistence
  */
-class CakeSession
+class CakeSession implements PersistenceInterface
 {
 
     /**
@@ -26,9 +27,10 @@ class CakeSession
     /**
      * Constructor
      */
-    public function __construct(Session $session, string $sessionKey)
+    public function __construct(SessionHandlerInterface $session, string $sessionKey)
     {
         $this->session = $session;
+        $this->sessionKey = $sessionKey;
     }
 
     public function persistIdentity($identity)

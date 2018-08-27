@@ -19,7 +19,7 @@ use Authentication\Identifier\IdentifierCollection;
 use Cake\Core\App;
 use RuntimeException;
 
-class AuthenticatorCollection extends AbstractCollection
+class AuthenticatorCollection extends AbstractCollection implements AuthenticatorCollectionInterface
 {
     /**
      * Identifier collection.
