@@ -43,7 +43,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
     /**
      * Constructor
      *
-     * Besides the keys specified in AbstractAuthenticator::$_defaultConfig,
+     * Besides the keys specified in AbstractAuthenticator::$defaultConfig,
      * HttpDigestAuthenticate uses the following extra keys:
      *
      * - `realm` The realm authentication is for, Defaults to the servername.
@@ -94,7 +94,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
             return new Result(null, Result::FAILURE_CREDENTIALS_INVALID);
         }
 
-        $field = $this->_config['fields'][IdentifierInterface::CREDENTIAL_PASSWORD];
+        $field = $this->config['fields'][IdentifierInterface::CREDENTIAL_PASSWORD];
         $password = $user[$field];
 
         $server = $request->getServerParams();
@@ -199,13 +199,13 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
     protected function loginHeaders(ServerRequestInterface $request)
     {
         $server = $request->getServerParams();
-        $realm = $this->_config['realm'] ?: $server['SERVER_NAME'];
+        $realm = $this->config['realm'] ?: $server['SERVER_NAME'];
 
         $options = [
             'realm' => $realm,
-            'qop' => $this->_config['qop'],
+            'qop' => $this->config['qop'],
             'nonce' => $this->generateNonce(),
-            'opaque' => $this->_config['opaque'] ?: md5($realm)
+            'opaque' => $this->config['opaque'] ?: md5($realm)
         ];
 
         $digest = $this->_getDigest($request);
@@ -233,8 +233,8 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      */
     protected function generateNonce()
     {
-        $expiryTime = microtime(true) + $this->_config['nonceLifetime'];
-        $secret = $this->_config['secret'];
+        $expiryTime = microtime(true) + $this->config['nonceLifetime'];
+        $secret = $this->config['secret'];
         $signatureValue = hash_hmac('sha1', $expiryTime . ':' . $secret, $secret);
         $nonceValue = $expiryTime . ':' . $signatureValue;
 
@@ -261,7 +261,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
         if ($expires < microtime(true)) {
             return false;
         }
-        $secret = $this->_config['secret'];
+        $secret = $this->config['secret'];
         $check = hash_hmac('sha1', $expires . ':' . $secret, $secret);
 
         return hash_equals($check, $checksum);

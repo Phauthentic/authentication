@@ -26,12 +26,19 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
      *
      * @var array
      */
-    protected $_defaultConfig = [
+    protected $defaultConfig = [
         'fields' => [
             IdentifierInterface::CREDENTIAL_USERNAME => 'username',
             IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
         ]
     ];
+
+    /**
+     * Config
+     *
+     * @var array
+     */
+    protected $config = [];
 
     /**
      * Identifier or identifiers collection.
@@ -49,7 +56,7 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
     public function __construct(IdentifierInterface $identifier, array $config = [])
     {
         $this->_identifier = $identifier;
-        $this->_config = array_merge($this->_defaultConfig, $config);
+        $this->config = array_merge_recursive($this->defaultConfig, $config);
     }
 
     /**

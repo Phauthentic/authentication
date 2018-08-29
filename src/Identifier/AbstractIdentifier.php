@@ -26,7 +26,7 @@ abstract class AbstractIdentifier implements IdentifierInterface
      *
      * @var array
      */
-    protected $_defaultConfig = [];
+    protected $defaultConfig = [];
 
     /**
      * Errors

@@ -10,8 +10,9 @@
     "homepage": "https://cakephp.org",
     "require": {
         "psr/http-message": "~1.0",
+        "psr/http-server-handler": "~1.0",
         "zendframework/zend-diactoros": "^1.4.0",
-        "psr/http-server-handler": "~1.0"
+        "psr/http-factory": "^1.0"
     },
     "require-dev": {
         "cakephp/core": "~3.5",

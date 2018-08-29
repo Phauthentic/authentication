@@ -53,7 +53,7 @@ class TokenIdentifier extends AbstractIdentifier
      */
     public function __construct(ResolverInterface $resolver, array $config = [])
     {
-        $this->_config = array_merge($this->defaultConfig, $config);
+        $this->config = array_merge($this->defaultConfig, $config);
         $this->resolver = $resolver;
     }
 

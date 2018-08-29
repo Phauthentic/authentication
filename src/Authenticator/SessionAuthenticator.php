@@ -33,7 +33,7 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
      *
      * @var array
      */
-    protected $_defaultConfig = [
+    protected $defaultConfig = [
         'fields' => [
             IdentifierInterface::CREDENTIAL_USERNAME => 'username'
         ],
@@ -51,7 +51,7 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
      */
     public function authenticate(ServerRequestInterface $request)
     {
-        $sessionKey = $this->_config['sessionKey'];
+        $sessionKey = $this->config['sessionKey'];
         $session = $request->getAttribute('session');
         $user = $session->read($sessionKey);
 
@@ -59,9 +59,9 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
             return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
         }
 
-        if ($this->_config['identify'] === true) {
+        if ($this->config['identify'] === true) {
             $credentials = [];
-            foreach ($this->_config['fields'] as $key => $field) {
+            foreach ($this->config['fields'] as $key => $field) {
                 $credentials[$key] = $user[$field];
             }
             $user = $this->_identifier->identify($credentials);
@@ -83,7 +83,7 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
      */
     public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $identity)
     {
-        $sessionKey = $this->_config['sessionKey'];
+        $sessionKey = $this->config['sessionKey'];
         $request->getAttribute('session')->write($sessionKey, $identity);
 
         return [
@@ -97,11 +97,11 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
      */
     public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $sessionKey = $this->_config['sessionKey'];
+        $sessionKey = $this->config['sessionKey'];
         $request->getAttribute('session')->delete($sessionKey);
 
         return [
-            'request' => $request->withoutAttribute($this->_config['identityAttribute']),
+            'request' => $request->withoutAttribute($this->config['identityAttribute']),
             'response' => $response
         ];
     }

@@ -16,7 +16,6 @@ namespace Authentication;
 
 use ArrayAccess;
 use BadMethodCallException;
-use Cake\Core\InstanceConfigTrait;
 use InvalidArgumentException;
 
 /**
@@ -24,8 +23,6 @@ use InvalidArgumentException;
  */
 class Identity implements IdentityInterface
 {
-    use InstanceConfigTrait;
-
     /**
      * Default configuration.
      *
@@ -33,11 +30,18 @@ class Identity implements IdentityInterface
      *
      * @var array
      */
-    protected $_defaultConfig = [
+    protected $defaultConfig = [
         'fieldMap' => [
             'id' => 'id'
         ]
     ];
+
+    /**
+     * Config
+     *
+     * @var array
+     */
+    protected $config = [];
 
     /**
      * Identity data
@@ -61,7 +65,7 @@ class Identity implements IdentityInterface
             throw new InvalidArgumentException($message);
         }
 
-        $this->setConfig($config);
+        $this->config = array_merge_recursive($this->defaultConfig, $config);
         $this->data = $data;
     }
 
@@ -103,7 +107,7 @@ class Identity implements IdentityInterface
      */
     protected function get($field)
     {
-        $map = $this->_config['fieldMap'];
+        $map = $this->config['fieldMap'];
         if (isset($map[$field])) {
             $field = $map[$field];
         }

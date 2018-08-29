@@ -43,7 +43,7 @@ class AuthenticationMiddleware
      * - `queryParam` - Set to true to have unauthenticated redirects contain a `redirect` query string
      *   parameter with the previously blocked URL.
      */
-    protected $_defaultConfig = [
+    protected $defaultConfig = [
         'identityAttribute' => 'identity',
         'name' => null,
         'unauthenticatedRedirect' => null,
