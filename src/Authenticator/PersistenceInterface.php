@@ -12,21 +12,13 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator\Persistence;
-
-use Authentication\Authenticator\ResultInterface;
+namespace Authentication\Authenticator;
 
 /**
  * Persistence Interface
  */
 interface PersistenceInterface
 {
-    /**
-     * Reads the identity data from the persistent storage
-     *
-     * @return array|\ArrayObject
-     */
-    public function getIdentityData(): ResultInterface;
 
     /**
      * Persists the users data

@@ -20,41 +20,21 @@ namespace Authentication\PasswordHasher;
  */
 class FallbackPasswordHasher extends AbstractPasswordHasher
 {
-
-    /**
-     * Default config for this object.
-     *
-     * @var array
-     */
-    protected $defaultConfig = [
-        'hashers' => []
-    ];
-
     /**
      * Holds the list of password hasher objects that will be used
      *
-     * @var array
+     * @var \Authentication\PasswordHasher\PasswordHasherCollectionInterface
      */
     protected $hashers = [];
 
     /**
      * Constructor
      *
-     * @param array $config configuration options for this object. Requires the
-     * `hashers` key to be present in the array with a list of other hashers to be
-     * used
+     * @param \Authentication\PasswordHasher\PasswordHasherCollectionInterface $hashers Hasher Collection
      */
-    public function __construct(array $config = [])
+    public function __construct(PasswordHasherCollectionInterface $hashers)
     {
-        parent::__construct($config);
-
-        foreach ($this->config['hashers'] as $key => $hasher) {
-            if (is_array($hasher) && !isset($hasher['className'])) {
-                $hasher['className'] = $key;
-            }
-
-            $this->addHasher(PasswordHasherFactory::build($hasher));
-        }
+        $this->hashers = $hashers;
     }
 
     /**
@@ -63,7 +43,7 @@ class FallbackPasswordHasher extends AbstractPasswordHasher
      * @return void
      */
     public function addHasher(PasswordHasherInterface $hasher) {
-        $this->hashers[] = $hasher;
+        $this->hashers->add($hasher);
     }
 
     /**
@@ -91,6 +71,7 @@ class FallbackPasswordHasher extends AbstractPasswordHasher
      */
     public function check($password, $hashedPassword)
     {
+        /* @var $hasher \Authentication\PasswordHasher\PasswordHasherInterface */
         foreach ($this->hashers as $hasher) {
             if ($hasher->check($password, $hashedPassword)) {
                 return true;

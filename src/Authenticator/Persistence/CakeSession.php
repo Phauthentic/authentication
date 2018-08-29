@@ -2,12 +2,13 @@
 namespace Cake\Auth\Authenticator\Persistence;
 
 use Authentication\Authenticator\Persistence\PersistenceInterface;
+use Authentication\Authenticator\Persistence\SessionPersistenceInterface;
 use SessionHandlerInterface;
 
 /**
  * CakePHP Session persistence
  */
-class CakeSession implements PersistenceInterface
+class CakeSession implements SessionPersistenceInterface
 {
 
     /**

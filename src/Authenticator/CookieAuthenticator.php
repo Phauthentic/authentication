@@ -14,11 +14,11 @@
  */
 namespace Authentication\Authenticator;
 
-use Authentication\Identifier\IdentifierCollection;
+use Authentication\Authenticator\Persistence\CookiePersistenceInterface;
+use Authentication\Identifier\IdentifierCollectionInterface;
 use Authentication\Identifier\IdentifierInterface;
-use Authentication\PasswordHasher\PasswordHasherTrait;
-use Authentication\UrlChecker\UrlCheckerTrait;
-use Cake\Http\Cookie\Cookie;
+use Authentication\PasswordHasher\PasswordHasherInterface;
+use Authentication\UrlChecker\UrlCheckerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -30,52 +30,54 @@ use RuntimeException;
  */
 class CookieAuthenticator extends AbstractAuthenticator implements PersistenceInterface
 {
+    /**
+     * Url Checker
+     *
+     * @var \Authentication\UrlChecker\UrlCheckerInterface
+     */
+    protected $passwordHasher;
 
-    use PasswordHasherTrait;
-    use UrlCheckerTrait;
+    /**
+     * Url Checker
+     *
+     * @var \Authentication\UrlChecker\UrlCheckerInterface
+     */
+    protected $urlChecker;
+
+    /**
+     * Persistence Implementation
+     *
+     * @var \Authentication\Authenticator\Persistence\PersistenceInterface
+     */
+    protected $persistence;
 
     /**
      * {@inheritDoc}
      */
     protected $defaultConfig = [
         'loginUrl' => null,
-        'urlChecker' => 'Authentication.Default',
         'rememberMeField' => 'remember_me',
         'fields' => [
             IdentifierInterface::CREDENTIAL_USERNAME => 'username',
             IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
-        ],
-        'cookie' => [
-            'name' => 'CookieAuth',
-            'expire' => null,
-            'path' => '/',
-            'domain' => '',
-            'secure' => false,
-            'httpOnly' => false
-        ],
-        'passwordHasher' => 'Authentication.Default'
+        ]
     ];
 
     /**
      * {@inheritDoc}
      */
-    public function __construct(IdentifierCollection $identifiers, array $config = [])
-    {
-        $this->_checkCakeVersion();
-
+    public function __construct(
+        IdentifierCollectionInterface $identifiers,
+        CookiePersistenceInterface $persistence,
+        PasswordHasherInterface $passwordHasher,
+        UrlCheckerInterface $urlChecker,
+        array $config = []
+    ) {
         parent::__construct($identifiers, $config);
-    }
 
-    /**
-     * Checks the CakePHP Version by looking for the cookie implementation
-     *
-     * @return void
-     */
-    protected function _checkCakeVersion()
-    {
-        if (!class_exists(Cookie::class)) {
-            throw new RuntimeException('Install CakePHP version >=3.5.0 to use the `CookieAuthenticator`.');
-        }
+        $this->persistence = $persistence;
+        $this->passwordHasher = $passwordHasher;
+        $this->urlChecker = $urlChecker;
     }
 
     /**
@@ -123,8 +125,10 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     /**
      * {@inheritDoc}
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $identity)
+    public function persistIdentity($identity)
     {
+        $this->persistence->persistIdentity($identity);
+        /*
         $field = $this->config['rememberMeField'];
         $bodyData = $request->getParsedBody();
 
@@ -142,6 +146,23 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
             'request' => $request,
             'response' => $response->withAddedHeader('Set-Cookie', $cookie->toHeaderValue())
         ];
+        */
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function clearIdentity()
+    {
+        $this->persistence->clearIdentity();
+        /*
+        $cookie = $this->_createCookie(null)->withExpired();
+
+        return [
+            'request' => $request,
+            'response' => $response->withAddedHeader('Set-Cookie', $cookie->toHeaderValue())
+        ];
+        */
     }
 
     /**
@@ -171,7 +192,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     protected function _createToken($identity)
     {
         $plain = $this->_createPlainToken($identity);
-        $hash = $this->getPasswordHasher()->hash($plain);
+        $hash = $this->passwordHasher->hash($plain);
 
         $usernameField = $this->config['fields']['username'];
 
@@ -191,19 +212,4 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
 
         return $this->getPasswordHasher()->check($plain, $tokenHash);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response)
-    {
-        $cookie = $this->_createCookie(null)->withExpired();
-
-        return [
-            'request' => $request,
-            'response' => $response->withAddedHeader('Set-Cookie', $cookie->toHeaderValue())
-        ];
-    }
-
-
 }
