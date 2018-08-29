@@ -15,7 +15,7 @@
 namespace Authentication\Authenticator;
 
 use Authentication\Identifier\IdentifierInterface;
-use Authentication\UrlChecker\UrlCheckerTrait;
+use Authentication\UrlChecker\UrlCheckerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -26,8 +26,12 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class FormAuthenticator extends AbstractAuthenticator
 {
-
-    use UrlCheckerTrait;
+    /**
+     * URL Checker
+     *
+     * @var \Authentication\UrlChecker\UrlCheckerInterface
+     */
+    protected $urlChecker;
 
     /**
      * Default config for this object.
@@ -47,15 +51,28 @@ class FormAuthenticator extends AbstractAuthenticator
     ];
 
     /**
+     * {@inheritDoc}
+     */
+    public function __construct(
+        IdentifierCollection $identifiers,
+        UrlCheckerInterface $urlChecker,
+        array $config = []
+    ) {
+        parent::__construct($identifiers, $config);
+
+        $this->urlChecker = $urlChecker;
+    }
+
+    /**
      * Checks the fields to ensure they are supplied.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
      * @return array|null Username and password retrieved from a request body.
      */
-    protected function _getData(ServerRequestInterface $request)
+    protected function getData(ServerRequestInterface $request)
     {
         $fields = $this->config['fields'];
-        $body = $request->getParsedBody();
+        $body = (array)$request->getParsedBody();
 
         $data = [];
         foreach ($fields as $key => $field) {
@@ -104,11 +121,11 @@ class FormAuthenticator extends AbstractAuthenticator
      */
     public function authenticate(ServerRequestInterface $request)
     {
-        if (!$this->_checkUrl($request)) {
+        if (!$this->urlChecker->check($request, $this->config['loginUrl'])) {
             return $this->_buildLoginUrlErrorResult($request);
         }
 
-        $data = $this->_getData($request);
+        $data = $this->getData($request);
         if ($data === null) {
             return new Result(null, Result::FAILURE_CREDENTIALS_MISSING, [
                 'Login credentials not found'

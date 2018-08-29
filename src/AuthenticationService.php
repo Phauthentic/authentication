@@ -26,8 +26,6 @@ use RuntimeException;
  */
 class AuthenticationService implements AuthenticationServiceInterface
 {
-    use InstanceConfigTrait;
-
     /**
      * Authenticator collection
      *
@@ -50,44 +48,52 @@ class AuthenticationService implements AuthenticationServiceInterface
     protected $result;
 
     /**
-     * Default configuration
+     * Identity class used to instantiate an identity object
      *
-     * - `authenticators` - An array of authentication objects to use for authenticating users.
-     *   You can configure multiple adapters and they will be checked sequentially
-     *   when users are identified.
-     * - `identifiers` - An array of identifiers. The identifiers are constructed by the service
-     *   and then passed to the authenticators that will pass the credentials to them and get the
-     *   user data.
-     * - `identityClass` - The class name of identity or a callable identity builder.
-     *
-     *   ```
-     *   $service = new AuthenticationService([
-     *      'authenticators' => [
-     *          'Authentication.Form
-     *      ],
-     *      'identifiers' => [
-     *          'Authentication.Password'
-     *      ]
-     *   ]);
-     *   ```
-     *
-     * @var array
+     * @var string
      */
-    protected $defaultConfig = [
-        'authenticators' => [],
-        'identifiers' => [],
-        'identityClass' => Identity::class,
-        'identityAttribute' => 'identity',
-    ];
+    protected $identiyClass = Identity::class;
+
+    /**
+     * Request attribute for the identity
+     *
+     * @var string
+     */
+    protected $identityAttribute = 'identity';
 
     /**
      * Constructor
      *
      * @param array $config Configuration options.
      */
-    public function __construct(AuthenticatorCollectionInterface $authenticators, array $config = []) {
-        $this->setConfig($config);
+    public function __construct(AuthenticatorCollectionInterface $authenticators) {
         $this->authenticators = $authenticators;
+    }
+
+    /**
+     * Sets the identity class
+     *
+     * @param string $class Class name
+     * @return $this
+     */
+    public function setIdentityClass($class): self
+    {
+        $this->identiyClass = $class;
+
+        return $this;
+    }
+
+    /**
+     * Sets the identity attribute
+     *
+     * @param string $attribute Attribute name
+     * @return $this
+     */
+    public function setIdentityAttribute($attribute): self
+    {
+        $this->identityAttribute = $attribute;
+
+        return $this;
     }
 
     /**
@@ -166,7 +172,7 @@ class AuthenticationService implements AuthenticationServiceInterface
         }
 
         return [
-            'request' => $request->withoutAttribute($this->getConfig('identityAttribute')),
+            'request' => $request->withoutAttribute($this->identityAttribute),
             'response' => $response
         ];
     }
@@ -194,7 +200,7 @@ class AuthenticationService implements AuthenticationServiceInterface
         }
 
         return [
-            'request' => $request->withAttribute($this->getConfig('identityAttribute'), $identity),
+            'request' => $request->withAttribute($this->identityAttribute, $identity),
             'response' => $response
         ];
     }
@@ -246,7 +252,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      */
     public function buildIdentity($identityData): IdentityInterface
     {
-        $class = $this->config['identityClass'];
+        $class = $this->identityClass;
 
         if (is_callable($class)) {
             $identity = $class($identityData);

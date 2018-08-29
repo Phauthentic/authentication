@@ -14,26 +14,44 @@
  */
 namespace Cake\Auth\Authenticator\Persistence;
 
+use Authentication\Authenticator\Persistence\CookiePersistenceInterface;
 use Authentication\Authenticator\Persistence\PersistenceInterface;
 use Cake\Http\Cookie\Cookie;
 use Cake\Http\Cookie\CookieCollection;
+use Cake\Http\ServerRequest;
 
 /**
  * Persistence adapter for the CakePHP Cookie
  */
-class CakeCookie implements PersistenceInterface
+class CakeCookie implements CookiePersistenceInterface
 {
+    /**
+     * Default Config
+     *
+     * @var array
+     */
     protected $defaultConfig = [
         'cookie' => [
-
+            'name' => 'CookieAuth',
+            'expire' => null,
+            'path' => '/',
+            'domain' => '',
+            'secure' => false,
+            'httpOnly' => false
         ]
     ];
 
+    /**
+     * Config
+     *
+     * @var array
+     */
     protected $config = [];
 
-    public function __construct()
+    public function __construct(ServerRequest $serverRequest, array $config = [])
     {
-
+        $this->config = array_merge_recursive($this->defaultConfig, $config);
+        $this->request = $serverRequest;
     }
 
     /**
@@ -57,6 +75,31 @@ class CakeCookie implements PersistenceInterface
         );
 
         return $cookie;
+    }
+
+    public function getIdentityData() {
+        $cookies = $this->request->getCookieParams();
+        $cookieName = $this->config['cookie']['name'];
+
+        if (!isset($cookies[$cookieName])) {
+            return new Result(null, Result::FAILURE_CREDENTIALS_MISSING, [
+                'Login credentials not found'
+            ]);
+        }
+
+        if (is_array($cookies[$cookieName])) {
+            $token = $cookies[$cookieName];
+        } else {
+            $token = json_decode($cookies[$cookieName], true);
+        }
+
+        if ($token === null || count($token) !== 2) {
+            return new Result(null, Result::FAILURE_CREDENTIALS_INVALID, [
+                'Cookie token is invalid.'
+            ]);
+        }
+
+        list($username, $tokenHash) = $token;
     }
 
     /**
