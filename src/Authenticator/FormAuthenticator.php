@@ -37,7 +37,7 @@ class FormAuthenticator extends AbstractAuthenticator
      *
      * @var array
      */
-    protected $_defaultConfig = [
+    protected $defaultConfig = [
         'loginUrl' => null,
         'urlChecker' => 'Authentication.Default',
         'fields' => [
@@ -54,7 +54,7 @@ class FormAuthenticator extends AbstractAuthenticator
      */
     protected function _getData(ServerRequestInterface $request)
     {
-        $fields = $this->_config['fields'];
+        $fields = $this->config['fields'];
         $body = $request->getParsedBody();
 
         $data = [];
@@ -86,7 +86,7 @@ class FormAuthenticator extends AbstractAuthenticator
             sprintf(
                 'Login URL `%s` did not match `%s`.',
                 (string)$request->getUri(),
-                implode('` or `', (array)$this->_config['loginUrl'])
+                implode('` or `', (array)$this->config['loginUrl'])
             )
         ];
 

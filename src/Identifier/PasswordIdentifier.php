@@ -67,7 +67,7 @@ class PasswordIdentifier extends AbstractIdentifier
      *
      * @var array
      */
-    protected $_defaultConfig = [
+    protected $defaultConfig = [
         'fields' => [
             self::CREDENTIAL_USERNAME => 'username',
             self::CREDENTIAL_PASSWORD => 'password'

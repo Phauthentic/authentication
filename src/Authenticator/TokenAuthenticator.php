@@ -29,7 +29,7 @@ class TokenAuthenticator extends AbstractAuthenticator implements StatelessInter
     /**
      * {@inheritDoc}
      */
-    protected $_defaultConfig = [
+    protected $defaultConfig = [
         'header' => null,
         'queryParam' => null,
         'tokenPrefix' => null
@@ -43,12 +43,12 @@ class TokenAuthenticator extends AbstractAuthenticator implements StatelessInter
      */
     protected function getToken(ServerRequestInterface $request)
     {
-        $token = $this->getTokenFromHeader($request, $this->_config['header']);
+        $token = $this->getTokenFromHeader($request, $this->config['header']);
         if ($token === null) {
-            $token = $this->getTokenFromQuery($request, $this->_config['queryParam']);
+            $token = $this->getTokenFromQuery($request, $this->config['queryParam']);
         }
 
-        $prefix = $this->_config['tokenPrefix'];
+        $prefix = $this->config['tokenPrefix'];
         if ($prefix !== null && is_string($token)) {
             return $this->stripTokenPrefix($token, $prefix);
         }

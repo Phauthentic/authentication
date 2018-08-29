@@ -23,13 +23,13 @@ use Cake\Http\Cookie\CookieCollection;
  */
 class CakeCookie implements PersistenceInterface
 {
-    protected $_defaultConfig = [
+    protected $defaultConfig = [
         'cookie' => [
 
         ]
     ];
 
-    protected $_config = [];
+    protected $config = [];
 
     public function __construct()
     {
@@ -44,7 +44,7 @@ class CakeCookie implements PersistenceInterface
      */
     protected function _createCookie($value)
     {
-        $data = $this->_config['cookie'];
+        $data = $this->config['cookie'];
 
         $cookie = new Cookie(
             $data['name'],

@@ -14,17 +14,9 @@
  */
 namespace Authentication;
 
-use Authentication\Authenticator\AuthenticatorCollection;
-use Authentication\Authenticator\FormAuthenticator;
+use Authentication\Authenticator\AuthenticatorCollectionInterface;
 use Authentication\Authenticator\PersistenceInterface;
-use Authentication\Authenticator\SessionAuthenticator;
 use Authentication\Authenticator\StatelessInterface;
-use Authentication\Identifier\IdentifierCollection;
-use Authentication\Identifier\PasswordIdentifier;
-use Authentication\Identifier\TokenIdentifier;
-use Cake\Core\InstanceConfigTrait;
-use Cake\Http\ServerRequest;
-use PhpParser\Node\Identifier;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -41,28 +33,21 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @var \Authentication\Authenticator\AuthenticatorCollection
      */
-    protected $_authenticators;
-
-    /**
-     * Identifier collection
-     *
-     * @var \Authentication\Identifier\IdentifierCollection
-     */
-    protected $_identifiers;
+    protected $authenticators;
 
     /**
      * Authenticator that successfully authenticated the identity.
      *
      * @var \Authentication\Authenticator\AuthenticatorInterface|null
      */
-    protected $_successfulAuthenticator;
+    protected $successfulAuthenticator;
 
     /**
      * Result of the last authenticate() call.
      *
      * @var \Authentication\Authenticator\ResultInterface|null
      */
-    protected $_result;
+    protected $result;
 
     /**
      * Default configuration
@@ -88,7 +73,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @var array
      */
-    protected $_defaultConfig = [
+    protected $defaultConfig = [
         'authenticators' => [],
         'identifiers' => [],
         'identityClass' => Identity::class,
@@ -100,22 +85,9 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @param array $config Configuration options.
      */
-    public function __construct(array $config = []) {
+    public function __construct(AuthenticatorCollectionInterface $authenticators, array $config = []) {
         $this->setConfig($config);
-    }
-
-    /**
-     * Access the identifier collection
-     *
-     * @return \Authentication\Identifier\IdentifierCollection
-     */
-    public function identifiers()
-    {
-        if (!$this->_identifiers) {
-            $this->_identifiers = new IdentifierCollection($this->getConfig('identifiers'));
-        }
-
-        return $this->_identifiers;
+        $this->authenticators = $authenticators;
     }
 
     /**
@@ -125,37 +97,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      */
     public function authenticators()
     {
-        if (!$this->_authenticators) {
-            $identifiers = $this->identifiers();
-            $authenticators = $this->getConfig('authenticators');
-            $this->_authenticators = new AuthenticatorCollection($identifiers, $authenticators);
-        }
-
-        return $this->_authenticators;
-    }
-
-    /**
-     * Loads an authenticator.
-     *
-     * @param string $name Name or class name.
-     * @param array $config Authenticator configuration.
-     * @return \Authentication\Authenticator\AuthenticatorInterface
-     */
-    public function loadAuthenticator($name, array $config = [])
-    {
-        return $this->authenticators()->load($name, $config);
-    }
-
-    /**
-     * Loads an identifier.
-     *
-     * @param string $name Name or class name.
-     * @param array $config Identifier configuration.
-     * @return \Authentication\Identifier\IdentifierInterface Identifier instance
-     */
-    public function loadIdentifier($name, array $config = [])
-    {
-        return $this->identifiers()->load($name, $config);
+        return $this->authenticators;
     }
 
     /**
@@ -181,8 +123,8 @@ class AuthenticationService implements AuthenticationServiceInterface
                     $response = $requestResponse['response'];
                 }
 
-                $this->_successfulAuthenticator = $authenticator;
-                $this->_result = $result;
+                $this->successfulAuthenticator = $authenticator;
+                $this->result = $result;
 
                 return [
                     'result' => $result,
@@ -196,8 +138,8 @@ class AuthenticationService implements AuthenticationServiceInterface
             }
         }
 
-        $this->_successfulAuthenticator = null;
-        $this->_result = $result;
+        $this->successfulAuthenticator = null;
+        $this->result = $result;
 
         return [
             'result' => $result,
@@ -264,7 +206,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      */
     public function getAuthenticationProvider()
     {
-        return $this->_successfulAuthenticator;
+        return $this->successfulAuthenticator;
     }
 
     /**
@@ -274,7 +216,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      */
     public function getResult()
     {
-        return $this->_result;
+        return $this->result;
     }
 
     /**
@@ -284,11 +226,11 @@ class AuthenticationService implements AuthenticationServiceInterface
      */
     public function getIdentity()
     {
-        if ($this->_result === null || !$this->_result->isValid()) {
+        if ($this->result === null || !$this->result->isValid()) {
             return null;
         }
 
-        $identity = $this->_result->getData();
+        $identity = $this->result->getData();
         if (!($identity instanceof IdentityInterface)) {
             $identity = $this->buildIdentity($identity);
         }
@@ -304,7 +246,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      */
     public function buildIdentity($identityData): IdentityInterface
     {
-        $class = $this->getConfig('identityClass');
+        $class = $this->config['identityClass'];
 
         if (is_callable($class)) {
             $identity = $class($identityData);

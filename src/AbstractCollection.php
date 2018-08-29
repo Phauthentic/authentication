@@ -28,7 +28,7 @@ abstract class AbstractCollection extends ObjectRegistry implements IteratorAggr
      *
      * @var array
      */
-    protected $_defaultConfig = [];
+    protected $defaultConfig = [];
 
     /**
      * Constructor

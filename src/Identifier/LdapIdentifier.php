@@ -49,7 +49,7 @@ class LdapIdentifier extends AbstractIdentifier
      *
      * @var array
      */
-    protected $_defaultConfig = [
+    protected $defaultConfig = [
         'ldap' => ExtensionAdapter::class,
         'fields' => [
             self::CREDENTIAL_USERNAME => 'username',
@@ -92,16 +92,16 @@ class LdapIdentifier extends AbstractIdentifier
      */
     protected function _checkLdapConfig()
     {
-        if (!isset($this->_config['bindDN'])) {
+        if (!isset($this->config['bindDN'])) {
             throw new RuntimeException('Config `bindDN` is not set.');
         }
-        if (!is_callable($this->_config['bindDN'])) {
+        if (!is_callable($this->config['bindDN'])) {
             throw new InvalidArgumentException(sprintf(
                 'The `bindDN` config is not a callable. Got `%s` instead.',
-                gettype($this->_config['bindDN'])
+                gettype($this->config['bindDN'])
             ));
         }
-        if (!isset($this->_config['host'])) {
+        if (!isset($this->config['host'])) {
             throw new RuntimeException('Config `host` is not set.');
         }
     }
@@ -114,7 +114,7 @@ class LdapIdentifier extends AbstractIdentifier
      */
     protected function _buildLdapObject()
     {
-        $ldap = $this->_config['ldap'];
+        $ldap = $this->config['ldap'];
 
         if (is_string($ldap)) {
             $class = App::className($ldap, 'Identifier/Ldap');

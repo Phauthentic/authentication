@@ -28,7 +28,7 @@ class JwtSubjectIdentifier extends TokenIdentifier
      *
      * @var array
      */
-    protected $_defaultConfig = [
+    protected $defaultConfig = [
         'tokenField' => 'id',
         'dataField' => self::CREDENTIAL_JWT_SUBJECT,
         'resolver' => 'Authentication.Orm'

@@ -37,7 +37,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     /**
      * {@inheritDoc}
      */
-    protected $_defaultConfig = [
+    protected $defaultConfig = [
         'loginUrl' => null,
         'urlChecker' => 'Authentication.Default',
         'rememberMeField' => 'remember_me',
@@ -84,7 +84,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     public function authenticate(ServerRequestInterface $request)
     {
         $cookies = $request->getCookieParams();
-        $cookieName = $this->_config['cookie']['name'];
+        $cookieName = $this->config['cookie']['name'];
         if (!isset($cookies[$cookieName])) {
             return new Result(null, Result::FAILURE_CREDENTIALS_MISSING, [
                 'Login credentials not found'
@@ -125,7 +125,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      */
     public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $identity)
     {
-        $field = $this->_config['rememberMeField'];
+        $field = $this->config['rememberMeField'];
         $bodyData = $request->getParsedBody();
 
         if (!$this->_checkUrl($request) || !is_array($bodyData) || empty($bodyData[$field])) {
@@ -154,8 +154,8 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      */
     protected function _createPlainToken($identity)
     {
-        $usernameField = $this->_config['fields.username'];
-        $passwordField = $this->_config['fields.password'];
+        $usernameField = $this->config['fields.username'];
+        $passwordField = $this->config['fields.password'];
 
         return $identity[$usernameField] . $identity[$passwordField];
     }
@@ -173,7 +173,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
         $plain = $this->_createPlainToken($identity);
         $hash = $this->getPasswordHasher()->hash($plain);
 
-        $usernameField = $this->_config['fields']['username'];
+        $usernameField = $this->config['fields']['username'];
 
         return json_encode([$identity[$usernameField], $hash]);
     }
