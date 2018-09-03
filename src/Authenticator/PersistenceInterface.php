@@ -14,20 +14,11 @@
  */
 namespace Authentication\Authenticator;
 
-use Authentication\Authenticator\Storage\StorageInterface;
-
 /**
  * Persistence Interface
  */
 interface PersistenceInterface
 {
-
-    /**
-     * Returns a persistence object
-     *
-     * @return \Authentication\Authenticator\Storage\StorageInterface;
-     */
-    public function getStorage(): StorageInterface;
 
     /**
      * Persists the users data
