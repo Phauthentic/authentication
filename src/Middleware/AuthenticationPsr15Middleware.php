@@ -118,7 +118,7 @@ class AuthenticationPsr15Middleware implements MiddlewareInterface
         if ($handlerResult instanceof ResponseInterface) {
             foreach ($this->authenticators as $authenticator) {
                 if ($authenticator instanceof PersistenceInterface) {
-                    //$authenticator->persistence()->save($identity);
+                    $handlerResult = $authenticator->persistIdentity($request, $handlerResult, $authResult->getData());
                 }
             }
         }
