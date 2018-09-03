@@ -15,10 +15,8 @@ namespace Authentication\Authenticator;
 
 use ArrayAccess;
 use ArrayObject;
-use Authentication\Authenticator\Persistence\PersistenceInterface as Persistence;
-use Authentication\Authenticator\Persistence\SessionPersistenceInterface;
+use Authentication\Authenticator\Storage\StorageInterface;
 use Authentication\Identifier\IdentifierInterface;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -30,7 +28,6 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
     /**
      * Default config for this object.
      * - `fields` The fields to use to verify a user by.
-     * - `sessionKey` Session key.
      * - `identify` Whether or not to identify user data stored in a session.
      *
      * @var array
@@ -39,30 +36,26 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
         'fields' => [
             IdentifierInterface::CREDENTIAL_USERNAME => 'username'
         ],
-        'sessionKey' => 'Auth',
         'identify' => false,
         'identityAttribute' => 'identity',
     ];
+
+    /**
+     * @var \Authentication\Authenticator\Storage\StorageInterface
+     */
+    protected $storage;
 
     /**
      * {@inheritDoc}
      */
     public function __construct(
         IdentifierCollection $identifiers,
-        SessionPersistenceInterface $persistence,
+        StorageInterface $storage,
         array $config = []
     ) {
         parent::__construct($identifiers, $config);
 
-        $this->persistence = $persistence;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function persistence(): Persistence
-    {
-        return $this->persistence;
+        $this->storage = $storage;
     }
 
     /**
@@ -70,13 +63,11 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request to authenticate with.
      * @param \Psr\Http\Message\ResponseInterface $response The response to add headers to.
-     * @return \Authentication\Authenticator\ResultInterface
+     * @return ResultInterface
      */
     public function authenticate(ServerRequestInterface $request)
     {
-        $sessionKey = $this->config['sessionKey'];
-        $session = $request->getAttribute('session');
-        $user = $session->read($sessionKey);
+        $user = $this->storage->read($request);
 
         if (empty($user)) {
             return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
@@ -104,34 +95,16 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
     /**
      * {@inheritDoc}
      */
-    public function persistIdentity($identity)
+    public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $this->persistence->persistIdentity($identity);
-        /*
-        $sessionKey = $this->config['sessionKey'];
-        $request->getAttribute('session')->write($sessionKey, $identity);
-
-        return [
-            'request' => $request,
-            'response' => $response,
-        ];
-        */
+        return $this->storage->clear($request, $response);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function clearIdentity()
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $identity): ResponseInterface
     {
-        $this->persistence->clearIdentity();
-        /*
-        $sessionKey = $this->config['sessionKey'];
-        $request->getAttribute('session')->delete($sessionKey);
-
-        return [
-            'request' => $request->withoutAttribute($this->config['identityAttribute']),
-            'response' => $response
-        ];
-        */
+        return $this->storage->write($request, $response, $identity);
     }
 }
