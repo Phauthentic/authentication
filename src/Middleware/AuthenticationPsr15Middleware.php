@@ -3,6 +3,8 @@ namespace Authentication\Middleware;
 
 use Authentication\Authenticator\AuthenticatorCollection;
 use Authentication\Authenticator\AuthenticatorCollectionInterface;
+use Authentication\Authenticator\PersistenceInterface;
+use Authentication\Authenticator\StatelessInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -28,16 +30,60 @@ class AuthenticationPsr15Middleware implements MiddlewareInterface
      */
     protected $authenticators;
 
+    protected $unauthorizedRedirectUrl;
+
+    protected $successRedirectUrl;
+
     /**
      * AuthenticationPsr15Middleware constructor.
      *
      * @param \Authentication\Authenticator\AuthenticatorCollectionInterface $collection
      * @param null|\Psr\Http\Message\ResponseFactoryInterface $responseFactory
      */
-    public function __construct(AuthenticatorCollectionInterface $collection, ?ResponseFactoryInterface $responseFactory = null)
-    {
+    public function __construct(
+        AuthenticatorCollectionInterface $collection,
+        ?ResponseFactoryInterface $responseFactory = null
+    ){
         $this->authenticators = $collection;
         $this->responseFactory = $responseFactory;
+    }
+
+    protected function setRedirect($redirectUrl, $type) {
+        if (!is_string($redirectUrl) && !is_callable($redirectUrl)) {
+            throw new \InvalidArgumentException('Redirect URL must be a string or callable');
+        }
+
+        if (!in_array($type, ['unauthorized', 'success'])) {
+            throw new \InvalidArgumentException('Type must be failure or success');
+        }
+
+        $property = $type . 'RedirectUrl';
+        $this->{$property} = $redirectUrl;
+    }
+
+    public function setLoginRedirect($redirectUrl): self
+    {
+        return $this;
+
+        $this->setRedirect($redirectUrl, 'success');
+    }
+
+    public function setUnauhtorizedRedirect($redirectUrl): self
+    {
+        $this->setRedirect($redirectUrl, 'unauthorized');
+
+        return $this;
+    }
+
+    protected function getUnauthorizedRedirectResponse($request, $authResult, $authenticator): ResponseInterface
+    {
+        $response = $this->responseFactory->createResponse(301);
+
+        if (is_callable($this->failureDirectUrl)) {
+            return $this->redirectUrl($request, $response, $authResult, $authenticator);
+        }
+
+        return $response->withHeader('Location', $this->redirectUrl);
     }
 
     /**
@@ -51,24 +97,63 @@ class AuthenticationPsr15Middleware implements MiddlewareInterface
     {
         /* @var $authenticator \Authentication\Authenticator\AuthenticatorInterface */
         foreach ($this->authenticators as $authenticator) {
-            $result = $authenticator->authenticate($request);
-            if ($result->isValid()) {
+            $authResult = $authenticator->authenticate($request);
+            if ($authResult->isValid()) {
                 break;
             }
         }
 
-        if (!empty($this->responseFactory)) {
-            // @todo define the redirect somehow
-            return $this->responseFactory->createResponse();
+        if (!$authResult->isValid() && $authenticator instanceof StatelessInterface) {
+            $authenticator->unauthorizedChallenge($request);
         }
 
-        $request = $request->withAttribute('authentication', $result);
+        if (!empty($this->responseFactory) && !empty($this->unauthorizedRedirectUrl)) {
+            return $this->getUnauthorizedRedirectResponse($request, $authResult, $authenticator);
+        }
 
-        return $handler->handle($request);
+        $request = $request->withAttribute('authentication', $authResult);
+
+        $handlerResult = $handler->handle($request);
+
+        if ($handlerResult instanceof ResponseInterface) {
+            foreach ($this->authenticators as $authenticator) {
+                if ($authenticator instanceof PersistenceInterface) {
+                    //$authenticator->persistence()->save($identity);
+                }
+            }
+        }
+
+        return $handlerResult;
     }
 
-    public function setResponseEmitter(ResponseFactoryInterface $emitter): ResponseInterface
+    protected function getRedirectResponse(string $targetUrl): ResponseInterface
     {
-        $this->emitter;
+        return $this->responseFactory
+                ->createResponse(302)
+                ->withHeader('Location', $targetUrl);
+    }
+
+    /**
+     * Returns redirect URL.
+     *
+     * @param string $target Redirect target.
+     * @param \Psr\Http\Message\ServerRequestInterface $request Request instance.
+     * @return string
+     */
+    protected function getRedirectUrl(string $target, ServerRequestInterface $request): string
+    {
+        $param = $this->getConfig('queryParam');
+        if ($param === null) {
+            return $target;
+        }
+
+        $query = urlencode($param) . '=' . urlencode($request->getUri());
+        if (strpos($target, '?') !== false) {
+            $query = '&' . $query;
+        } else {
+            $query = '?' . $query;
+        }
+
+        return $target . $query;
     }
 }

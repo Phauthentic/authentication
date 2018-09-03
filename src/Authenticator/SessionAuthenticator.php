@@ -15,6 +15,7 @@ namespace Authentication\Authenticator;
 
 use ArrayAccess;
 use ArrayObject;
+use Authentication\Authenticator\Persistence\PersistenceInterface as Persistence;
 use Authentication\Authenticator\Persistence\SessionPersistenceInterface;
 use Authentication\Identifier\IdentifierInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -54,6 +55,14 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
         parent::__construct($identifiers, $config);
 
         $this->persistence = $persistence;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function persistence(): Persistence
+    {
+        return $this->persistence;
     }
 
     /**

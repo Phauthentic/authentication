@@ -14,7 +14,12 @@
  */
 namespace Authentication\Authenticator;
 
-interface AuthenticatorCollectionInterface
-{
+use IteratorAggregate;
 
+/**
+ * Authenticator Collection Interface
+ */
+interface AuthenticatorCollectionInterface extends IteratorAggregate
+{
+    public function add(AuthenticatorInterface $authenticator): void;
 }

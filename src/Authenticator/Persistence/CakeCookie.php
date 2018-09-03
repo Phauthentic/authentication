@@ -48,8 +48,9 @@ class CakeCookie implements CookiePersistenceInterface
      */
     protected $config = [];
 
-    public function __construct(ServerRequest $serverRequest, array $config = [])
+    public function __construct(ServerRequest $serverRequest, CookieCollection $cookieJar, array $config = [])
     {
+        $this->cookieCollection = $cookieJar;
         $this->config = array_merge_recursive($this->defaultConfig, $config);
         $this->request = $serverRequest;
     }
