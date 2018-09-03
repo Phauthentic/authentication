@@ -14,15 +14,12 @@
  */
 namespace Authentication\Authenticator;
 
-use Authentication\Authenticator\Persistence\CookiePersistenceInterface;
-use Authentication\Authenticator\Persistence\PersistenceInterface as Persistence;
+use Authentication\Authenticator\Storage\StorageInterface;
 use Authentication\Identifier\IdentifierCollectionInterface;
 use Authentication\Identifier\IdentifierInterface;
 use Authentication\PasswordHasher\PasswordHasherInterface;
 use Authentication\UrlChecker\UrlCheckerInterface;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 
 /**
  * Cookie Authenticator
@@ -46,11 +43,11 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     protected $urlChecker;
 
     /**
-     * Persistence Implementation
+     * Storage Implementation
      *
-     * @var \Authentication\Authenticator\Persistence\PersistenceInterface
+     * @var \Authentication\Authenticator\Storage\StorageInterface
      */
-    protected $persistence;
+    protected $storage;
 
     /**
      * {@inheritDoc}
@@ -69,14 +66,14 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      */
     public function __construct(
         IdentifierCollectionInterface $identifiers,
-        CookiePersistenceInterface $persistence,
+        StorageInterface $storage,
         PasswordHasherInterface $passwordHasher,
         UrlCheckerInterface $urlChecker,
         array $config = []
     ) {
         parent::__construct($identifiers, $config);
 
-        $this->persistence = $persistence;
+        $this->storage = $storage;
         $this->passwordHasher = $passwordHasher;
         $this->urlChecker = $urlChecker;
     }
@@ -84,9 +81,9 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     /**
      * @inheritDoc
      */
-    public function persistence(): Persistence
+    public function getStorage(): StorageInterface
     {
-        return $this->persistence;
+        return $this->storage;
     }
 
     /**
@@ -94,21 +91,15 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      */
     public function authenticate(ServerRequestInterface $request)
     {
-        $cookies = $request->getCookieParams();
-        $cookieName = $this->config['cookie']['name'];
-        if (!isset($cookies[$cookieName])) {
+        $token = $this->storage->read($request);
+
+        if ($token === null) {
             return new Result(null, Result::FAILURE_CREDENTIALS_MISSING, [
                 'Login credentials not found'
             ]);
         }
 
-        if (is_array($cookies[$cookieName])) {
-            $token = $cookies[$cookieName];
-        } else {
-            $token = json_decode($cookies[$cookieName], true);
-        }
-
-        if ($token === null || count($token) !== 2) {
+        if (!is_array($token) || count($token) !== 2) {
             return new Result(null, Result::FAILURE_CREDENTIALS_INVALID, [
                 'Cookie token is invalid.'
             ]);
@@ -132,7 +123,9 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     }
 
     /**
-    public function persistIdentity($identity)
+     * {@inheritDoc}
+     */
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $identity): ResponseInterface
     {
         $field = $this->config['rememberMeField'];
         $bodyData = $request->getParsedBody();
@@ -144,25 +137,19 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
             ];
         }
 
-        $value = $this->_createToken($identity);
-        $cookie = $this->_createCookie($value);
+        $token = $this->_createToken($identity);
 
-        return [
-            'request' => $request,
-            'response' => $response->withAddedHeader('Set-Cookie', $cookie->toHeaderValue())
-        ];
+        return $this->storage->write($request, $response, $token);
     }
 
-    public function clearIdentity()
+    /**
+     * {@inheritDoc}
+     */
+    public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $cookie = $this->_createCookie(null)->withExpired();
-
-        return [
-            'request' => $request,
-            'response' => $response->withAddedHeader('Set-Cookie', $cookie->toHeaderValue())
-        ];
+        return $this->storage->clear($request, $response);
     }
-*/
+
     /**
      * Creates a plain part of a cookie token.
      *
@@ -173,8 +160,8 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      */
     protected function _createPlainToken($identity)
     {
-        $usernameField = $this->config['fields.username'];
-        $passwordField = $this->config['fields.password'];
+        $usernameField = $this->config['fields']['username'];
+        $passwordField = $this->config['fields']['password'];
 
         return $identity[$usernameField] . $identity[$passwordField];
     }
@@ -208,6 +195,6 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     {
         $plain = $this->_createPlainToken($identity);
 
-        return $this->getPasswordHasher()->check($plain, $tokenHash);
+        return $this->passwordHasher->check($plain, $tokenHash);
     }
 }
