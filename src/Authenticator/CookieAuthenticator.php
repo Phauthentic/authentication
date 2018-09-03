@@ -79,14 +79,6 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     }
 
     /**
-     * @inheritDoc
-     */
-    public function getStorage(): StorageInterface
-    {
-        return $this->storage;
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function authenticate(ServerRequestInterface $request)

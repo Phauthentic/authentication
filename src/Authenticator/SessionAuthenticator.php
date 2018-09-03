@@ -93,14 +93,6 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
     }
 
     /**
-     * @inheritDoc
-     */
-    public function getStorage(): StorageInterface
-    {
-        return $this->storage;
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
