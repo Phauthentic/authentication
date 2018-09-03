@@ -6,13 +6,14 @@ use Authentication\Identifier\IdentifierCollection;
 use Authentication\Identifier\PasswordIdentifier;
 use Authentication\Identifier\Resolver\OrmResolver;
 use Authentication\PasswordHasher\DefaultPasswordHasher;
+use Authentication\UrlChecker\DefaultUrlChecker;
 
 $container = function(): array {
     // Password Hashers
     $defaultHasher = new DefaultPasswordHasher();
 
     // URL Checker
-    $defaultUrlChecker = new Authentication\UrlChecker\DefaultUrlChecker();
+    $defaultUrlChecker = new DefaultUrlChecker();
 
     // Identifiers & Resolver
     $ormResolver = new OrmResolver();

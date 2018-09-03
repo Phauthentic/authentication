@@ -52,7 +52,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @var string
      */
-    protected $identiyClass = Identity::class;
+    protected $identityClass = Identity::class;
 
     /**
      * Request attribute for the identity
@@ -78,7 +78,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      */
     public function setIdentityClass($class): self
     {
-        $this->identiyClass = $class;
+        $this->identityClass = $class;
 
         return $this;
     }
@@ -165,7 +165,7 @@ class AuthenticationService implements AuthenticationServiceInterface
     {
         foreach ($this->authenticators() as $authenticator) {
             if ($authenticator instanceof PersistenceInterface) {
-                $result = $authenticator->clearIdentity($request, $response);
+                $result = $authenticator->persistence()->clearIdentity($request, $response);
                 $request = $result['request'];
                 $response = $result['response'];
             }
@@ -182,21 +182,17 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
      * @param \Psr\Http\Message\ResponseInterface $response The response.
-     * @param \ArrayAccess|array $identity Identity data.
+     * @param \Authentication\IdentityInterface $identity Identity data.
      * @return array
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $identity)
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, IdentityInterface $identity)
     {
         foreach ($this->authenticators() as $authenticator) {
             if ($authenticator instanceof PersistenceInterface) {
-                $result = $authenticator->persistIdentity($request, $response, $identity);
+                $result = $authenticator->persistence()->persistIdentity($request, $response, $identity);
                 $request = $result['request'];
                 $response = $result['response'];
             }
-        }
-
-        if (!($identity instanceof IdentityInterface)) {
-            $identity = $this->buildIdentity($identity);
         }
 
         return [

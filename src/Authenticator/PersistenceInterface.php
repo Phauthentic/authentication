@@ -14,6 +14,7 @@
  */
 namespace Authentication\Authenticator;
 
+use Authentication\Authenticator\Persistence\PersistenceInterface as Persistence;
 /**
  * Persistence Interface
  */
@@ -21,21 +22,9 @@ interface PersistenceInterface
 {
 
     /**
-     * Persists the users data
+     * Returns a persistence object
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request The request object.
-     * @param \Psr\Http\Message\ResponseInterface $response The response object.
-     * @param \ArrayAccess|array $identity Identity data to persist.
-     * @return array Returns an array containing the request and response object
+     * @return \Authentication\Authenticator\Persistence\PersistenceInterface
      */
-    public function persistIdentity($identity);
-
-    /**
-     * Clears the identity data
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request The request object.
-     * @param \Psr\Http\Message\ResponseInterface $response The response object.
-     * @return array Returns an array containing the request and response object
-     */
-    public function clearIdentity();
+    public function persistence(): Persistence;
 }

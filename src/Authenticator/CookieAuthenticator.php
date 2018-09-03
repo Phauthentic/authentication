@@ -15,6 +15,7 @@
 namespace Authentication\Authenticator;
 
 use Authentication\Authenticator\Persistence\CookiePersistenceInterface;
+use Authentication\Authenticator\Persistence\PersistenceInterface as Persistence;
 use Authentication\Identifier\IdentifierCollectionInterface;
 use Authentication\Identifier\IdentifierInterface;
 use Authentication\PasswordHasher\PasswordHasherInterface;
@@ -81,6 +82,14 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     }
 
     /**
+     * @inheritDoc
+     */
+    public function persistence(): Persistence
+    {
+        return $this->persistence;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function authenticate(ServerRequestInterface $request)
@@ -123,12 +132,8 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     }
 
     /**
-     * {@inheritDoc}
-     */
     public function persistIdentity($identity)
     {
-        $this->persistence->persistIdentity($identity);
-        /*
         $field = $this->config['rememberMeField'];
         $bodyData = $request->getParsedBody();
 
@@ -146,25 +151,18 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
             'request' => $request,
             'response' => $response->withAddedHeader('Set-Cookie', $cookie->toHeaderValue())
         ];
-        */
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function clearIdentity()
     {
-        $this->persistence->clearIdentity();
-        /*
         $cookie = $this->_createCookie(null)->withExpired();
 
         return [
             'request' => $request,
             'response' => $response->withAddedHeader('Set-Cookie', $cookie->toHeaderValue())
         ];
-        */
     }
-
+*/
     /**
      * Creates a plain part of a cookie token.
      *
