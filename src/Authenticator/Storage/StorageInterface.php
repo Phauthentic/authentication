@@ -12,39 +12,40 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Authentication\Authenticator\Storage;
 
-use Authentication\Authenticator\Storage\StorageInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
- * Persistence Interface
+ * Storage Interface
  */
-interface PersistenceInterface
+interface StorageInterface
 {
-
     /**
-     * Returns a persistence object
+     * Reads the data from the storage.
      *
-     * @return \Authentication\Authenticator\Storage\StorageInterface;
+     * @param \Psr\Http\Message\ServerRequestInterface $request The request object.
+     * @return null|mixed
      */
-    public function getStorage(): StorageInterface;
+    public function read(ServerRequestInterface $request);
 
     /**
-     * Persists the users data
+     * Persists data in the storage.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request object.
      * @param \Psr\Http\Message\ResponseInterface $response The response object.
-     * @param \ArrayAccess|array $identity Identity data to persist.
-     * @return ResponseInterface Returns response object
+     * @param mixed $data Data to persist.
+     * @return ResponseInterface Returns the modified response object
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $identity): ResponseInterface;
+    public function write(ServerRequestInterface $request, ResponseInterface $response, $data): ResponseInterface;
 
     /**
-     * Clears the identity data
+     * Clears the data form a storage.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request object.
      * @param \Psr\Http\Message\ResponseInterface $response The response object.
-     * @return ResponseInterface Returns response object
+     * @return ResponseInterface Returns the modified response object
      */
-    public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface;
+    public function clear(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface;
 }
