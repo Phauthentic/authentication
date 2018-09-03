@@ -41,7 +41,7 @@ class TokenIdentifierTest extends TestCase
      *
      * @return void
      */
-    public function testIdentify()
+    public function testIdentify(): void
     {
 
         $identifier = new TokenIdentifier($this->resolver, [
@@ -69,7 +69,7 @@ class TokenIdentifierTest extends TestCase
      *
      * @return void
      */
-    public function testIdentifyMissingData()
+    public function testIdentifyMissingData(): void
     {
         $identifier = new TokenIdentifier($this->resolver);
 

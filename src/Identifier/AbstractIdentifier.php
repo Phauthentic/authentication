@@ -18,9 +18,6 @@ use Cake\Core\InstanceConfigTrait;
 
 abstract class AbstractIdentifier implements IdentifierInterface
 {
-
-    use InstanceConfigTrait;
-
     /**
      * Default configuration
      *
@@ -29,21 +26,18 @@ abstract class AbstractIdentifier implements IdentifierInterface
     protected $defaultConfig = [];
 
     /**
+     * Config Options
+     *
+     * @var array
+     */
+    protected $config = [];
+
+    /**
      * Errors
      *
      * @var array
      */
     protected $_errors = [];
-
-    /**
-     * Constructor
-     *
-     * @param array $config Configuration
-     */
-    public function __construct(array $config = [])
-    {
-        $this->setConfig($config);
-    }
 
     /**
      * Returns errors

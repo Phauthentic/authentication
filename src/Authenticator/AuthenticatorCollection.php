@@ -44,6 +44,16 @@ class AuthenticatorCollection implements AuthenticatorCollectionInterface
         }
     }
 
+    /**
+     * Returns true if a collection is empty.
+     *
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return empty($this->identifiers);
+    }
+
     public function add(AuthenticatorInterface $authenticator): void
     {
         $this->authenticators[] = $authenticator;

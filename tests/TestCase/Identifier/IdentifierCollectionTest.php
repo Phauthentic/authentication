@@ -14,33 +14,32 @@
  */
 namespace Authentication\Test\TestCase\Identifier;
 
+use Authentication\Authenticator\AuthenticatorInterface;
 use Authentication\Identifier\IdentifierCollection;
 use Authentication\Identifier\IdentifierInterface;
+use Authentication\Identifier\Resolver\OrmResolver;
+use Authentication\Identity;
+use Authentication\IdentityInterface;
+use Authentication\Identifier\PasswordIdentifier;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use TestApp\Authentication\Identifier\InvalidIdentifier;
 
 class IdentifierCollectionTest extends TestCase
 {
-
-    public function testConstruct()
-    {
-        $collection = new IdentifierCollection([
-            'Authentication.Password'
-        ]);
-        $result = $collection->get('Password');
-        $this->assertInstanceOf('\Authentication\Identifier\PasswordIdentifier', $result);
-    }
-
     /**
-     * testLoad
+     * testConstruct
      *
      * @return void
      */
-    public function testLoad()
+    public function testConstruct(): void
     {
         $collection = new IdentifierCollection();
-        $result = $collection->load('Authentication.Password');
-        $this->assertInstanceOf('\Authentication\Identifier\PasswordIdentifier', $result);
+        $this->assertTrue($collection->isEmpty());
+
+        $collection = new IdentifierCollection([
+            $this->getMockBuilder(IdentifierInterface::class)->getMock()
+        ]);
+        $this->assertFalse($collection->isEmpty());
     }
 
     /**
@@ -48,32 +47,14 @@ class IdentifierCollectionTest extends TestCase
      *
      * @return void
      */
-    public function testSet()
+    public function testAdd(): void
     {
-        $identifier = $this->createMock(IdentifierInterface::class);
+        $mockIdentifier = $this->createMock(IdentifierInterface::class);
         $collection = new IdentifierCollection();
-        $collection->set('Password', $identifier);
-        $this->assertSame($identifier, $collection->get('Password'));
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Identifier class `Does-not-exist` was not found.
-     */
-    public function testLoadException()
-    {
-        $collection = new IdentifierCollection();
-        $collection->load('Does-not-exist');
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Identifier class `TestApp\Authentication\Identifier\InvalidIdentifier`
-     */
-    public function testLoadExceptionInterfaceNotImplemented()
-    {
-        $collection = new IdentifierCollection();
-        $collection->load(InvalidIdentifier::class);
+        $collection->add($mockIdentifier);
+        foreach ($collection as $identifier) {
+            $this->assertSame($mockIdentifier, $identifier);
+        }
     }
 
     /**
@@ -81,12 +62,13 @@ class IdentifierCollectionTest extends TestCase
      *
      * @return void
      */
-    public function testIsEmpty()
+    public function testIsEmpty(): void
     {
         $collection = new IdentifierCollection();
         $this->assertTrue($collection->isEmpty());
 
-        $collection->load('Authentication.Password');
+        $mock = $this->createMock(IdentifierInterface::class);
+        $collection->add($mock);
         $this->assertFalse($collection->isEmpty());
     }
 
@@ -95,31 +77,12 @@ class IdentifierCollectionTest extends TestCase
      *
      * @return void
      */
-    public function testIterator()
+    public function testIterator(): void
     {
         $identifier = $this->createMock(IdentifierInterface::class);
         $collection = new IdentifierCollection();
-        $collection->set('Password', $identifier);
+        $collection->add($identifier);
 
         $this->assertContains($identifier, $collection);
-    }
-
-    /**
-     * testIdentify
-     *
-     * @return void
-     */
-    public function testIdentify()
-    {
-        $collection = new IdentifierCollection([
-            'Authentication.Password'
-        ]);
-
-        $result = $collection->identify([
-            'username' => 'mariano',
-            'password' => 'password'
-        ]);
-
-        $this->assertInstanceOf('\ArrayAccess', $result);
     }
 }

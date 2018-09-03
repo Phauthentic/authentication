@@ -43,7 +43,6 @@ class FormAuthenticator extends AbstractAuthenticator
      */
     protected $defaultConfig = [
         'loginUrl' => null,
-        'urlChecker' => 'Authentication.Default',
         'fields' => [
             IdentifierInterface::CREDENTIAL_USERNAME => 'username',
             IdentifierInterface::CREDENTIAL_PASSWORD => 'password'

@@ -58,6 +58,8 @@ class LdapIdentifier extends AbstractIdentifier
         'port' => 389
     ];
 
+    protected $config = [];
+
     /**
      * List of errors
      *
@@ -77,8 +79,7 @@ class LdapIdentifier extends AbstractIdentifier
      */
     public function __construct(array $config = [])
     {
-        parent::__construct($config);
-
+        $this->config = array_merge_recursive($this->defaultConfig, $config);
         $this->_checkLdapConfig();
         $this->_buildLdapObject();
     }
@@ -117,8 +118,7 @@ class LdapIdentifier extends AbstractIdentifier
         $ldap = $this->config['ldap'];
 
         if (is_string($ldap)) {
-            $class = App::className($ldap, 'Identifier/Ldap');
-            $ldap = new $class();
+            $ldap = new $ldap();
         }
 
         if (!($ldap instanceof AdapterInterface)) {
@@ -135,7 +135,7 @@ class LdapIdentifier extends AbstractIdentifier
     public function identify(array $data)
     {
         $this->_connectLdap();
-        $fields = $this->getConfig('fields');
+        $fields = $this->config['fields'];
 
         if (isset($data[$fields[self::CREDENTIAL_USERNAME]]) && isset($data[$fields[self::CREDENTIAL_PASSWORD]])) {
             return $this->_bindUser($data[$fields[self::CREDENTIAL_USERNAME]], $data[$fields[self::CREDENTIAL_PASSWORD]]);
@@ -166,7 +166,7 @@ class LdapIdentifier extends AbstractIdentifier
         $this->_ldap->connect(
             $config['host'],
             $config['port'],
-            $this->getConfig('options')
+            $this->config['options']
         );
     }
 
@@ -179,14 +179,13 @@ class LdapIdentifier extends AbstractIdentifier
      */
     protected function _bindUser($username, $password)
     {
-        $config = $this->getConfig();
         try {
-            $ldapBind = $this->_ldap->bind($config['bindDN']($username), $password);
+            $ldapBind = $this->_ldap->bind($this->config['bindDN']($username), $password);
             if ($ldapBind === true) {
                 $this->_ldap->unbind();
 
                 return new ArrayObject([
-                    $config['fields'][self::CREDENTIAL_USERNAME] => $username
+                    $this->config['fields'][self::CREDENTIAL_USERNAME] => $username
                 ]);
             }
         } catch (ErrorException $e) {
