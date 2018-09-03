@@ -22,4 +22,11 @@ use IteratorAggregate;
 interface AuthenticatorCollectionInterface extends IteratorAggregate
 {
     public function add(AuthenticatorInterface $authenticator): void;
+
+    /**
+     * Checks if the collection is empty
+     *
+     * @return bool
+     */
+    public function isEmpty(): bool;
 }

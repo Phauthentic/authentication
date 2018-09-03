@@ -36,7 +36,7 @@ class CallbackIdentifierTest extends TestCase
      *
      * @return void
      */
-    public function testIdentify()
+    public function testIdentify(): void
     {
         $callback = function ($data) {
             if (isset($data['username']) && $data['username'] === 'florian') {
@@ -46,9 +46,7 @@ class CallbackIdentifierTest extends TestCase
             return null;
         };
 
-        $identifier = new CallbackIdentifier([
-            'callback' => $callback
-        ]);
+        $identifier = new CallbackIdentifier($callback);
 
         $result = $identifier->identify([]);
         $this->assertNull($result);
@@ -65,20 +63,16 @@ class CallbackIdentifierTest extends TestCase
      *
      * @return void
      */
-    public function testValidCallable()
+    public function testValidCallable(): void
     {
-        $identifier = new CallbackIdentifier([
-            'callback' => function () {
-                return new Entity();
-            }
-        ]);
+        $identifier = new CallbackIdentifier(function () {
+            return new Entity();
+        });
         $result = $identifier->identify([]);
 
         $this->assertInstanceOf(ArrayAccess::class, $result);
 
-        $identifier = new CallbackIdentifier([
-            'callback' => [MyCallback::class, 'callme']
-        ]);
+        $identifier = new CallbackIdentifier([MyCallback::class, 'callme']);
         $result = $identifier->identify([]);
 
         $this->assertInstanceOf(ArrayAccess::class, $result);
@@ -89,11 +83,9 @@ class CallbackIdentifierTest extends TestCase
      *
      * @expectedException \InvalidArgumentException
      */
-    public function testInvalidCallbackTypeString()
+    public function testInvalidCallbackTypeString(): void
     {
-        new CallbackIdentifier([
-            'callback' => 'no'
-        ]);
+        new CallbackIdentifier('no');
     }
 
     /**
@@ -101,11 +93,9 @@ class CallbackIdentifierTest extends TestCase
      *
      * @expectedException \InvalidArgumentException
      */
-    public function testInvalidCallbackTypeObject()
+    public function testInvalidCallbackTypeObject(): void
     {
-        new CallbackIdentifier([
-            'callback' => new stdClass()
-        ]);
+        new CallbackIdentifier(new stdClass());
     }
 
     /**
@@ -113,13 +103,11 @@ class CallbackIdentifierTest extends TestCase
      *
      * @expectedException \RuntimeException
      */
-    public function testInvalidReturnValue()
+    public function testInvalidReturnValue(): void
     {
-        $identifier = new CallbackIdentifier([
-            'callback' => function ($data) {
-                return 'no';
-            }
-        ]);
+        $identifier = new CallbackIdentifier(function ($data) {
+            return 'no';
+        });
         $identifier->identify([]);
     }
 }

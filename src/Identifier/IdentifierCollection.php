@@ -47,7 +47,7 @@ class IdentifierCollection implements IdentifierCollectionInterface
      * @param \Authentication\Identifier\IdentifierInterface $identifier Identifier
      * @return void
      */
-    public function add(IdentifierInterface $identifier)
+    public function add(IdentifierInterface $identifier): void
     {
         $this->identifiers[] = $identifier;
     }
@@ -57,7 +57,7 @@ class IdentifierCollection implements IdentifierCollectionInterface
      *
      * @return bool
      */
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         return empty($this->identifiers);
     }

@@ -29,4 +29,11 @@ interface IdentifierCollectionInterface extends IteratorAggregate
      * @return void
      */
     public function add(IdentifierInterface $identifier);
+
+    /**
+     * Checks if the collection is empty
+     *
+     * @return bool
+     */
+    public function isEmpty(): bool;
 }

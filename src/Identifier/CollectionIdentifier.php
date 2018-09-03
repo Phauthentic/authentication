@@ -21,15 +21,14 @@ use RuntimeException;
 /**
  * Callback Identifier
  */
-class CollectionIdentifier extends AbstractIdentifier
+class CollectionIdentifier implements IdentifierInterface
 {
-
     /**
      * Errors
      *
      * @var array
      */
-    protected $_errors = [];
+    protected $errors = [];
 
     /**
      * Identifier Collection
@@ -44,8 +43,7 @@ class CollectionIdentifier extends AbstractIdentifier
      * @param \Authentication\Identifier\IdentifierCollectionInterface
      * @param array $config Config options
      */
-    public function __construct(IdentifierCollectionInterface $collection, array $config = []) {
-        parent::__construct($config);
+    public function __construct(IdentifierCollectionInterface $collection) {
         $this->collection = $collection;
     }
 
@@ -56,7 +54,7 @@ class CollectionIdentifier extends AbstractIdentifier
      */
     public function getErrors()
     {
-        return $this->_errors;
+        return $this->errors;
     }
 
     /**
@@ -73,7 +71,7 @@ class CollectionIdentifier extends AbstractIdentifier
             if ($result) {
                 return $result;
             }
-            $this->_errors[get_class($identifier)] = $identifier->getErrors();
+            $this->errors[get_class($identifier)] = $identifier->getErrors();
         }
 
         return null;

@@ -33,10 +33,12 @@ class OrmResolver implements ResolverInterface
      *
      * @var array
      */
-    protected $defaultConfig = [
+    protected $_defaultConfig = [
         'userModel' => 'Users',
         'finder' => 'all',
     ];
+
+    protected $_config;
 
     /**
      * Constructor.
@@ -53,10 +55,10 @@ class OrmResolver implements ResolverInterface
      */
     public function find(array $conditions, $type = self::TYPE_AND)
     {
-        $table = $this->getTableLocator()->get($this->config['userModel']);
+        $table = $this->getTableLocator()->get($this->getConfig('userModel'));
 
         $query = $table->query();
-        $finders = (array)$this->config['finder'];
+        $finders = (array)$this->getConfig('finder');
         foreach ($finders as $finder => $options) {
             if (is_string($options)) {
                 $query->find($options);

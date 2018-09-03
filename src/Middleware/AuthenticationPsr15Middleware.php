@@ -4,12 +4,14 @@ namespace Authentication\Middleware;
 use Authentication\Authenticator\AuthenticatorCollection;
 use Authentication\Authenticator\AuthenticatorCollectionInterface;
 use Authentication\Authenticator\PersistenceInterface;
+use Authentication\Authenticator\ResultInterface;
 use Authentication\Authenticator\StatelessInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\Translation\Exception\RuntimeException;
 
 /**
  * PSR 15 Authenticator Middleware
@@ -30,8 +32,18 @@ class AuthenticationPsr15Middleware implements MiddlewareInterface
      */
     protected $authenticators;
 
+    /**
+     * Authentication failure redirect URL
+     *
+     * @var string|callable
+     */
     protected $unauthorizedRedirectUrl;
 
+    /**
+     * Successful login redirect URL
+     *
+     * @var string|callable
+     */
     protected $successRedirectUrl;
 
     /**
@@ -48,7 +60,8 @@ class AuthenticationPsr15Middleware implements MiddlewareInterface
         $this->responseFactory = $responseFactory;
     }
 
-    protected function setRedirect($redirectUrl, $type) {
+    protected function setRedirect($redirectUrl, $type)
+    {
         if (!is_string($redirectUrl) && !is_callable($redirectUrl)) {
             throw new \InvalidArgumentException('Redirect URL must be a string or callable');
         }
@@ -95,6 +108,10 @@ class AuthenticationPsr15Middleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        if ($this->authenticators->isEmpty()) {
+            throw new RuntimeException('The authenticator collection is empty. You need to add at least one authenticator.');
+        }
+
         /* @var $authenticator \Authentication\Authenticator\AuthenticatorInterface */
         foreach ($this->authenticators as $authenticator) {
             $authResult = $authenticator->authenticate($request);
@@ -112,9 +129,21 @@ class AuthenticationPsr15Middleware implements MiddlewareInterface
         }
 
         $request = $request->withAttribute('authentication', $authResult);
-
         $handlerResult = $handler->handle($request);
 
+        return $this->handlePersistence($handlerResult, $authResult, $request);
+    }
+
+    /**
+     * Calls the persistence methods on authenticators that support persistence
+     *
+     * @return \Psr\Http\Message\ResponseInterface|\Psr\Http\Server\RequestHandlerInterface
+     */
+    protected function handlePersistence(
+        RequestHandlerInterface $handlerResult,
+        ResultInterface $authResult,
+        ServerRequestInterface $request
+    ) {
         if ($handlerResult instanceof ResponseInterface) {
             foreach ($this->authenticators as $authenticator) {
                 if ($authenticator instanceof PersistenceInterface) {

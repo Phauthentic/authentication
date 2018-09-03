@@ -23,23 +23,15 @@ use RuntimeException;
  */
 class CallbackIdentifier extends AbstractIdentifier
 {
-    /**
-     * Default configuration
-     *
-     * @var array
-     */
-    protected $defaultConfig = [
-        'callback' => null
-    ];
+    protected $callable;
 
     /**
      * {@inheritDoc}
      */
-    public function __construct(array $config)
+    public function __construct($callable)
     {
-        parent::__construct($config);
-
-        $this->checkCallable();
+        $this->checkCallable($callable);
+        $this->callable = $callable;
     }
 
     /**
@@ -48,10 +40,8 @@ class CallbackIdentifier extends AbstractIdentifier
      * @throws \InvalidArgumentException
      * @return void
      */
-    protected function checkCallable()
+    protected function checkCallable($callback)
     {
-        $callback = $this->getConfig('callback');
-
         if (!is_callable($callback)) {
             throw new InvalidArgumentException(sprintf(
                 'The `callback` option is not a callable. Got `%s` instead.',
@@ -65,7 +55,7 @@ class CallbackIdentifier extends AbstractIdentifier
      */
     public function identify(array $data)
     {
-        $callback = $this->getConfig('callback');
+        $callback = $this->callable;
 
         $result = $callback($data);
         if ($result === null || $result instanceof ArrayAccess) {
