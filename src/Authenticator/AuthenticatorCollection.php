@@ -14,11 +14,6 @@
  */
 namespace Authentication\Authenticator;
 
-use ArrayIterator;
-use Authentication\AbstractCollection;
-use Authentication\Identifier\IdentifierCollection;
-use Traversable;
-
 /**
  * Authenticator Collection
  */

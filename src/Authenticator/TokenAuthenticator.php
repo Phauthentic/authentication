@@ -25,15 +25,48 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class TokenAuthenticator extends AbstractAuthenticator implements StatelessInterface
 {
+    protected $queryParam = null;
+    protected $header = null;
+    protected $tokenPrefix = null;
 
     /**
-     * {@inheritDoc}
+     * Sets the header name to get the token from
+     *
+     * @param null|string $name Name
+     * @return $this
      */
-    protected $defaultConfig = [
-        'header' => null,
-        'queryParam' => null,
-        'tokenPrefix' => null
-    ];
+    public function setHeaderName(?string $name): self
+    {
+        $this->header = $name;
+
+        return $this;
+    }
+
+    /**
+     * Sets the query param to get the token from
+     *
+     * @param null|string $queryParam Query param
+     * @return $this
+     */
+    public function setQueryParamn(?string $queryParam): self
+    {
+        $this->queryParam = $queryParam;
+
+        return $this;
+    }
+
+    /**
+     * Sets the token prefix
+     *
+     * @param null|string $prefix Token prefix
+     * @return $this
+     */
+    public function setTokenPrefix(?string $prefix): self
+    {
+        $this->tokenPrefix = $prefix;
+
+        return $this;
+    }
 
     /**
      * Checks if the token is in the headers or a request parameter
@@ -43,12 +76,12 @@ class TokenAuthenticator extends AbstractAuthenticator implements StatelessInter
      */
     protected function getToken(ServerRequestInterface $request)
     {
-        $token = $this->getTokenFromHeader($request, $this->config['header']);
+        $token = $this->getTokenFromHeader($request, $this->header);
         if ($token === null) {
-            $token = $this->getTokenFromQuery($request, $this->config['queryParam']);
+            $token = $this->getTokenFromQuery($request, $this->queryParam);
         }
 
-        $prefix = $this->config['tokenPrefix'];
+        $prefix = $this->tokenPrefix;
         if ($prefix !== null && is_string($token)) {
             return $this->stripTokenPrefix($token, $prefix);
         }

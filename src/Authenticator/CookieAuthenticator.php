@@ -19,6 +19,7 @@ use Authentication\Identifier\IdentifierCollectionInterface;
 use Authentication\Identifier\IdentifierInterface;
 use Authentication\PasswordHasher\PasswordHasherInterface;
 use Authentication\UrlChecker\UrlCheckerInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**

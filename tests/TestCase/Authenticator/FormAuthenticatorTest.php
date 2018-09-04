@@ -17,7 +17,12 @@ namespace Authentication\Test\TestCase\Authenticator;
 use Authentication\Authenticator\FormAuthenticator;
 use Authentication\Authenticator\Result;
 use Authentication\Identifier\IdentifierCollection;
+use Authentication\Identifier\IdentifierInterface;
+use Authentication\Identifier\PasswordIdentifier;
+use Authentication\Identifier\Resolver\OrmResolver;
+use Authentication\PasswordHasher\DefaultPasswordHasher;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
+use Authentication\UrlChecker\DefaultUrlChecker;
 use Cake\Http\Response;
 use Cake\Http\ServerRequestFactory;
 use RuntimeException;
@@ -42,10 +47,7 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testAuthenticate()
     {
-        $identifiers = new IdentifierCollection([
-           'Authentication.Password'
-        ]);
-
+        $identifier = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/testpath'],
             [],
@@ -53,7 +55,7 @@ class FormAuthenticatorTest extends TestCase
         );
         $response = new Response();
 
-        $form = new FormAuthenticator($identifiers);
+        $form = new FormAuthenticator($identifier, new DefaultUrlChecker());
         $result = $form->authenticate($request, $response);
 
         $this->assertInstanceOf(Result::class, $result);
@@ -243,9 +245,7 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testRegexLoginUrlSuccess()
     {
-        $identifiers = new IdentifierCollection([
-           'Authentication.Password'
-        ]);
+        $identifier = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/de/users/login'],
@@ -254,12 +254,11 @@ class FormAuthenticatorTest extends TestCase
         );
         $response = new Response();
 
-        $form = new FormAuthenticator($identifiers, [
-            'loginUrl' => '%^/[a-z]{2}/users/login/?$%',
-            'urlChecker' => [
-                'useRegex' => true
-            ]
-        ]);
+        $urlChecker = (new DefaultUrlChecker())
+            ->useRegex(true);
+
+        $form = (new FormAuthenticator($identifier, $urlChecker))
+            ->setLoginUrl('%^/[a-z]{2}/users/login/?$%');
 
         $result = $form->authenticate($request, $response);
 
@@ -275,9 +274,7 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testFullRegexLoginUrlFailure()
     {
-        $identifiers = new IdentifierCollection([
-           'Authentication.Password'
-        ]);
+        $identifier = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
 
         $request = ServerRequestFactory::fromGlobals(
             [
@@ -288,13 +285,12 @@ class FormAuthenticatorTest extends TestCase
         );
         $response = new Response();
 
-        $form = new FormAuthenticator($identifiers, [
-            'loginUrl' => '%auth\.localhost/[a-z]{2}/users/login/?$%',
-            'urlChecker' => [
-                'useRegex' => true,
-                'checkFullUrl' => true
-            ]
-        ]);
+        $urlChecker = (new DefaultUrlChecker())
+            ->useRegex(true)
+            ->checkFullUrl(true);
+
+        $form = (new FormAuthenticator($identifier, $urlChecker))
+            ->setLoginUrl('%auth\.localhost/[a-z]{2}/users/login/?$%');
 
         $result = $form->authenticate($request, $response);
 
@@ -310,9 +306,7 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testFullRegexLoginUrlSuccess()
     {
-        $identifiers = new IdentifierCollection([
-           'Authentication.Password'
-        ]);
+        $identifier = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
 
         $request = ServerRequestFactory::fromGlobals(
             [
@@ -324,13 +318,12 @@ class FormAuthenticatorTest extends TestCase
         );
         $response = new Response();
 
-        $form = new FormAuthenticator($identifiers, [
-            'loginUrl' => '%auth\.localhost/[a-z]{2}/users/login/?$%',
-            'urlChecker' => [
-                'useRegex' => true,
-                'checkFullUrl' => true
-            ]
-        ]);
+        $urlChecker = (new DefaultUrlChecker())
+            ->useRegex(true)
+            ->checkFullUrl(true);
+
+        $form = (new FormAuthenticator($identifier, $urlChecker))
+            ->setLoginUrl('%auth\.localhost/[a-z]{2}/users/login/?$%');
 
         $result = $form->authenticate($request, $response);
 
@@ -346,7 +339,7 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testAuthenticateCustomFields()
     {
-        $identifiers = $this->createMock(IdentifierCollection::class);
+        $identifier = $this->createMock(IdentifierInterface::class);
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/users/login'],
@@ -355,15 +348,11 @@ class FormAuthenticatorTest extends TestCase
         );
         $response = new Response();
 
-        $form = new FormAuthenticator($identifiers, [
-            'loginUrl' => '/users/login',
-            'fields' => [
-                'username' => 'email',
-                'password' => 'secret'
-            ]
-        ]);
+        $form = (new FormAuthenticator($identifier, new DefaultUrlChecker()))
+            ->setLoginUrl('/users/login')
+            ->setCredentialFields('email', 'secret');
 
-        $identifiers->expects($this->once())
+        $identifier->expects($this->once())
             ->method('identify')
             ->with([
                 'username' => 'mariano@cakephp.org',
@@ -384,7 +373,7 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testAuthenticateValidData()
     {
-        $identifiers = $this->createMock(IdentifierCollection::class);
+        $identifiers = $this->createMock(IdentifierInterface::class);
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/users/login'],
@@ -393,9 +382,8 @@ class FormAuthenticatorTest extends TestCase
         );
         $response = new Response();
 
-        $form = new FormAuthenticator($identifiers, [
-            'loginUrl' => '/users/login'
-        ]);
+        $form = (new FormAuthenticator($identifiers, new DefaultUrlChecker()))
+            ->setLoginUrl('/users/login');
 
         $identifiers->expects($this->once())
             ->method('identify')
@@ -411,60 +399,4 @@ class FormAuthenticatorTest extends TestCase
         $form->authenticate($request, $response);
     }
 
-    /**
-     * testAuthenticateValidData
-     *
-     * @return void
-     */
-    public function testAuthenticateMissingChecker()
-    {
-        $identifiers = $this->createMock(IdentifierCollection::class);
-
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/login'],
-            [],
-            ['id' => 1, 'username' => 'mariano', 'password' => 'password']
-        );
-        $response = new Response();
-
-        $form = new FormAuthenticator($identifiers, [
-            'loginUrl' => '/users/login',
-            'urlChecker' => 'Foo'
-        ]);
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('URL checker class `Foo` was not found.');
-
-        $form->authenticate($request, $response);
-    }
-
-    /**
-     * testAuthenticateValidData
-     *
-     * @return void
-     */
-    public function testAuthenticateInvalidChecker()
-    {
-        $identifiers = $this->createMock(IdentifierCollection::class);
-
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/login'],
-            [],
-            ['id' => 1, 'username' => 'mariano', 'password' => 'password']
-        );
-        $response = new Response();
-
-        $form = new FormAuthenticator($identifiers, [
-            'loginUrl' => '/users/login',
-            'urlChecker' => self::class
-        ]);
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage(
-            'The provided URL checker class `Authentication\Test\TestCase\Authenticator\FormAuthenticatorTest` ' .
-            'does not implement the `Authentication\UrlChecker\UrlCheckerInterface` interface.'
-        );
-
-        $form->authenticate($request, $response);
-    }
 }
