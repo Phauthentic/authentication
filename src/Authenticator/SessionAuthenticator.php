@@ -17,6 +17,7 @@ use ArrayAccess;
 use ArrayObject;
 use Authentication\Authenticator\Storage\StorageInterface;
 use Authentication\Identifier\IdentifierInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**

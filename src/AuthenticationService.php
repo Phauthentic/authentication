@@ -15,7 +15,8 @@
 namespace Authentication;
 
 use Authentication\Authenticator\AuthenticatorCollectionInterface;
-use Authentication\Authenticator\PersistenceInterface;
+use Authentication\Authenticator\Result;
+use Authentication\Authenticator\ResultInterface;
 use Authentication\Authenticator\StatelessInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -107,36 +108,36 @@ class AuthenticationService implements AuthenticationServiceInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Checks if at least one authenticator is in the collection
      *
-     * @throws \RuntimeException Throws a runtime exception when no authenticators are loaded.
+     * @throws \RuntimeException
+     * @return void
      */
-    public function authenticate(ServerRequestInterface $request, ResponseInterface $response)
+    protected function checkAuthenticators()
     {
         if ($this->authenticators()->isEmpty()) {
             throw new RuntimeException(
                 'No authenticators loaded. You need to load at least one authenticator.'
             );
         }
+    }
 
-        $result = null;
+    /**
+     * {@inheritDoc}
+     *
+     * @throws \RuntimeException Throws a runtime exception when no authenticators are loaded.
+     */
+    public function authenticate(ServerRequestInterface $request): bool
+    {
+        $this->checkAuthenticators();
+
         foreach ($this->authenticators() as $authenticator) {
-            $result = $authenticator->authenticate($request, $response);
+            $result = $authenticator->authenticate($request);
             if ($result->isValid()) {
-                if (!($authenticator instanceof StatelessInterface)) {
-                    $requestResponse = $this->persistIdentity($request, $response, $result->getData());
-                    $request = $requestResponse['request'];
-                    $response = $requestResponse['response'];
-                }
-
                 $this->successfulAuthenticator = $authenticator;
                 $this->result = $result;
 
-                return [
-                    'result' => $result,
-                    'request' => $request,
-                    'response' => $response
-                ];
+                return true;
             }
 
             if (!$result->isValid() && $authenticator instanceof StatelessInterface) {
@@ -147,11 +148,7 @@ class AuthenticationService implements AuthenticationServiceInterface
         $this->successfulAuthenticator = null;
         $this->result = $result;
 
-        return [
-            'result' => $result,
-            'request' => $request,
-            'response' => $response
-        ];
+        return false;
     }
 
     /**
@@ -185,8 +182,12 @@ class AuthenticationService implements AuthenticationServiceInterface
      * @param \Authentication\IdentityInterface $identity Identity data.
      * @return array
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, IdentityInterface $identity)
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, ?IdentityInterface $identity)
     {
+        if (is_null($identity)) {
+            $identity = $this->getIdentity();
+        }
+
         foreach ($this->authenticators() as $authenticator) {
             if ($authenticator instanceof PersistenceInterface) {
                 $result = $authenticator->persistence()->persistIdentity($request, $response, $identity);

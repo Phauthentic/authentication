@@ -22,25 +22,46 @@ use Psr\Http\Message\UriInterface;
  */
 class DefaultUrlChecker implements UrlCheckerInterface
 {
+
+    protected $checkFullUrl = false;
+
+    protected $useRegex = false;
+
     /**
-     * Default Options
+     * Use regex to check the URL
      *
-     * - `urlChecker` Whether or not to use `loginUrl` as regular expression(s).
-     * - `checkFullUrl` Whether or not to check the full request URI.
-     *
-     * @var array
+     * @param bool $useRegex Use regex or not
+     * @return $this
      */
-    protected $_defaultOptions = [
-        'useRegex' => false,
-        'checkFullUrl' => false
-    ];
+    public function useRegex(bool $useRegex): self
+    {
+        $this->useRegex = $useRegex;
+
+        return $this;
+    }
+
+    /**
+     * Check the full URL
+     *
+     * @param bool $fullUrl Full URL to check or not
+     * @return $this
+     */
+    public function checkFullUrl(bool $fullUrl): self
+    {
+        $this->checkFullUrl = $fullUrl;
+
+        return $this;
+    }
 
     /**
      * {@inheritdoc}
      */
     public function check(ServerRequestInterface $request, $urls, array $options = [])
     {
-        $options = $this->_mergeDefaultOptions($options);
+        $options = array_merge([
+            'checkFullUrl' => $this->checkFullUrl,
+            'useRegex' => $this->useRegex
+        ], $options);
 
         $urls = (array)$urls;
 
@@ -59,17 +80,6 @@ class DefaultUrlChecker implements UrlCheckerInterface
         }
 
         return false;
-    }
-
-    /**
-     * Merges given options with the defaults.
-     *
-     * @param array $options Options to merge in
-     * @return array
-     */
-    protected function _mergeDefaultOptions(array $options)
-    {
-        return $options += $this->_defaultOptions;
     }
 
     /**

@@ -8,7 +8,7 @@ use SessionHandlerInterface;
 /**
  * CakePHP Session persistence
  */
-class CakeSession implements SessionPersistenceInterface
+class CakeSession
 {
 
     /**

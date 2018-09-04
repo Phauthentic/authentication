@@ -37,7 +37,7 @@ abstract class AbstractIdentifier implements IdentifierInterface
      *
      * @var array
      */
-    protected $_errors = [];
+    protected $errors = [];
 
     /**
      * Returns errors
@@ -46,6 +46,6 @@ abstract class AbstractIdentifier implements IdentifierInterface
      */
     public function getErrors()
     {
-        return $this->_errors;
+        return $this->errors;
     }
 }

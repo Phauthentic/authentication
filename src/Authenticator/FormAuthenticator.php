@@ -34,32 +34,60 @@ class FormAuthenticator extends AbstractAuthenticator
     protected $urlChecker;
 
     /**
-     * Default config for this object.
-     * - `fields` The fields to use to identify a user by.
-     * - `loginUrl` Login URL or an array of URLs.
-     * - `urlChecker` Url checker config.
+     * URLs to check for the login credentials
      *
      * @var array
      */
-    protected $defaultConfig = [
-        'loginUrl' => null,
-        'fields' => [
-            IdentifierInterface::CREDENTIAL_USERNAME => 'username',
-            IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
-        ]
+    protected $loginUrls = [];
+
+    /**
+     * Credential Fields
+     *
+     * @var array
+     */
+    protected $credentialFields = [
+        IdentifierInterface::CREDENTIAL_USERNAME => 'username',
+        IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
     ];
 
     /**
      * {@inheritDoc}
      */
     public function __construct(
-        IdentifierCollection $identifiers,
-        UrlCheckerInterface $urlChecker,
-        array $config = []
+        IdentifierInterface $identifier,
+        UrlCheckerInterface $urlChecker
     ) {
-        parent::__construct($identifiers, $config);
-
+        $this->_identifier = $identifier;
         $this->urlChecker = $urlChecker;
+    }
+
+    public function setLoginUrls(array $urls)
+    {
+        $this->loginUrls = $urls;
+
+        return $this;
+    }
+
+    public function setLoginUrl(string $url)
+    {
+        $this->loginUrls[] = $url;
+
+        return $this;
+    }
+
+    /**
+     * Set the fields used to to get the credentials from
+     *
+     * @param string $username Username field
+     * @param string $password Password field
+     * @return $this
+     */
+    public function setCredentialFields(string $username, string $password): self
+    {
+        $this->credentialFields[IdentifierInterface::CREDENTIAL_USERNAME] = $username;
+        $this->credentialFields[IdentifierInterface::CREDENTIAL_PASSWORD] = $password;
+
+        return $this;
     }
 
     /**
@@ -70,11 +98,10 @@ class FormAuthenticator extends AbstractAuthenticator
      */
     protected function getData(ServerRequestInterface $request)
     {
-        $fields = $this->config['fields'];
         $body = (array)$request->getParsedBody();
 
         $data = [];
-        foreach ($fields as $key => $field) {
+        foreach ($this->credentialFields as $key => $field) {
             if (!isset($body[$field])) {
                 return null;
             }
@@ -102,7 +129,7 @@ class FormAuthenticator extends AbstractAuthenticator
             sprintf(
                 'Login URL `%s` did not match `%s`.',
                 (string)$request->getUri(),
-                implode('` or `', (array)$this->config['loginUrl'])
+                implode('` or `', $this->loginUrls)
             )
         ];
 
@@ -120,7 +147,7 @@ class FormAuthenticator extends AbstractAuthenticator
      */
     public function authenticate(ServerRequestInterface $request)
     {
-        if (!$this->urlChecker->check($request, $this->config['loginUrl'])) {
+        if (!$this->urlChecker->check($request, $this->loginUrls)) {
             return $this->_buildLoginUrlErrorResult($request);
         }
 

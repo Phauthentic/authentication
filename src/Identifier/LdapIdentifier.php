@@ -65,7 +65,7 @@ class LdapIdentifier extends AbstractIdentifier
      *
      * @var array
      */
-    protected $_errors = [];
+    protected $errors = [];
 
     /**
      * LDAP connection object
@@ -206,8 +206,8 @@ class LdapIdentifier extends AbstractIdentifier
     {
         $extendedError = $this->_ldap->getDiagnosticMessage();
         if (!is_null($extendedError)) {
-            $this->_errors[] = $extendedError;
+            $this->errors[] = $extendedError;
         }
-        $this->_errors[] = $message;
+        $this->errors[] = $message;
     }
 }

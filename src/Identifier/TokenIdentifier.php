@@ -29,31 +29,31 @@ class TokenIdentifier extends AbstractIdentifier
      */
     protected $resolver;
 
-    /**
-     * Default configuration.
-     *
-     * @var array
-     */
-    protected $defaultConfig = [
-        'tokenField' => 'token',
-        'dataField' => self::CREDENTIAL_TOKEN,
-    ];
+    protected $tokenField = 'token';
 
-    /**
-     * Configuration
-     *
-     * @var array
-     */
-    protected $config = [];
+    protected $dataField = self::CREDENTIAL_TOKEN;
+
+    public function setDataField(?string $field): self
+    {
+        $this->dataField = $field;
+
+        return $this;
+    }
+
+    public function setTokenField(?string $field): self
+    {
+        $this->tokenField = $field;
+
+        return $this;
+    }
 
     /**
      * Constructor
      *
      * @param array $config Configuration
      */
-    public function __construct(ResolverInterface $resolver, array $config = [])
+    public function __construct(ResolverInterface $resolver)
     {
-        $this->config = array_merge($this->defaultConfig, $config);
         $this->resolver = $resolver;
     }
 
@@ -62,13 +62,13 @@ class TokenIdentifier extends AbstractIdentifier
      */
     public function identify(array $data)
     {
-        $dataField = $this->config['dataField'];
+        $dataField = $this->dataField;
         if (!isset($data[$dataField])) {
             return null;
         }
 
         $conditions = [
-            $this->config['tokenField'] => $data[$dataField]
+            $this->tokenField => $data[$dataField]
         ];
 
         return $this->resolver->find($conditions);

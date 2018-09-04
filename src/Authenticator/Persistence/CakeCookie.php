@@ -23,7 +23,7 @@ use Cake\Http\ServerRequest;
 /**
  * Persistence adapter for the CakePHP Cookie
  */
-class CakeCookie implements CookiePersistenceInterface
+class CakeCookie
 {
     /**
      * Default Config

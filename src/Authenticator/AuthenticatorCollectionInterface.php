@@ -21,6 +21,11 @@ use IteratorAggregate;
  */
 interface AuthenticatorCollectionInterface extends IteratorAggregate
 {
+    /**
+     * Adds a authenticator to the collection
+     *
+     * @return void
+     */
     public function add(AuthenticatorInterface $authenticator): void;
 
     /**
