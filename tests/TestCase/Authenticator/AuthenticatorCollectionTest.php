@@ -40,19 +40,6 @@ class AuthenticatorCollectionTest extends TestCase
     }
 
     /**
-     * testLoad
-     *
-     * @return void
-     */
-    public function testLoad()
-    {
-        $identifiers = $this->createMock(IdentifierCollection::class);
-        $collection = new AuthenticatorCollection($identifiers);
-        $result = $collection->load('Authentication.Form');
-        $this->assertInstanceOf(FormAuthenticator::class, $result);
-    }
-
-    /**
      * testSet
      *
      * @return void
@@ -65,28 +52,6 @@ class AuthenticatorCollectionTest extends TestCase
         $collection = new AuthenticatorCollection($identifiers);
         $collection->set('Form', $authenticator);
         $this->assertSame($authenticator, $collection->get('Form'));
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Authenticator class `Does-not-exist` was not found.
-     */
-    public function testLoadException()
-    {
-        $identifiers = $this->createMock(IdentifierCollection::class);
-        $collection = new AuthenticatorCollection($identifiers);
-        $collection->load('Does-not-exist');
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Authenticator class `TestApp\Authentication\Identifier\InvalidIdentifier`
-     */
-    public function testLoadExceptionInterfaceNotImplemented()
-    {
-        $identifiers = $this->createMock(IdentifierCollection::class);
-        $collection = new AuthenticatorCollection($identifiers);
-        $collection->load(InvalidIdentifier::class);
     }
 
     /**

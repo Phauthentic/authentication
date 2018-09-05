@@ -18,7 +18,10 @@ use ArrayAccess;
 use ArrayObject;
 use Authentication\Authenticator\JwtAuthenticator;
 use Authentication\Authenticator\Result;
+use Authentication\Identifier\CollectionIdentifier;
 use Authentication\Identifier\IdentifierCollection;
+use Authentication\Identifier\JwtSubjectIdentifier;
+use Authentication\Identifier\Resolver\OrmResolver;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Cake\Http\Response;
 use Cake\Http\ServerRequestFactory;
@@ -67,7 +70,7 @@ class JwtAuthenticatorTest extends TestCase
         ];
 
         $this->token = JWT::encode($data, 'secretKey');
-        $this->identifiers = new IdentifierCollection([]);
+        $this->identifiers = new JwtSubjectIdentifier(new OrmResolver());
         $this->response = new Response();
     }
 
@@ -127,7 +130,7 @@ class JwtAuthenticatorTest extends TestCase
             ['token' => $this->token]
         );
 
-        $this->identifiers = $this->createMock(IdentifierCollection::class);
+        $this->identifiers = $this->createMock(CollectionIdentifier::class);
         $this->identifiers->expects($this->once())
             ->method('identify')
             ->with([

@@ -13,6 +13,7 @@
  */
 namespace Authentication\PasswordHasher;
 
+use ArrayAccess;
 use IteratorAggregate;
 
 /**
@@ -20,4 +21,4 @@ use IteratorAggregate;
  * intended only to be used with legacy databases where passwords have
  * not been migrated to a stronger algorithm yet.
  */
-interface PasswordHasherCollectionInterface extends IteratorAggregate {}
+interface PasswordHasherCollectionInterface extends IteratorAggregate, ArrayAccess {}
