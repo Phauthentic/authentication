@@ -14,6 +14,7 @@
 namespace Authentication\PasswordHasher;
 
 use Cake\Core\Configure;
+use Cake\Core\InstanceConfigTrait;
 use Cake\Error\Debugger;
 use Cake\Utility\Security;
 use RuntimeException;
@@ -25,14 +26,16 @@ use RuntimeException;
  */
 class LegacyPasswordHasher extends AbstractPasswordHasher
 {
+    use InstanceConfigTrait;
 
     /**
-     * Hashing algo to use. Valid values are those supported by `$algo` argument
-     * of `password_hash()`. Defaults to `PASSWORD_DEFAULT`
+     * Default Config
      *
-     * @var null|int|string
+     * @var array
      */
-    protected $hashType = PASSWORD_DEFAULT;
+    protected $_defaultConfig = [
+        'hashType' => null
+    ];
 
     /**
      * Sets the hash type
@@ -42,7 +45,7 @@ class LegacyPasswordHasher extends AbstractPasswordHasher
      */
     public function setHashType($type): self
     {
-        $this->hashType = $type;
+        $this->setConfig('hashType', $type);
 
         return $this;
     }
@@ -69,7 +72,7 @@ class LegacyPasswordHasher extends AbstractPasswordHasher
      */
     public function hash($password)
     {
-        return Security::hash($password, $this->hashType, true);
+        return Security::hash($password, $this->getConfig('hashType'), true);
     }
 
     /**
