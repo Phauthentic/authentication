@@ -26,15 +26,7 @@ use Psr\Http\Message\ServerRequestInterface;
 class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessInterface
 {
 
-    /**
-     * Credential fields
-     *
-     * @var array
-     */
-    protected $credentialFields = [
-        IdentifierInterface::CREDENTIAL_USERNAME => 'user',
-        IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
-    ];
+    use CredentialFieldsTrait;
 
     /**
      * Realm
@@ -42,21 +34,6 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
      * @var string|null
      */
     protected $realm;
-
-    /**
-     * Set the fields used to to get the credentials from
-     *
-     * @param string $username Username field
-     * @param string $password Password field
-     * @return $this
-     */
-    public function setCredentialFields(string $username, string $password): self
-    {
-        $this->credentialFields[IdentifierInterface::CREDENTIAL_USERNAME] = $username;
-        $this->credentialFields[IdentifierInterface::CREDENTIAL_PASSWORD] = $password;
-
-        return $this;
-    }
 
     /**
      * Sets the realm

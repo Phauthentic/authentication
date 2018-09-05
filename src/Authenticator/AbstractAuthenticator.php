@@ -20,18 +20,6 @@ use Psr\Http\Message\ServerRequestInterface;
 
 abstract class AbstractAuthenticator implements AuthenticatorInterface
 {
-    /**
-     * Default config for this object.
-     * - `fields` The fields to use to identify a user by.
-     *
-     * @var array
-     */
-    protected $defaultConfig = [
-        'fields' => [
-            IdentifierInterface::CREDENTIAL_USERNAME => 'username',
-            IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
-        ]
-    ];
 
     /**
      * Config
@@ -51,12 +39,10 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
      * Constructor
      *
      * @param \Authentication\Identifier\IdentifierInterface $identifier Identifier or identifiers collection.
-     * @param array $config Configuration settings.
      */
-    public function __construct(IdentifierInterface $identifier, array $config = [])
+    public function __construct(IdentifierInterface $identifier)
     {
         $this->_identifier = $identifier;
-        $this->config = array_merge_recursive($this->defaultConfig, $config);
     }
 
     /**

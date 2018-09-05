@@ -50,11 +50,11 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
      * {@inheritDoc}
      */
     public function __construct(
-        IdentifierCollection $identifiers,
+        IdentifierInterface $identifiers,
         StorageInterface $storage,
         array $config = []
     ) {
-        parent::__construct($identifiers, $config);
+        parent::__construct($identifiers);
 
         $this->storage = $storage;
     }

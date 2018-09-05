@@ -31,27 +31,6 @@ class JwtAuthenticator extends TokenAuthenticator
 {
 
     /**
-     * Header param name
-     *
-     * @var string
-     */
-    protected $header = 'Authorization';
-
-    /**
-     * Query param name
-     *
-     * @var string
-     */
-    protected $queryParam = 'token';
-
-    /**
-     * Header param name
-     *
-     * @var string
-     */
-    protected $tokenPrefix = 'bearer';
-
-    /**
      * Hashing algorithms
      *
      * @var array
@@ -74,17 +53,20 @@ class JwtAuthenticator extends TokenAuthenticator
      */
     protected $secretKey = null;
 
-    /**
-     * {@inheritDoc}
-     */
-    protected $defaultConfig = [
-        'header' => 'Authorization',
-        'queryParam' => 'token',
-        'tokenPrefix' => 'bearer',
-        'algorithms' => ['HS256'],
-        'returnPayload' => true,
-        'secretKey' => null,
-    ];
+    public function setAlgorithms(array $algorithms): self
+    {
+        $this->algorithms = $algorithms;
+    }
+
+    public function setReturnPayload(bool $return): self
+    {
+        $this->returnPayload = $return;
+    }
+
+    public function setSecretKey(string $key): self
+    {
+        $this->secretKey = $key;
+    }
 
     /**
      * Payload data.
@@ -96,16 +78,11 @@ class JwtAuthenticator extends TokenAuthenticator
     /**
      * {@inheritDoc}
      */
-    public function __construct(IdentifierInterface $identifier, array $config = [])
+    public function __construct(IdentifierInterface $identifier, string $secretkey)
     {
-        parent::__construct($identifier, $config);
+        parent::__construct($identifier);
 
-        if (empty($this->config['secretKey'])) {
-            if (!class_exists(Security::class)) {
-                throw new RuntimeException('You must set the `secretKey` config key for JWT authentication.');
-            }
-            $this->setConfig('secretKey', \Cake\Utility\Security::getSalt());
-        }
+        $this->secretKey = $secretkey;
     }
 
     /**
@@ -142,7 +119,7 @@ class JwtAuthenticator extends TokenAuthenticator
             return new Result(null, Result::FAILURE_CREDENTIALS_MISSING);
         }
 
-        if ($this->config['returnPayload']) {
+        if ($this->returnPayload) {
             $user = new ArrayObject($result);
 
             return new Result($user, Result::SUCCESS);
@@ -193,8 +170,8 @@ class JwtAuthenticator extends TokenAuthenticator
     {
         return JWT::decode(
             $token,
-            $this->config['secretKey'],
-            $this->config['algorithms']
+            $this->secretKey,
+            $this->algorithms
         );
     }
 }
