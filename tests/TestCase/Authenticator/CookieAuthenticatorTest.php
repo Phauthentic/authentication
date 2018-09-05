@@ -17,6 +17,8 @@ use ArrayObject;
 use Authentication\Authenticator\CookieAuthenticator;
 use Authentication\Authenticator\Result;
 use Authentication\Identifier\IdentifierCollection;
+use Authentication\Identifier\PasswordIdentifier;
+use Authentication\Identifier\Resolver\OrmResolver;
 use Cake\Http\Cookie\Cookie;
 use Cake\Http\Response;
 use Cake\Http\ServerRequestFactory;
@@ -54,9 +56,7 @@ class CookieAuthenticatorTest extends TestCase
      */
     public function testAuthenticateInvalidTokenMissingUsername()
     {
-        $identifiers = new IdentifierCollection([
-            'Authentication.Password'
-        ]);
+        $identifiers = new PasswordIdentifier(new OrmResolver());
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/testpath'],
@@ -82,9 +82,7 @@ class CookieAuthenticatorTest extends TestCase
      */
     public function testAuthenticateSuccess()
     {
-        $identifiers = new IdentifierCollection([
-            'Authentication.Password'
-        ]);
+        $identifiers = new PasswordIdentifier(new OrmResolver());
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/testpath'],
@@ -110,9 +108,7 @@ class CookieAuthenticatorTest extends TestCase
      */
     public function testAuthenticateExpandedCookie()
     {
-        $identifiers = new IdentifierCollection([
-            'Authentication.Password'
-        ]);
+        $identifiers = new PasswordIdentifier(new OrmResolver());
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/testpath'],
@@ -138,9 +134,7 @@ class CookieAuthenticatorTest extends TestCase
      */
     public function testAuthenticateUnknownUser()
     {
-        $identifiers = new IdentifierCollection([
-            'Authentication.Password'
-        ]);
+        $identifiers = new PasswordIdentifier(new OrmResolver());
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/testpath'],
@@ -166,9 +160,7 @@ class CookieAuthenticatorTest extends TestCase
      */
     public function testCredentialsNotPresent()
     {
-        $identifiers = new IdentifierCollection([
-            'Authentication.Password'
-        ]);
+        $identifiers = new PasswordIdentifier(new OrmResolver());
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/testpath']
@@ -189,9 +181,7 @@ class CookieAuthenticatorTest extends TestCase
      */
     public function testAuthenticateInvalidToken()
     {
-        $identifiers = new IdentifierCollection([
-            'Authentication.Password'
-        ]);
+        $identifiers = new PasswordIdentifier(new OrmResolver());
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/testpath'],
@@ -217,9 +207,7 @@ class CookieAuthenticatorTest extends TestCase
      */
     public function testPersistIdentity()
     {
-        $identifiers = new IdentifierCollection([
-            'Authentication.Password'
-        ]);
+        $identifiers = new PasswordIdentifier(new OrmResolver());
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/testpath']
@@ -267,9 +255,7 @@ class CookieAuthenticatorTest extends TestCase
      */
     public function testPersistIdentityLoginUrlMismatch()
     {
-        $identifiers = new IdentifierCollection([
-            'Authentication.Password'
-        ]);
+        $identifiers = new PasswordIdentifier(new OrmResolver());
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/testpath']
@@ -304,9 +290,7 @@ class CookieAuthenticatorTest extends TestCase
      */
     public function testClearIdentity()
     {
-        $identifiers = new IdentifierCollection([
-            'Authentication.Password'
-        ]);
+        $identifiers = new PasswordIdentifier(new OrmResolver());
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/testpath']

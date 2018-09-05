@@ -14,6 +14,9 @@
  */
 namespace Authentication\Authenticator;
 
+use ArrayIterator;
+use Traversable;
+
 /**
  * Authenticator Collection
  */
@@ -46,7 +49,7 @@ class AuthenticatorCollection implements AuthenticatorCollectionInterface
      */
     public function isEmpty(): bool
     {
-        return empty($this->identifiers);
+        return empty($this->authenticators);
     }
 
     /**

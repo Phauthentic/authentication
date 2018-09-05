@@ -86,9 +86,7 @@ class JwtAuthenticatorTest extends TestCase
         );
         $this->request = $this->request->withAddedHeader('Authorization', 'Bearer ' . $this->token);
 
-        $authenticator = new JwtAuthenticator($this->identifiers, [
-            'secretKey' => 'secretKey'
-        ]);
+        $authenticator = (new JwtAuthenticator($this->identifiers, 'secretKey'));
 
         $result = $authenticator->authenticate($this->request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
@@ -108,9 +106,7 @@ class JwtAuthenticatorTest extends TestCase
             ['token' => $this->token]
         );
 
-        $authenticator = new JwtAuthenticator($this->identifiers, [
-            'secretKey' => 'secretKey'
-        ]);
+        $authenticator = (new JwtAuthenticator($this->identifiers, 'secretKey'));
 
         $result = $authenticator->authenticate($this->request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
@@ -143,10 +139,8 @@ class JwtAuthenticatorTest extends TestCase
                 'firstname' => 'larry'
             ]));
 
-        $authenticator = new JwtAuthenticator($this->identifiers, [
-            'secretKey' => 'secretKey',
-            'returnPayload' => false
-        ]);
+        $authenticator = (new JwtAuthenticator($this->identifiers, 'secretKey'))
+            ->setReturnPayload(false);
 
         $result = $authenticator->authenticate($this->request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
@@ -229,9 +223,7 @@ class JwtAuthenticatorTest extends TestCase
             ['token' => 'should cause an exception']
         );
 
-        $authenticator = new JwtAuthenticator($this->identifiers, [
-            'secretKey' => 'secretKey'
-        ]);
+        $authenticator = (new JwtAuthenticator($this->identifiers, 'secretKey'));
 
         $result = $authenticator->authenticate($this->request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
@@ -255,9 +247,7 @@ class JwtAuthenticatorTest extends TestCase
             ['token' => $this->token]
         );
 
-        $authenticator = new JwtAuthenticator($this->identifiers, [
-            'secretKey' => 'secretKey'
-        ]);
+        $authenticator = (new JwtAuthenticator($this->identifiers, 'secretKey'));
 
         $result = $authenticator->getPayload();
         $this->assertNull($result);
