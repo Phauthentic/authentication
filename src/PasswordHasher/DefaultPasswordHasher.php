@@ -20,21 +20,46 @@ class DefaultPasswordHasher extends AbstractPasswordHasher
 {
 
     /**
-     * Default config for this object.
+     * Hashing algo to use. Valid values are those supported by `$algo` argument
+     * of `password_hash()`. Defaults to `PASSWORD_DEFAULT`
      *
-     * ### Options
-     *
-     * - `hashType` - Hashing algo to use. Valid values are those supported by `$algo`
-     *   argument of `password_hash()`. Defaults to `PASSWORD_DEFAULT`
-     * - `hashOptions` - Associative array of options. Check the PHP manual for
-     *   supported options for each hash type. Defaults to empty array.
+     * @var null|int|string
+     */
+    protected $hashType = PASSWORD_DEFAULT;
+
+    /**
+     * Associative array of options. Check the PHP manual for supported options
+     * for each hash type. Defaults to empty array.
      *
      * @var array
      */
-    protected $defaultConfig = [
-        'hashType' => PASSWORD_DEFAULT,
-        'hashOptions' => []
-    ];
+    protected $hashOptions = [];
+
+    /**
+     * Set Hash Options
+     *
+     * @param array $options Associative array of options. Check the PHP manual for supported options for each hash type. Defaults to empty array.
+     * @return $this
+     */
+    public function setHashOptions(array $options): self
+    {
+        $this->hashOptions = $options;
+
+        return $this;
+    }
+
+    /**
+     * Sets the hash type
+     *
+     * @param string|int $type Hashing algo to use. Valid values are those supported by `$algo` argument of `password_hash()`. Defaults to `PASSWORD_DEFAULT`
+     * @return $this
+     */
+    public function setHashType($type): self
+    {
+        $this->hashType = $type;
+
+        return $this;
+    }
 
     /**
      * Generates password hash.
@@ -46,8 +71,8 @@ class DefaultPasswordHasher extends AbstractPasswordHasher
     {
         return password_hash(
             $password,
-            $this->config['hashType'],
-            $this->config['hashOptions']
+            $this->hashType,
+            $this->hashOptions
         );
     }
 
@@ -72,6 +97,6 @@ class DefaultPasswordHasher extends AbstractPasswordHasher
      */
     public function needsRehash($password)
     {
-        return password_needs_rehash($password, $this->config['hashType'], $this->config['hashOptions']);
+        return password_needs_rehash($password, $this->hashType, $this->hashOptions);
     }
 }

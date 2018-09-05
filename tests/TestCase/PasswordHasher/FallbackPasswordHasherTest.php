@@ -16,6 +16,7 @@ namespace Authentication\Test\TestCase\PasswordHasher;
 use Authentication\PasswordHasher\DefaultPasswordHasher;
 use Authentication\PasswordHasher\FallbackPasswordHasher;
 use Authentication\PasswordHasher\LegacyPasswordHasher;
+use Authentication\PasswordHasher\PasswordHasherCollection;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -31,12 +32,14 @@ class FallbackPasswordHasherTest extends TestCase
      */
     public function testHash()
     {
-        $hasher = new FallbackPasswordHasher(['hashers' => ['Authentication.Legacy', 'Authentication.Default']]);
         $legacy = new LegacyPasswordHasher();
-        $this->assertSame($legacy->hash('foo'), $hasher->hash('foo'));
-
         $simple = new DefaultPasswordHasher();
-        $hasher = new FallbackPasswordHasher(['hashers' => ['Authentication.Legacy', 'Authentication.Default']]);
+        $hasherCollection = new PasswordHasherCollection([
+            $legacy,
+            $simple
+        ]);
+
+        $hasher = new FallbackPasswordHasher($hasherCollection);
         $this->assertSame($legacy->hash('foo'), $hasher->hash('foo'));
     }
 
@@ -48,9 +51,13 @@ class FallbackPasswordHasherTest extends TestCase
      */
     public function testCheck()
     {
-        $hasher = new FallbackPasswordHasher(['hashers' => ['Authentication.Legacy', 'Authentication.Default']]);
         $legacy = new LegacyPasswordHasher();
         $simple = new DefaultPasswordHasher();
+        $hasherCollection = new PasswordHasherCollection([
+            $legacy,
+            $simple
+        ]);
+        $hasher = new FallbackPasswordHasher($hasherCollection);
 
         $hash = $simple->hash('foo');
         $otherHash = $legacy->hash('foo');
@@ -66,9 +73,14 @@ class FallbackPasswordHasherTest extends TestCase
      */
     public function testCheckWithConfigs()
     {
-        $hasher = new FallbackPasswordHasher(['hashers' => ['Authentication.Default', 'Authentication.Legacy' => ['hashType' => 'md5']]]);
-        $legacy = new LegacyPasswordHasher(['hashType' => 'md5']);
         $simple = new DefaultPasswordHasher();
+        $legacy = (new LegacyPasswordHasher())
+            ->setHashType('md5');
+        $collection = new PasswordHasherCollection([
+            $legacy,
+            $simple
+        ]);
+        $hasher = new FallbackPasswordHasher($collection);
 
         $hash = $simple->hash('foo');
         $legacyHash = $legacy->hash('foo');
@@ -84,8 +96,13 @@ class FallbackPasswordHasherTest extends TestCase
      */
     public function testNeedsRehash()
     {
-        $hasher = new FallbackPasswordHasher(['hashers' => ['Authentication.Default', 'Authentication.Legacy']]);
         $legacy = new LegacyPasswordHasher();
+        $collection = new PasswordHasherCollection([
+            new DefaultPasswordHasher(),
+            $legacy
+        ]);
+        $hasher = new FallbackPasswordHasher($collection);
+
         $otherHash = $legacy->hash('foo');
         $this->assertTrue($hasher->needsRehash($otherHash));
 

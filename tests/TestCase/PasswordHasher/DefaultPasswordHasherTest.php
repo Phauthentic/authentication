@@ -44,8 +44,9 @@ class DefaultPasswordHasherTest extends TestCase
      */
     public function testNeedsRehashWithDifferentOptions()
     {
-        $defaultHasher = new DefaultPasswordHasher(['hashType' => PASSWORD_BCRYPT, 'hashOptions' => ['cost' => 10]]);
-        $updatedHasher = new DefaultPasswordHasher(['hashType' => PASSWORD_BCRYPT, 'hashOptions' => ['cost' => 12]]);
+        $defaultHasher = (new DefaultPasswordHasher())->setHashType(PASSWORD_BCRYPT)->setHashOptions(['cost' => 10]);
+        $updatedHasher = (new DefaultPasswordHasher())->setHashType(PASSWORD_BCRYPT)->setHashOptions(['cost' => 12]);
+
         $password = $defaultHasher->hash('foo');
 
         $this->assertTrue($updatedHasher->needsRehash($password));

@@ -13,6 +13,7 @@
  */
 namespace Authentication\Authenticator;
 
+use Authentication\Authenticator\Exception\UnauthorizedException;
 use Authentication\Identifier\IdentifierInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -24,6 +25,51 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessInterface
 {
+
+    /**
+     * Credential fields
+     *
+     * @var array
+     */
+    protected $credentialFields = [
+        IdentifierInterface::CREDENTIAL_USERNAME => 'user',
+        IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
+    ];
+
+    /**
+     * Realm
+     *
+     * @var string|null
+     */
+    protected $realm;
+
+    /**
+     * Set the fields used to to get the credentials from
+     *
+     * @param string $username Username field
+     * @param string $password Password field
+     * @return $this
+     */
+    public function setCredentialFields(string $username, string $password): self
+    {
+        $this->credentialFields[IdentifierInterface::CREDENTIAL_USERNAME] = $username;
+        $this->credentialFields[IdentifierInterface::CREDENTIAL_PASSWORD] = $password;
+
+        return $this;
+    }
+
+    /**
+     * Sets the realm
+     *
+     * @param string|null $realm Realm
+     * @return $this
+     */
+    public function setRealm(?string $realm): self
+    {
+        $this->realm = $realm;
+
+        return $this;
+    }
 
     /**
      * Authenticate a user using HTTP auth. Will use the configured User model and attempt a
@@ -91,7 +137,7 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
     protected function loginHeaders(ServerRequestInterface $request)
     {
         $server = $request->getServerParams();
-        $realm = $this->config['realm'] ?: $server['SERVER_NAME'];
+        $realm = $this->realm ?: $server['SERVER_NAME'];
 
         return ['WWW-Authenticate' => sprintf('Basic realm="%s"', $realm)];
     }

@@ -15,8 +15,11 @@
 namespace Authentication\Test\TestCase\Authenticator;
 
 use Authentication\Authenticator\HttpBasicAuthenticator;
-use Authentication\Authenticator\UnauthorizedException;
+use Authentication\Authenticator\Exception\UnauthorizedException;
 use Authentication\Identifier\IdentifierCollection;
+use Authentication\Identifier\PasswordIdentifier;
+use Authentication\Identifier\Resolver\OrmResolver;
+use Authentication\PasswordHasher\DefaultPasswordHasher;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Cake\Http\Response;
 use Cake\Http\ServerRequestFactory;
@@ -43,31 +46,14 @@ class HttpBasicAuthenticatorTest extends TestCase
     {
         parent::setUp();
 
+        $this->identifiers = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
+/*
         $this->identifiers = new IdentifierCollection([
            'Authentication.Password'
         ]);
-
+*/
         $this->auth = new HttpBasicAuthenticator($this->identifiers);
         $this->response = new Response();
-    }
-
-    /**
-     * test applying settings in the constructor
-     *
-     * @return void
-     */
-    public function testConstructor()
-    {
-        $object = new HttpBasicAuthenticator($this->identifiers, [
-            'userModel' => 'AuthUser',
-            'fields' => [
-                'username' => 'user',
-                'password' => 'password'
-            ]
-        ]);
-
-        $this->assertEquals('AuthUser', $object->getConfig('userModel'));
-        $this->assertEquals(['username' => 'user', 'password' => 'password'], $object->getConfig('fields'));
     }
 
     /**
