@@ -25,8 +25,25 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class TokenAuthenticator extends AbstractAuthenticator implements StatelessInterface
 {
+    /**
+     * Query param
+     *
+     * @var null|string
+     */
     protected $queryParam = null;
+
+    /**
+     * Header
+     *
+     * @var null|string
+     */
     protected $header = null;
+
+    /**
+     * Token Prefix
+     *
+     * @var null|string
+     */
     protected $tokenPrefix = null;
 
     /**

@@ -29,6 +29,9 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class CookieAuthenticator extends AbstractAuthenticator implements PersistenceInterface
 {
+
+    use CredentialFieldsTrait;
+
     /**
      * Url Checker
      *
@@ -51,32 +54,46 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     protected $storage;
 
     /**
-     * {@inheritDoc}
+     * Login URL
+     *
+     * @var string|null
      */
-    protected $defaultConfig = [
-        'loginUrl' => null,
-        'rememberMeField' => 'remember_me',
-        'fields' => [
-            IdentifierInterface::CREDENTIAL_USERNAME => 'username',
-            IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
-        ]
-    ];
+    protected $loginUrl = null;
+
+    /**
+     * "Remember me" field
+     * @var string
+     */
+    protected $rememberMeField = 'remember_me';
 
     /**
      * {@inheritDoc}
      */
     public function __construct(
-        IdentifierCollectionInterface $identifiers,
+        IdentifierInterface $identifier,
         StorageInterface $storage,
         PasswordHasherInterface $passwordHasher,
-        UrlCheckerInterface $urlChecker,
-        array $config = []
+        UrlCheckerInterface $urlChecker
     ) {
-        parent::__construct($identifiers, $config);
+        parent::__construct($identifier);
 
         $this->storage = $storage;
         $this->passwordHasher = $passwordHasher;
         $this->urlChecker = $urlChecker;
+    }
+
+    public function setLoginUrl(string $url): self
+    {
+        $this->loginUrl = $url;
+
+        return $this;
+    }
+
+    public function setRememberMeField(string $field): self
+    {
+        $this->rememberMeField = $field;
+
+        return $this;
     }
 
     /**
@@ -120,7 +137,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      */
     public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $identity): ResponseInterface
     {
-        $field = $this->config['rememberMeField'];
+        $field = $this->rememberMeField;
         $bodyData = $request->getParsedBody();
 
         if (!$this->_checkUrl($request) || !is_array($bodyData) || empty($bodyData[$field])) {
@@ -153,8 +170,8 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      */
     protected function _createPlainToken($identity)
     {
-        $usernameField = $this->config['fields']['username'];
-        $passwordField = $this->config['fields']['password'];
+        $usernameField = $this->credentialFields['username'];
+        $passwordField = $this->credentialFields['password'];
 
         return $identity[$usernameField] . $identity[$passwordField];
     }
@@ -172,7 +189,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
         $plain = $this->_createPlainToken($identity);
         $hash = $this->passwordHasher->hash($plain);
 
-        $usernameField = $this->config['fields']['username'];
+        $usernameField = $this->credentialFields['username'];
 
         return json_encode([$identity[$usernameField], $hash]);
     }

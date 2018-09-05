@@ -49,6 +49,11 @@ class AuthenticatorCollection implements AuthenticatorCollectionInterface
         return empty($this->identifiers);
     }
 
+    /**
+     * Adds a authenticator to the collection
+     *
+     * @return void
+     */
     public function add(AuthenticatorInterface $authenticator): void
     {
         $this->authenticators[] = $authenticator;

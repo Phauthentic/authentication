@@ -26,6 +26,9 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class FormAuthenticator extends AbstractAuthenticator
 {
+
+    use CredentialFieldsTrait;
+
     /**
      * URL Checker
      *
@@ -39,16 +42,6 @@ class FormAuthenticator extends AbstractAuthenticator
      * @var array
      */
     protected $loginUrls = [];
-
-    /**
-     * Credential Fields
-     *
-     * @var array
-     */
-    protected $credentialFields = [
-        IdentifierInterface::CREDENTIAL_USERNAME => 'username',
-        IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
-    ];
 
     /**
      * {@inheritDoc}
@@ -71,21 +64,6 @@ class FormAuthenticator extends AbstractAuthenticator
     public function setLoginUrl(string $url)
     {
         $this->loginUrls[] = $url;
-
-        return $this;
-    }
-
-    /**
-     * Set the fields used to to get the credentials from
-     *
-     * @param string $username Username field
-     * @param string $password Password field
-     * @return $this
-     */
-    public function setCredentialFields(string $username, string $password): self
-    {
-        $this->credentialFields[IdentifierInterface::CREDENTIAL_USERNAME] = $username;
-        $this->credentialFields[IdentifierInterface::CREDENTIAL_PASSWORD] = $password;
 
         return $this;
     }
