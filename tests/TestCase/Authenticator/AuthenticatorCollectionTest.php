@@ -31,12 +31,10 @@ class AuthenticatorCollectionTest extends TestCase
      */
     public function testConstruct()
     {
-        $identifiers = $this->createMock(IdentifierCollection::class);
-        $collection = new AuthenticatorCollection($identifiers, [
-            'Authentication.Form'
-        ]);
-        $result = $collection->get('Form');
-        $this->assertInstanceOf(FormAuthenticator::class, $result);
+        $authenticator = $this->createMock(AuthenticatorInterface::class);
+        $collection = new AuthenticatorCollection([$authenticator]);
+
+        $this->assertFalse($collection->isEmpty());
     }
 
     /**
@@ -44,14 +42,14 @@ class AuthenticatorCollectionTest extends TestCase
      *
      * @return void
      */
-    public function testSet()
+    public function testAdd()
     {
-        $identifiers = $this->createMock(IdentifierCollection::class);
         $authenticator = $this->createMock(AuthenticatorInterface::class);
 
-        $collection = new AuthenticatorCollection($identifiers);
-        $collection->set('Form', $authenticator);
-        $this->assertSame($authenticator, $collection->get('Form'));
+        $collection = new AuthenticatorCollection();
+        $collection->add($authenticator);
+
+        $this->assertFalse($collection->isEmpty());
     }
 
     /**
@@ -62,10 +60,10 @@ class AuthenticatorCollectionTest extends TestCase
     public function testIsEmpty()
     {
         $identifiers = $this->createMock(IdentifierCollection::class);
-        $collection = new AuthenticatorCollection($identifiers);
+        $collection = new AuthenticatorCollection();
         $this->assertTrue($collection->isEmpty());
 
-        $collection->load('Authentication.Form');
+        $collection->add($this->createMock(AuthenticatorInterface::class));
         $this->assertFalse($collection->isEmpty());
     }
 
@@ -76,11 +74,10 @@ class AuthenticatorCollectionTest extends TestCase
      */
     public function testIterator()
     {
-        $identifiers = $this->createMock(IdentifierCollection::class);
         $authenticator = $this->createMock(AuthenticatorInterface::class);
 
-        $collection = new AuthenticatorCollection($identifiers);
-        $collection->set('Form', $authenticator);
+        $collection = new AuthenticatorCollection();
+        $collection->add($authenticator);
 
         $this->assertContains($authenticator, $collection);
     }

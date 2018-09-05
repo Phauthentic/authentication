@@ -44,9 +44,7 @@ class SessionAuthenticatorTest extends TestCase
     {
         parent::setUp();
 
-        $this->identifiers = new IdentifierCollection([
-           'Authentication.Password'
-        ]);
+        $this->identifiers = new PasswordIdentifier(new OrmResolver());
 
         $class = 'Cake\Http\Session';
         if (!class_exists($class)) {
