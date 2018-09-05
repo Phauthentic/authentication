@@ -27,13 +27,25 @@ class LegacyPasswordHasher extends AbstractPasswordHasher
 {
 
     /**
-     * Default config for this object.
+     * Hashing algo to use. Valid values are those supported by `$algo` argument
+     * of `password_hash()`. Defaults to `PASSWORD_DEFAULT`
      *
-     * @var array
+     * @var null|int|string
      */
-    protected $defaultConfig = [
-        'hashType' => null
-    ];
+    protected $hashType = PASSWORD_DEFAULT;
+
+    /**
+     * Sets the hash type
+     *
+     * @param string|int $type Hashing algo to use. Valid values are those supported by `$algo` argument of `password_hash()`. Defaults to `PASSWORD_DEFAULT`
+     * @return $this
+     */
+    public function setHashType($type): self
+    {
+        $this->hashType = $type;
+
+        return $this;
+    }
 
     /**
      * {@inheritDoc}
@@ -57,7 +69,7 @@ class LegacyPasswordHasher extends AbstractPasswordHasher
      */
     public function hash($password)
     {
-        return Security::hash($password, $this->config['hashType'], true);
+        return Security::hash($password, $this->hashType, true);
     }
 
     /**

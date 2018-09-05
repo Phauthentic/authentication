@@ -24,8 +24,55 @@ use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use stdClass;
 
+/**
+ * Jwt Authenticator
+ */
 class JwtAuthenticator extends TokenAuthenticator
 {
+
+    /**
+     * Header param name
+     *
+     * @var string
+     */
+    protected $header = 'Authorization';
+
+    /**
+     * Query param name
+     *
+     * @var string
+     */
+    protected $queryParam = 'token';
+
+    /**
+     * Header param name
+     *
+     * @var string
+     */
+    protected $tokenPrefix = 'bearer';
+
+    /**
+     * Hashing algorithms
+     *
+     * @var array
+     */
+    protected $algorithms = [
+        'HS256'
+    ];
+
+    /**
+     * Return payload
+     *
+     * @var bool
+     */
+    protected $returnPayload = true;
+
+    /**
+     * Secret key
+     *
+     * @var null|string
+     */
+    protected $secretKey = null;
 
     /**
      * {@inheritDoc}

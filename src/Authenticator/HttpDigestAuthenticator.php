@@ -41,6 +41,27 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
 {
 
     /**
+     * A string that must be returned unchanged by clients. Defaults to `md5($config['realm'])`
+     *
+     * @var string|null
+     */
+    protected $opaque;
+
+    /**
+     * The number of seconds that nonces are valid for. Defaults to 300.
+     *
+     * @var int
+     */
+    protected $nonceLifetime = 300;
+
+    /**
+     * Defaults to 'auth', no other values are supported at this time.
+     *
+     * @var string
+     */
+    protected $qop = 'auth';
+
+    /**
      * Constructor
      *
      * Besides the keys specified in AbstractAuthenticator::$defaultConfig,
@@ -55,17 +76,48 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param \Authentication\Identifier\IdentifierInterface $identifier Identifier instance.
      * @param array $config Configuration settings.
      */
-    public function __construct(IdentifierInterface $identifier, array $config = [])
+    public function __construct(IdentifierInterface $identifier)
     {
-        $this->setConfig([
-            'realm' => null,
-            'qop' => 'auth',
-            'nonceLifetime' => 300,
-            'opaque' => null,
-        ]);
+        parent::__construct($identifier);
+    }
 
-        $this->setConfig($config);
-        parent::__construct($identifier, $config);
+    /**
+     * Sets the Qop
+     *
+     * @param string $qop Qop
+     * @return $this
+     */
+    public function setQop(string $qop): self
+    {
+        $this->qop = $qop;
+
+        return $this;
+    }
+
+    /**
+     * Sets the Nonce Lifetime
+     *
+     * @param int $lifeTime Lifetime
+     * @return $this
+     */
+    public function setNonceLifetime(int $lifeTime): self
+    {
+        $this->nonceLifetime = $lifeTime;
+
+        return $this;
+    }
+
+    /**
+     * Sets the Opaque
+     *
+     * @param string|null $realm Realm
+     * @return $this
+     */
+    public function setOpaque(?string $opaque): self
+    {
+        $this->opaque = $opaque;
+
+        return $this;
     }
 
     /**
@@ -233,7 +285,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      */
     protected function generateNonce()
     {
-        $expiryTime = microtime(true) + $this->config['nonceLifetime'];
+        $expiryTime = microtime(true) + $this->nonceLifetime;
         $secret = $this->config['secret'];
         $signatureValue = hash_hmac('sha1', $expiryTime . ':' . $secret, $secret);
         $nonceValue = $expiryTime . ':' . $signatureValue;

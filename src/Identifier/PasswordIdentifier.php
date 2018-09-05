@@ -96,11 +96,14 @@ class PasswordIdentifier extends AbstractIdentifier
      *
      * @param string $username Username field
      * @param string $password Password field
+     * @return $this
      */
-    public function setCredentialFields(string $username, string $password)
+    public function setCredentialFields(string $username, string $password): self
     {
         $this->config['fields'][self::CREDENTIAL_USERNAME] = $username;
         $this->config['fields'][self::CREDENTIAL_PASSWORD] = $password;
+
+        return $this;
     }
 
     /**
