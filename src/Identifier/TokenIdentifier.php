@@ -29,10 +29,26 @@ class TokenIdentifier extends AbstractIdentifier
      */
     protected $resolver;
 
+    /**
+     * Token Field
+     *
+     * @var string
+     */
     protected $tokenField = 'token';
 
+    /**
+     * Data field
+     *
+     * @var string
+     */
     protected $dataField = self::CREDENTIAL_TOKEN;
 
+    /**
+     * Sets data field
+     *
+     * @param null|string $field Field name
+     * @return $this
+     */
     public function setDataField(?string $field): self
     {
         $this->dataField = $field;
@@ -40,7 +56,13 @@ class TokenIdentifier extends AbstractIdentifier
         return $this;
     }
 
-    public function setTokenField(?string $field): self
+    /**
+     * Sets the token field
+     *
+     * @param string $field Field name
+     * @return
+     */
+    public function setTokenField(string $field): self
     {
         $this->tokenField = $field;
 
@@ -62,13 +84,12 @@ class TokenIdentifier extends AbstractIdentifier
      */
     public function identify(array $data)
     {
-        $dataField = $this->dataField;
-        if (!isset($data[$dataField])) {
+        if (!isset($data[$this->dataField])) {
             return null;
         }
 
         $conditions = [
-            $this->tokenField => $data[$dataField]
+            $this->tokenField => $data[$this->dataField]
         ];
 
         return $this->resolver->find($conditions);
