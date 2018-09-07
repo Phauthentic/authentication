@@ -43,7 +43,6 @@ use RuntimeException;
  */
 class LdapIdentifier extends AbstractIdentifier
 {
-
     /**
      * Default configuration
      *
@@ -55,8 +54,33 @@ class LdapIdentifier extends AbstractIdentifier
             self::CREDENTIAL_USERNAME => 'username',
             self::CREDENTIAL_PASSWORD => 'password'
         ],
-        'port' => 389
+        'port' => 389,
+        'options' => []
     ];
+
+    /**
+     * Credential fields
+     *
+     * @var array
+     */
+    protected $credentialFields = [
+        self::CREDENTIAL_USERNAME => 'username',
+        self::CREDENTIAL_PASSWORD => 'password'
+    ];
+
+    /**
+     * Port
+     *
+     * @var int
+     */
+    protected $port = 389;
+
+    /**
+     * Adapter Options
+     *
+     * @var array
+     */
+    protected $options = [];
 
     protected $config = [];
 
@@ -72,16 +96,31 @@ class LdapIdentifier extends AbstractIdentifier
      *
      * @var \Authentication\Identifier\Ldap\AdapterInterface
      */
-    protected $_ldap = null;
+    protected $ldap = null;
 
     /**
      * {@inheritDoc}
      */
     public function __construct(array $config = [])
     {
-        $this->config = array_merge_recursive($this->defaultConfig, $config);
+        $this->config = array_merge($this->defaultConfig, $config);
         $this->_checkLdapConfig();
         $this->_buildLdapObject();
+    }
+
+    /**
+     * Set the fields used to to get the credentials from
+     *
+     * @param string $username Username field
+     * @param string $password Password field
+     * @return $this
+     */
+    public function setCredentialFields(string $username, string $password): self
+    {
+        $this->credentialFields[self::CREDENTIAL_USERNAME] = $username;
+        $this->credentialFields[self::CREDENTIAL_PASSWORD] = $password;
+
+        return $this;
     }
 
     /**
@@ -126,7 +165,7 @@ class LdapIdentifier extends AbstractIdentifier
             throw new RuntimeException($message);
         }
 
-        $this->_ldap = $ldap;
+        $this->ldap = $ldap;
     }
 
     /**
@@ -151,7 +190,7 @@ class LdapIdentifier extends AbstractIdentifier
      */
     public function getAdapter()
     {
-        return $this->_ldap;
+        return $this->ldap;
     }
 
     /**
@@ -161,9 +200,9 @@ class LdapIdentifier extends AbstractIdentifier
      */
     protected function _connectLdap()
     {
-        $config = $this->getConfig();
+        $config = $this->config;
 
-        $this->_ldap->connect(
+        $this->ldap->connect(
             $config['host'],
             $config['port'],
             $this->config['options']
@@ -180,9 +219,9 @@ class LdapIdentifier extends AbstractIdentifier
     protected function _bindUser($username, $password)
     {
         try {
-            $ldapBind = $this->_ldap->bind($this->config['bindDN']($username), $password);
+            $ldapBind = $this->ldap->bind($this->config['bindDN']($username), $password);
             if ($ldapBind === true) {
-                $this->_ldap->unbind();
+                $this->ldap->unbind();
 
                 return new ArrayObject([
                     $this->config['fields'][self::CREDENTIAL_USERNAME] => $username
@@ -191,7 +230,7 @@ class LdapIdentifier extends AbstractIdentifier
         } catch (ErrorException $e) {
             $this->_handleLdapError($e->getMessage());
         }
-        $this->_ldap->unbind();
+        $this->ldap->unbind();
 
         return null;
     }
@@ -204,7 +243,7 @@ class LdapIdentifier extends AbstractIdentifier
      */
     protected function _handleLdapError($message)
     {
-        $extendedError = $this->_ldap->getDiagnosticMessage();
+        $extendedError = $this->ldap->getDiagnosticMessage();
         if (!is_null($extendedError)) {
             $this->errors[] = $extendedError;
         }

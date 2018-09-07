@@ -43,11 +43,9 @@ class TokenIdentifierTest extends TestCase
      */
     public function testIdentify(): void
     {
-
-        $identifier = new TokenIdentifier($this->resolver, [
-            'dataField' => 'user',
-            'tokenField' => 'username'
-        ]);
+        $identifier = (new TokenIdentifier($this->resolver))
+            ->setDataField('user')
+            ->setTokenField('username');
 
         $user = new ArrayObject([
             'username' => 'larry'
