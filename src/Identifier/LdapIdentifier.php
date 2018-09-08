@@ -28,36 +28,18 @@ use RuntimeException;
  * Identifies authentication credentials using LDAP.
  *
  * ```
- *  new LdapIdentifier([
- *       'host' => 'ldap.example.com',
- *       'bindDN' => function($username) {
- *           return $username; //transform into a rdn or dn
- *       },
- *       'options' => [
- *           LDAP_OPT_PROTOCOL_VERSION => 3
- *       ]
- *  ]);
+ *  $identifier = (new LadapIdentifier($ldapAdapter, 'ldap.example.com', function($username) {
+  *         return $username; //transform into a rdn or dn
+  *     })
+ *      ->setOptions([
+  *         LDAP_OPT_PROTOCOL_VERSION => 3
+  *     ]);
  * ```
  *
  * @link https://github.com/QueenCityCodeFactory/LDAP
  */
 class LdapIdentifier extends AbstractIdentifier
 {
-    /**
-     * Default configuration
-     *
-     * @var array
-     */
-    protected $defaultConfig = [
-        'ldap' => ExtensionAdapter::class,
-        'fields' => [
-            self::CREDENTIAL_USERNAME => 'username',
-            self::CREDENTIAL_PASSWORD => 'password'
-        ],
-        'port' => 389,
-        'options' => []
-    ];
-
     /**
      * Credential fields
      *
@@ -67,6 +49,20 @@ class LdapIdentifier extends AbstractIdentifier
         self::CREDENTIAL_USERNAME => 'username',
         self::CREDENTIAL_PASSWORD => 'password'
     ];
+
+    /**
+     * Host
+     *
+     * @var string
+     */
+    protected $host = '';
+
+    /**
+     * Bind DN
+     *
+     * @var callable
+     */
+    protected $bindDN;
 
     /**
      * Port
@@ -80,9 +76,7 @@ class LdapIdentifier extends AbstractIdentifier
      *
      * @var array
      */
-    protected $options = [];
-
-    protected $config = [];
+    protected $ldapOptions = [];
 
     /**
      * List of errors
@@ -101,11 +95,12 @@ class LdapIdentifier extends AbstractIdentifier
     /**
      * {@inheritDoc}
      */
-    public function __construct(array $config = [])
+    public function __construct(AdapterInterface $ldapAdapter, string $host, callable $bindDN, int $port = 389)
     {
-        $this->config = array_merge($this->defaultConfig, $config);
-        $this->_checkLdapConfig();
-        $this->_buildLdapObject();
+        $this->ldap = $ldapAdapter;
+        $this->bindDN = $bindDN;
+        $this->host = $host;
+        $this->port = $port;
     }
 
     /**
@@ -124,48 +119,16 @@ class LdapIdentifier extends AbstractIdentifier
     }
 
     /**
-     * Checks the LDAP config
+     * Sets LDAP options
      *
-     * @throws \RuntimeException
-     * @throws \InvalidArgumentException
-     * @return void
+     * @param array $options LDAP Options array
+     * @return $this
      */
-    protected function _checkLdapConfig()
+    public function setLdapOptions(array $options): self
     {
-        if (!isset($this->config['bindDN'])) {
-            throw new RuntimeException('Config `bindDN` is not set.');
-        }
-        if (!is_callable($this->config['bindDN'])) {
-            throw new InvalidArgumentException(sprintf(
-                'The `bindDN` config is not a callable. Got `%s` instead.',
-                gettype($this->config['bindDN'])
-            ));
-        }
-        if (!isset($this->config['host'])) {
-            throw new RuntimeException('Config `host` is not set.');
-        }
-    }
+        $this->ldapOptions = $options;
 
-    /**
-     * Constructs the LDAP object and sets it to the property
-     *
-     * @throws \RuntimeException
-     * @return void
-     */
-    protected function _buildLdapObject()
-    {
-        $ldap = $this->config['ldap'];
-
-        if (is_string($ldap)) {
-            $ldap = new $ldap();
-        }
-
-        if (!($ldap instanceof AdapterInterface)) {
-            $message = sprintf('Option `ldap` must implement `%s`.', AdapterInterface::class);
-            throw new RuntimeException($message);
-        }
-
-        $this->ldap = $ldap;
+        return $this;
     }
 
     /**
@@ -174,7 +137,7 @@ class LdapIdentifier extends AbstractIdentifier
     public function identify(array $data)
     {
         $this->_connectLdap();
-        $fields = $this->config['fields'];
+        $fields = $this->credentialFields;
 
         if (isset($data[$fields[self::CREDENTIAL_USERNAME]]) && isset($data[$fields[self::CREDENTIAL_PASSWORD]])) {
             return $this->_bindUser($data[$fields[self::CREDENTIAL_USERNAME]], $data[$fields[self::CREDENTIAL_PASSWORD]]);
@@ -200,12 +163,10 @@ class LdapIdentifier extends AbstractIdentifier
      */
     protected function _connectLdap()
     {
-        $config = $this->config;
-
         $this->ldap->connect(
-            $config['host'],
-            $config['port'],
-            $this->config['options']
+            $this->host,
+            $this->port,
+            $this->ldapOptions
         );
     }
 
@@ -219,12 +180,13 @@ class LdapIdentifier extends AbstractIdentifier
     protected function _bindUser($username, $password)
     {
         try {
-            $ldapBind = $this->ldap->bind($this->config['bindDN']($username), $password);
+            $callable = $this->bindDN;
+            $ldapBind = $this->ldap->bind($callable($username), $password);
             if ($ldapBind === true) {
                 $this->ldap->unbind();
 
                 return new ArrayObject([
-                    $this->config['fields'][self::CREDENTIAL_USERNAME] => $username
+                    $this->credentialFields[self::CREDENTIAL_USERNAME] => $username
                 ]);
             }
         } catch (ErrorException $e) {
