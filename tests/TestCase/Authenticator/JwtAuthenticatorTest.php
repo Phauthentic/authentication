@@ -126,7 +126,7 @@ class JwtAuthenticatorTest extends TestCase
             ['token' => $this->token]
         );
 
-        $this->identifiers = $this->createMock(CollectionIdentifier::class);
+        $this->identifiers = $this->createMock(JwtSubjectIdentifier::class);
         $this->identifiers->expects($this->once())
             ->method('identify')
             ->with([
@@ -166,7 +166,8 @@ class JwtAuthenticatorTest extends TestCase
 
         $authenticator = $this->getMockBuilder(JwtAuthenticator::class)
             ->setConstructorArgs([
-                $this->identifiers
+                $this->identifiers,
+                'secretKey'
             ])
             ->setMethods([
                 'getPayLoad'
@@ -199,7 +200,8 @@ class JwtAuthenticatorTest extends TestCase
 
         $authenticator = $this->getMockBuilder(JwtAuthenticator::class)
             ->setConstructorArgs([
-                $this->identifiers
+                $this->identifiers,
+                'secretKey'
             ])
             ->setMethods([
                 'getPayLoad'

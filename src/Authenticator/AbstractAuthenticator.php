@@ -33,7 +33,7 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
      *
      * @var \Authentication\Identifier\IdentifierInterface
      */
-    protected $_identifier;
+    protected $identifier;
 
     /**
      * Constructor
@@ -42,7 +42,7 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
      */
     public function __construct(IdentifierInterface $identifier)
     {
-        $this->_identifier = $identifier;
+        $this->identifier = $identifier;
     }
 
     /**
@@ -52,7 +52,7 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
      */
     public function getIdentifier()
     {
-        return $this->_identifier;
+        return $this->identifier;
     }
 
     /**
@@ -63,7 +63,7 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
      */
     public function setIdentifier(IdentifierInterface $identifier)
     {
-        $this->_identifier = $identifier;
+        $this->identifier = $identifier;
 
         return $this;
     }

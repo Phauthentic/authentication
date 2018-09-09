@@ -50,7 +50,7 @@ class FormAuthenticator extends AbstractAuthenticator
         IdentifierInterface $identifier,
         UrlCheckerInterface $urlChecker
     ) {
-        $this->_identifier = $identifier;
+        $this->identifier = $identifier;
         $this->urlChecker = $urlChecker;
     }
 
@@ -136,10 +136,10 @@ class FormAuthenticator extends AbstractAuthenticator
             ]);
         }
 
-        $user = $this->_identifier->identify($data);
+        $user = $this->identifier->identify($data);
 
         if (empty($user)) {
-            return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND, $this->_identifier->getErrors());
+            return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND, $this->identifier->getErrors());
         }
 
         return new Result($user, Result::SUCCESS);
