@@ -87,7 +87,7 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
             return null;
         }
 
-        return $this->_identifier->identify([
+        return $this->identifier->identify([
             IdentifierInterface::CREDENTIAL_USERNAME => $username,
             IdentifierInterface::CREDENTIAL_PASSWORD => $password,
         ]);

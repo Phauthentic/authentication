@@ -22,15 +22,17 @@ namespace Authentication\Identifier;
  */
 class JwtSubjectIdentifier extends TokenIdentifier
 {
+    /**
+     * Token Field
+     *
+     * @var string
+     */
+    protected $tokenField = 'id';
 
     /**
-     * Default configuration
+     * Data field
      *
-     * @var array
+     * @var string
      */
-    protected $defaultConfig = [
-        'tokenField' => 'id',
-        'dataField' => self::CREDENTIAL_JWT_SUBJECT,
-        'resolver' => 'Authentication.Orm'
-    ];
+    protected $dataField = self::CREDENTIAL_JWT_SUBJECT;
 }

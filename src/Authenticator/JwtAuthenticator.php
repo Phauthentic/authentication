@@ -29,6 +29,26 @@ use stdClass;
  */
 class JwtAuthenticator extends TokenAuthenticator
 {
+    /**
+     * Query param
+     *
+     * @var null|string
+     */
+    protected $queryParam = 'token';
+
+    /**
+     * Header
+     *
+     * @var null|string
+     */
+    protected $header = 'Authorization';
+
+    /**
+     * Token Prefix
+     *
+     * @var null|string
+     */
+    protected $tokenPrefix = 'bearer';
 
     /**
      * Hashing algorithms
@@ -53,19 +73,37 @@ class JwtAuthenticator extends TokenAuthenticator
      */
     protected $secretKey = null;
 
+    /**
+     * Sets algorithms to use
+     *
+     * @param array $algorithms List of algorithms
+     * @return $this
+     */
     public function setAlgorithms(array $algorithms): self
     {
         $this->algorithms = $algorithms;
+
+        return $this;
     }
 
+    /**
+     *
+     */
     public function setReturnPayload(bool $return): self
     {
         $this->returnPayload = $return;
+
+        return $this;
     }
 
+    /**
+     *
+     */
     public function setSecretKey(string $key): self
     {
         $this->secretKey = $key;
+
+        return $this;
     }
 
     /**
@@ -125,12 +163,12 @@ class JwtAuthenticator extends TokenAuthenticator
             return new Result($user, Result::SUCCESS);
         }
 
-        $user = $this->_identifier->identify([
+        $user = $this->identifier->identify([
             $key => $result[$key]
         ]);
 
         if (empty($user)) {
-            return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND, $this->_identifier->getErrors());
+            return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND, $this->identifier->getErrors());
         }
 
         return new Result($user, Result::SUCCESS);

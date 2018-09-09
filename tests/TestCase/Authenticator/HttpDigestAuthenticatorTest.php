@@ -18,8 +18,11 @@ namespace Authentication\Test\TestCase\Authentication;
 use Authentication\Authenticator\HttpDigestAuthenticator;
 use Authentication\Authenticator\Result;
 use Authentication\Authenticator\StatelessInterface;
-use Authentication\Authenticator\UnauthorizedException;
+use Authentication\Authenticator\Exception\UnauthorizedException;
 use Authentication\Identifier\IdentifierCollection;
+use Authentication\Identifier\PasswordIdentifier;
+use Authentication\Identifier\Resolver\OrmResolver;
+use Authentication\PasswordHasher\DefaultPasswordHasher;
 use Cake\Core\Configure;
 use Cake\Http\Response;
 use Cake\Http\ServerRequestFactory;
@@ -52,15 +55,11 @@ class HttpDigestAuthenticatorTest extends TestCase
     {
         parent::setUp();
 
-        $this->identifiers = new IdentifierCollection([
-           'Authentication.Password'
-        ]);
+        $this->identifiers = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
 
-        $this->auth = new HttpDigestAuthenticator($this->identifiers, [
-            'realm' => 'localhost',
-            'nonce' => 123,
-            'opaque' => '123abc'
-        ]);
+        $this->auth = (new HttpDigestAuthenticator($this->identifiers))
+            ->setRealm('localhost')
+            ->setOpaque('123abc');
 
         $password = HttpDigestAuthenticator::password('mariano', 'cake', 'localhost');
         $User = TableRegistry::get('Users');
@@ -76,16 +75,9 @@ class HttpDigestAuthenticatorTest extends TestCase
      */
     public function testConstructor()
     {
-        $object = new HttpDigestAuthenticator($this->identifiers, [
-            'userModel' => 'AuthUser',
-            'fields' => ['username' => 'user', 'password' => 'pass'],
-            'nonce' => 123456
-        ]);
+        $object = (new HttpDigestAuthenticator($this->identifiers))
+            ->setCredentialFields('user', 'pass');
 
-        $this->assertEquals('AuthUser', $object->getConfig('userModel'));
-        $this->assertEquals(['username' => 'user', 'password' => 'pass'], $object->getConfig('fields'));
-        $this->assertEquals(123456, $object->getConfig('nonce'));
-        $this->assertEquals(env('SERVER_NAME'), $object->getConfig('realm'));
         $this->assertInstanceOf(StatelessInterface::class, $object, 'Should be a stateless authenticator');
     }
 

@@ -54,6 +54,10 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      */
     protected $nonceLifetime = 300;
 
+    protected $secret;
+
+    protected $nounce;
+
     /**
      * Defaults to 'auth', no other values are supported at this time.
      *
@@ -79,6 +83,19 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
     public function __construct(IdentifierInterface $identifier)
     {
         parent::__construct($identifier);
+    }
+
+    /**
+     * Sets the secret
+     *
+     * @param string|null $realm Realm
+     * @return $this
+     */
+    public function setSecret(string $secret): self
+    {
+        $this->secret = $secret;
+
+        return $this;
     }
 
     /**
@@ -121,6 +138,19 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
     }
 
     /**
+     * Sets the password field name
+     *
+     * @param string $field Field name
+     * @return $this
+     */
+    public function setPasswordField(string $field)
+    {
+        $this->credentialFields[IdentifierInterface::CREDENTIAL_PASSWORD] = $field;
+
+        return $this;
+    }
+
+    /**
      * Get a user based on information in the request. Used by cookie-less auth for stateless clients.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
@@ -134,7 +164,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
             return new Result(null, Result::FAILURE_CREDENTIALS_MISSING);
         }
 
-        $user = $this->_identifier->identify([
+        $user = $this->identifier->identify([
             IdentifierInterface::CREDENTIAL_USERNAME => $digest['username']
         ]);
 
@@ -146,7 +176,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
             return new Result(null, Result::FAILURE_CREDENTIALS_INVALID);
         }
 
-        $field = $this->config['fields'][IdentifierInterface::CREDENTIAL_PASSWORD];
+        $field = $this->credentialFields[IdentifierInterface::CREDENTIAL_PASSWORD];
         $password = $user[$field];
 
         $server = $request->getServerParams();
@@ -251,13 +281,13 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
     protected function loginHeaders(ServerRequestInterface $request)
     {
         $server = $request->getServerParams();
-        $realm = $this->config['realm'] ?: $server['SERVER_NAME'];
+        $realm = $this->realm ?: $server['SERVER_NAME'];
 
         $options = [
             'realm' => $realm,
-            'qop' => $this->config['qop'],
+            'qop' => $this->qop,
             'nonce' => $this->generateNonce(),
-            'opaque' => $this->config['opaque'] ?: md5($realm)
+            'opaque' => $this->opaque ?: md5($realm)
         ];
 
         $digest = $this->_getDigest($request);
@@ -286,8 +316,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
     protected function generateNonce()
     {
         $expiryTime = microtime(true) + $this->nonceLifetime;
-        $secret = $this->config['secret'];
-        $signatureValue = hash_hmac('sha1', $expiryTime . ':' . $secret, $secret);
+        $signatureValue = hash_hmac('sha1', $expiryTime . ':' . $this->secret, $this->secret);
         $nonceValue = $expiryTime . ':' . $signatureValue;
 
         return base64_encode($nonceValue);
@@ -313,7 +342,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
         if ($expires < microtime(true)) {
             return false;
         }
-        $secret = $this->config['secret'];
+        $secret = $this->secret;
         $check = hash_hmac('sha1', $expires . ':' . $secret, $secret);
 
         return hash_equals($check, $checksum);
