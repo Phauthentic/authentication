@@ -28,7 +28,7 @@ trait CredentialFieldsTrait
      * @var array
      */
     protected $credentialFields = [
-        IdentifierInterface::CREDENTIAL_USERNAME => 'user',
+        IdentifierInterface::CREDENTIAL_USERNAME => 'username',
         IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
     ];
 
