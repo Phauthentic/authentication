@@ -12,7 +12,7 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Cake\Auth\Authenticator\Storage;
+namespace Authentication\Authenticator\Storage;
 
 use Authentication\Authenticator\Storage\StorageInterface;
 use Cake\Http\Cookie\Cookie;
