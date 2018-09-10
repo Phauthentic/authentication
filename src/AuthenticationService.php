@@ -15,6 +15,7 @@
 namespace Authentication;
 
 use Authentication\Authenticator\AuthenticatorCollectionInterface;
+use Authentication\Authenticator\AuthenticatorInterface;
 use Authentication\Authenticator\Result;
 use Authentication\Authenticator\ResultInterface;
 use Authentication\Authenticator\StatelessInterface;
@@ -102,7 +103,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @return \Authentication\Authenticator\AuthenticatorCollection
      */
-    public function authenticators()
+    public function authenticators(): AuthenticatorCollectionInterface
     {
         return $this->authenticators;
     }
@@ -113,7 +114,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      * @throws \RuntimeException
      * @return void
      */
-    protected function checkAuthenticators()
+    protected function checkAuthenticators(): void
     {
         if ($this->authenticators()->isEmpty()) {
             throw new RuntimeException(
@@ -158,7 +159,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      * @param \Psr\Http\Message\ResponseInterface $response The response.
      * @return array Return an array containing the request and response objects.
      */
-    public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response)
+    public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response): array
     {
         foreach ($this->authenticators() as $authenticator) {
             if ($authenticator instanceof PersistenceInterface) {
@@ -182,7 +183,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      * @param \Authentication\IdentityInterface $identity Identity data.
      * @return array
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, ?IdentityInterface $identity)
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, ?IdentityInterface $identity): array
     {
         if (is_null($identity)) {
             $identity = $this->getIdentity();
@@ -207,7 +208,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @return \Authentication\Authenticator\AuthenticatorInterface|null
      */
-    public function getAuthenticationProvider()
+    public function getAuthenticationProvider(): ?AuthenticatorInterface
     {
         return $this->successfulAuthenticator;
     }
@@ -217,7 +218,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @return \Authentication\Authenticator\ResultInterface|null Authentication result interface
      */
-    public function getResult()
+    public function getResult(): ?ResultInterface
     {
         return $this->result;
     }
@@ -227,7 +228,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @return null|\Authentication\IdentityInterface
      */
-    public function getIdentity()
+    public function getIdentity(): ?IdentityInterface
     {
         if ($this->result === null || !$this->result->isValid()) {
             return null;
