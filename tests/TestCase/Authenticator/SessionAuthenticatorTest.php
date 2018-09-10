@@ -17,7 +17,10 @@ namespace Authentication\Test\TestCase\Authenticator;
 use ArrayObject;
 use Authentication\Authenticator\Result;
 use Authentication\Authenticator\SessionAuthenticator;
-use Authentication\Identifier\IdentifierCollection;
+use Authentication\Authenticator\Storage\CakeSessionStorage;
+use Authentication\Identifier\PasswordIdentifier;
+use Authentication\Identifier\Resolver\OrmResolver;
+use Authentication\PasswordHasher\DefaultPasswordHasher;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Cake\Http\Response;
 use Cake\Http\ServerRequestFactory;
@@ -44,7 +47,7 @@ class SessionAuthenticatorTest extends TestCase
     {
         parent::setUp();
 
-        $this->identifiers = new PasswordIdentifier(new OrmResolver());
+        $this->identifiers = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
 
         $class = 'Cake\Http\Session';
         if (!class_exists($class)) {
@@ -76,7 +79,7 @@ class SessionAuthenticatorTest extends TestCase
 
         $request = $request->withAttribute('session', $this->sessionMock);
 
-        $authenticator = new SessionAuthenticator($this->identifiers);
+        $authenticator = new SessionAuthenticator($this->identifiers, new CakeSessionStorage());
         $result = $authenticator->authenticate($request, $response);
 
         $this->assertInstanceOf(Result::class, $result);
