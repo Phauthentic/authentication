@@ -197,17 +197,19 @@ class AuthenticationService implements AuthenticationServiceInterface
      */
     public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, ?IdentityInterface $identity): PersistenceResultInterface
     {
-        if (is_null($identity)) {
+        if ($identity === null) {
             $identity = $this->getIdentity();
         }
 
-        foreach ($this->authenticators() as $authenticator) {
-            if ($authenticator instanceof PersistenceInterface) {
-                $response = $authenticator->persistIdentity($request, $response, $identity);
+        if ($identity !== null) {
+            foreach ($this->authenticators() as $authenticator) {
+                if ($authenticator instanceof PersistenceInterface) {
+                    $response = $authenticator->persistIdentity($request, $response, $identity->getOriginalData());
+                }
             }
-        }
 
-        $request = $request->withAttribute($this->identityAttribute, $identity);
+            $request = $request->withAttribute($this->identityAttribute, $identity);
+        }
 
         return new PersistenceResult($request, $response);
     }
