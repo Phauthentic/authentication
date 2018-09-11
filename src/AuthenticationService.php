@@ -220,22 +220,22 @@ class AuthenticationService implements AuthenticationServiceInterface
             return null;
         }
 
-        $identity = $this->result->getData();
-        if (!($identity instanceof IdentityInterface) && $identity !== null) {
-            $identity = $this->buildIdentity($identity);
+        $data = $this->result->getData();
+        if ($data instanceof IdentityInterface || $data === null) {
+            return $data;
         }
 
-        return $identity;
+        return $this->buildIdentity($data);
     }
 
     /**
      * Builds the identity object
      *
-     * @param \ArrayAccess|array $identityData Identity data
+     * @param \ArrayAccess|array $data Identity data
      * @return \Authentication\IdentityInterface
      */
-    public function buildIdentity($identityData): IdentityInterface
+    public function buildIdentity($data): IdentityInterface
     {
-        return $this->identityFactory->create($identityData);
+        return $this->identityFactory->create($data);
     }
 }
