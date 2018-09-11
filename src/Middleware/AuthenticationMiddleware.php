@@ -24,7 +24,7 @@ class AuthenticationMiddleware implements MiddlewareInterface
     /**
      * Response factory
      *
-     * @var null|\Psr\Http\Message\ResponseFactoryInterface
+     * @var \Psr\Http\Message\ResponseFactoryInterface
      */
     protected $responseFactory;
 
@@ -50,11 +50,12 @@ class AuthenticationMiddleware implements MiddlewareInterface
     /**
      * AuthenticationPsr15Middleware constructor.
      *
-     * @param null|\Psr\Http\Message\ResponseFactoryInterface $responseFactory
+     * @param AuthenticationServiceInterface $service
+     * @param ResponseFactoryInterface $responseFactory
      */
     public function __construct(
         AuthenticationServiceInterface $service,
-        ?ResponseFactoryInterface $responseFactory = null
+        ResponseFactoryInterface $responseFactory = null
     ){
         $this->service = $service;
         $this->responseFactory = $responseFactory;
@@ -115,14 +116,14 @@ class AuthenticationMiddleware implements MiddlewareInterface
         $request = $request->withAttribute('authentication', $authResult);
 
         if (!$wasAuthenticated) {
-            if (!empty($this->responseFactory) && !empty($this->unauthorizedRedirectUrl)) {
+            if (!empty($this->unauthorizedRedirectUrl)) {
                 return $this->getUnauthorizedRedirectResponse($request, $authResult, $authenticator);
             }
 
             return $handler->handle($request);
         }
 
-        if (!empty($this->responseFactory) && !empty($this->successRedirectUrl)) {
+        if (!empty($this->successRedirectUrl)) {
             $response = $this->getSuccessRedirectResponse($request, $authResult, $authenticator);
             $result = $this->service->persistIdentity($request, $response);
 
