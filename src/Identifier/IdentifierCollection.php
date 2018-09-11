@@ -15,6 +15,7 @@
 namespace Authentication\Identifier;
 
 use ArrayIterator;
+use Traversable;
 
 /**
  * Identifier Collection
@@ -32,9 +33,9 @@ class IdentifierCollection implements IdentifierCollectionInterface
     /**
      * Constructor
      *
-     * @param array $config Configuration
+     * @param iterable $identifiers Identifier objects.
      */
-    public function __construct(array $identifiers = [])
+    public function __construct(iterable $identifiers = [])
     {
         foreach ($identifiers as $identifier) {
             $this->add($identifier);
@@ -44,7 +45,7 @@ class IdentifierCollection implements IdentifierCollectionInterface
     /**
      * Adds an identifier to the collection
      *
-     * @param \Authentication\Identifier\IdentifierInterface $identifier Identifier
+     * @param IdentifierInterface $identifier Identifier
      * @return void
      */
     public function add(IdentifierInterface $identifier): void
@@ -67,7 +68,7 @@ class IdentifierCollection implements IdentifierCollectionInterface
      *
      * @return \ArrayIterator
      */
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return new ArrayIterator($this->identifiers);
     }
