@@ -15,6 +15,7 @@
 namespace Authentication;
 
 use Authentication\Authenticator\AuthenticatorInterface;
+use Authentication\Authenticator\ResultInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -24,7 +25,7 @@ interface AuthenticationServiceInterface
      * Authenticate the request against the configured authentication adapters.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
-     * @return bool True on success
+     * @return bool
      */
     public function authenticate(ServerRequestInterface $request): bool;
 
@@ -47,7 +48,7 @@ interface AuthenticationServiceInterface
      *
      * @return \Authentication\Authenticator\ResultInterface|null Authentication result interface
      */
-    public function getResult();
+    public function getResult(): ?ResultInterface;
 
     /**
      * Returns a list of failed authenticators and their results after an authenticate() call
@@ -70,8 +71,8 @@ interface AuthenticationServiceInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
      * @param \Psr\Http\Message\ResponseInterface $response The response.
-     * @param \Authentication\IdentityInterface $identity Identity data.
+     * @param \Authentication\IdentityInterface|null $identity Identity object.
      * @return \Authentication\PersistenceResultInterface
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, ?IdentityInterface $identity): PersistenceResultInterface;
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, IdentityInterface $identity = null): PersistenceResultInterface;
 }

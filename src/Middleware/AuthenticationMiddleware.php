@@ -1,187 +1,154 @@
 <?php
-/**
- * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
- *
- * Licensed under The MIT License
- * For full copyright and license information, please see the LICENSE.txt
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
- * @link          https://cakephp.org CakePHP(tm) Project
- * @since         1.0.0
- * @license       https://opensource.org/licenses/mit-license.php MIT License
- */
 namespace Authentication\Middleware;
 
 use Authentication\AuthenticationServiceInterface;
 use Authentication\AuthenticationServiceProviderInterface;
-use Authentication\Authenticator\UnauthenticatedException;
-use Authentication\Authenticator\UnauthorizedException;
-use Cake\Core\InstanceConfigTrait;
+use Authentication\Authenticator\Exception\UnauthorizedException;
 use InvalidArgumentException;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
-use Zend\Diactoros\Response\EmitterInterface;
 use Zend\Diactoros\Stream;
 
 /**
- * Authentication Middleware
+ * PSR 15 Authenticator Middleware
  */
-class AuthenticationMiddleware
+class AuthenticationMiddleware implements MiddlewareInterface
 {
-    use InstanceConfigTrait;
+    /**
+     * Response factory
+     *
+     * @var \Psr\Http\Message\ResponseFactoryInterface
+     */
+    protected $responseFactory;
 
     /**
-     * Configuration options
-     *
-     * - `identityAttribute` - The request attribute to store the identity in.
-     * - `name` the application hook method to call. Will be prefixed with `authentication`
-     * - `unauthenticatedRedirect` - The URL to redirect unauthenticated errors to. See
-     *    AuthenticationComponent::allowUnauthenticated()
-     * - `queryParam` - Set to true to have unauthenticated redirects contain a `redirect` query string
-     *   parameter with the previously blocked URL.
+     * @var \Authentication\AuthenticationServiceProviderInterface
      */
-    protected $defaultConfig = [
-        'identityAttribute' => 'identity',
-        'name' => null,
-        'unauthenticatedRedirect' => null,
-        'queryParam' => null,
-    ];
+    protected $provider;
 
     /**
-     * Authentication service or application instance.
-     *
-     * @var \Authentication\AuthenticationServiceInterface|\Authentication\AuthenticationServiceProviderInterface
+     * @var string
      */
-    protected $subject;
+    protected $serviceAttribute = 'authentication';
 
     /**
-     * Constructor
+     * Request attribute for the identity
      *
-     * @param \Authentication\AuthenticationServiceInterface|\Authentication\AuthenticationServiceProviderInterface $subject Authentication service or application instance.
-     * @param array|string $config Array of configuration settings or string with authentication service provider name.
-     * @throws \InvalidArgumentException When invalid subject has been passed.
+     * @var string
      */
-    public function __construct($subject, $config = null)
-    {
-        if (is_string($config)) {
-            $config = ['name' => $config];
-        }
-        $this->setConfig($config);
+    protected $identityAttribute = 'identity';
 
-        if (!($subject instanceof AuthenticationServiceInterface) && !($subject instanceof AuthenticationServiceProviderInterface)) {
-            $expected = implode('` or `', [
-                AuthenticationServiceInterface::class,
-                AuthenticationServiceProviderInterface::class
-            ]);
-            $type = is_object($subject) ? get_class($subject) : gettype($subject);
-            $message = sprintf('Subject must be an instance of `%s`, `%s` given.', $expected, $type);
-
-            throw new InvalidArgumentException($message);
-        }
-
-        $this->subject = $subject;
+    /**
+     * Constructor.
+     *
+     * @param \Authentication\AuthenticationServiceProviderInterface $provider Provider.
+     * @param \Psr\Http\Message\ResponseFactoryInterface $responseFactory Factory.
+     */
+    public function __construct(
+        AuthenticationServiceProviderInterface $provider,
+        ResponseFactoryInterface $responseFactory
+    ) {
+        $this->provider = $provider;
+        $this->responseFactory = $responseFactory;
     }
 
     /**
-     * Callable implementation for the middleware stack.
+     * Sets request attribute name for authentication service.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request The request.
-     * @param \Psr\Http\Message\ResponseInterface $response The response.
-     * @param callable $next The next middleware to call.
-     * @return \Psr\Http\Message\ResponseInterface A response.
+     * @param string $attribute Attribute name.
+     * @return $this
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, $next)
+    public function setServiceAttribute(string $attribute): self
     {
-        $service = $this->getAuthenticationService($request, $response);
+        $this->serviceAttribute = $attribute;
 
-        try {
-            $result = $service->authenticate($request, $response);
-        } catch (UnauthorizedException $e) {
-            $body = new Stream('php://memory', 'rw');
-            $body->write($e->getBody());
-            $response = $response->withStatus($e->getCode())
-                ->withBody($body);
-            foreach ($e->getHeaders() as $header => $value) {
-                $response = $response->withHeader($header, $value);
-            }
-
-            return $response;
-        }
-
-        $request = $result['request'];
-        $request = $request->withAttribute($this->getConfig('identityAttribute'), $service->getIdentity());
-        $request = $request->withAttribute('authentication', $service);
-        $request = $request->withAttribute('authenticationResult', $result['result']);
-
-        $response = $result['response'];
-
-        try {
-            return $next($request, $response);
-        } catch (UnauthenticatedException $e) {
-            $target = $this->getConfig('unauthenticatedRedirect');
-            if ($target) {
-                $url = $this->getRedirectUrl($target, $request);
-
-                return $response
-                    ->withStatus(301)
-                    ->withHeader('Location', $url);
-            }
-            throw $e;
-        }
+        return $this;
     }
 
     /**
-     * Returns redirect URL.
+     * Sets the identity attribute
      *
-     * @param string $target Redirect target.
-     * @param \Psr\Http\Message\ServerRequestInterface $request Request instance.
-     * @return string
+     * @param string $attribute Attribute name
+     * @return $this
      */
-    protected function getRedirectUrl($target, ServerRequestInterface $request)
+    public function setIdentityAttribute(string $attribute): self
     {
-        $param = $this->getConfig('queryParam');
-        if ($param === null) {
-            return $target;
-        }
+        $this->identityAttribute = $attribute;
 
-        $query = urlencode($param) . '=' . urlencode($request->getUri());
-
-        if (strpos($target, '?') !== false) {
-            $query = '&' . $query;
-        } else {
-            $query = '?' . $query;
-        }
-
-        return $target . $query;
+        return $this;
     }
 
     /**
-     * Returns AuthenticationServiceInterface instance.
+     * Adds an attribute to the request and returns a modified request.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request Server request.
-     * @param \Psr\Http\Message\ResponseInterface $response Response.
-     * @return \Authentication\AuthenticationServiceInterface
-     * @throws \RuntimeException When authentication method has not been defined.
+     * @param ServerRequestInterface $request Request.
+     * @param string $name Attribute name.
+     * @param mixed $value Attribute value.
+     * @return ServerRequestInterface
+     * @throws RuntimeException When attribute is present.
      */
-    protected function getAuthenticationService($request, $response)
+    protected function addAttribute(ServerRequestInterface $request, string $name, $value): ServerRequestInterface
     {
-        $subject = $this->subject;
-
-        if ($subject instanceof AuthenticationServiceProviderInterface) {
-            $subject = $this->subject->getAuthenticationService($request, $response);
-        }
-
-        if (!$subject instanceof AuthenticationServiceInterface) {
-            $type = is_object($subject) ? get_class($subject) : gettype($subject);
-            $message = sprintf('Service provided by a subject must be an instance of `%s`, `%s` given.', AuthenticationServiceInterface::class, $type);
-
+        if ($request->getAttribute($name)) {
+            $message = sprintf('Request attribute `%s` already exists.', $name);
             throw new RuntimeException($message);
         }
 
-        return $subject;
+        return $request->withAttribute($name, $value);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws RuntimeException When request attribute exists.
+     */
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
+        $service = $this->provider->getAuthenticationService($request);
+        $request = $this->addAttribute($request, $this->serviceAttribute, $service);
+
+        try {
+            $service->authenticate($request);
+        } catch (UnauthorizedException $e) {
+            return $this->createUnauthorizedResponse($e);
+        }
+
+        $identity = $service->getIdentity();
+        $request = $this->addAttribute($request, $this->identityAttribute, $identity);
+
+        $response = $handler->handle($request);
+        if ($response instanceof ResponseInterface) {
+            $result = $service->persistIdentity($request, $response);
+
+            return $result->getResponse();
+        }
+
+        return $response;
+    }
+
+    /**
+     * Creates an unauthorized response.
+     *
+     * @param UnauthorizedException $e Exception.
+     * @return ResponseInterface
+     */
+    protected function createUnauthorizedResponse(UnauthorizedException $e): ResponseInterface
+    {
+        $body = new Stream('php://memory', 'rw');
+        $body->write($e->getBody());
+        $response = $this
+            ->responseFactory
+            ->createResponse($e->getCode())
+            ->withBody($body);
+
+        foreach ($e->getHeaders() as $header => $value) {
+            $response = $response->withHeader($header, $value);
+        }
+
+        return $response;
+    }
 }

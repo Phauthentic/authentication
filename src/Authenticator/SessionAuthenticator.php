@@ -136,8 +136,8 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
     /**
      * {@inheritDoc}
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $identity): ResponseInterface
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $data): ResponseInterface
     {
-        return $this->storage->write($request, $response, $identity);
+        return $this->storage->write($request, $response, $data);
     }
 }
