@@ -142,27 +142,27 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
 
         list($username, $tokenHash) = $token;
 
-        $identity = $this->identifier->identify([
+        $data = $this->identifier->identify([
             IdentifierInterface::CREDENTIAL_USERNAME => $username,
         ]);
 
-        if (empty($identity)) {
+        if (empty($data)) {
             return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND, $this->identifier->getErrors());
         }
 
-        if (!$this->checkToken($identity, $tokenHash)) {
+        if (!$this->checkToken($data, $tokenHash)) {
             return new Result(null, Result::FAILURE_CREDENTIALS_INVALID, [
                 'Cookie token does not match'
             ]);
         }
 
-        return new Result($identity, Result::SUCCESS);
+        return new Result($data, Result::SUCCESS);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $identity): ResponseInterface
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $data): ResponseInterface
     {
         $field = $this->rememberMeField;
         $bodyData = $request->getParsedBody();
@@ -171,7 +171,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
             return $response;
         }
 
-        $token = $this->createToken($identity);
+        $token = $this->createToken($data);
 
         return $this->storage->write($request, $response, $token);
     }
@@ -189,15 +189,15 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      *
      * Returns concatenated username and password hash.
      *
-     * @param array|\ArrayAccess $identity Identity data.
+     * @param array|\ArrayAccess $data Identity data.
      * @return string
      */
-    protected function createPlainToken($identity): string
+    protected function createPlainToken($data): string
     {
         $usernameField = $this->credentialFields[IdentifierInterface::CREDENTIAL_USERNAME];
         $passwordField = $this->credentialFields[IdentifierInterface::CREDENTIAL_PASSWORD];
 
-        return $identity[$usernameField] . $identity[$passwordField];
+        return $data[$usernameField] . $data[$passwordField];
     }
 
     /**
@@ -205,29 +205,29 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      *
      * Cookie token consists of a username and hashed username + password hash.
      *
-     * @param array|\ArrayAccess $identity Identity data.
+     * @param array|\ArrayAccess $data Identity data.
      * @return string
      */
-    protected function createToken($identity): string
+    protected function createToken($data): string
     {
-        $plain = $this->createPlainToken($identity);
+        $plain = $this->createPlainToken($data);
         $hash = $this->passwordHasher->hash($plain);
 
         $usernameField = $this->credentialFields[IdentifierInterface::CREDENTIAL_USERNAME];
 
-        return (string)json_encode([$identity[$usernameField], $hash]);
+        return (string)json_encode([$data[$usernameField], $hash]);
     }
 
     /**
      * Checks whether a token hash matches the identity data.
      *
-     * @param array|\ArrayAccess $identity Identity data.
+     * @param array|\ArrayAccess $data Identity data.
      * @param string $tokenHash Hashed part of a cookie token.
      * @return bool
      */
-    protected function checkToken($identity, $tokenHash): bool
+    protected function checkToken($data, $tokenHash): bool
     {
-        $plain = $this->createPlainToken($identity);
+        $plain = $this->createPlainToken($data);
 
         return $this->passwordHasher->check($plain, $tokenHash);
     }

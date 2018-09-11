@@ -114,21 +114,21 @@ class PasswordIdentifier extends AbstractIdentifier
     /**
      * {@inheritDoc}
      */
-    public function identify(array $data)
+    public function identify(array $credentials)
     {
-        if (!isset($data[self::CREDENTIAL_USERNAME])) {
+        if (!isset($credentials[self::CREDENTIAL_USERNAME])) {
             return null;
         }
 
-        $identity = $this->_findIdentity($data[self::CREDENTIAL_USERNAME]);
-        if (array_key_exists(self::CREDENTIAL_PASSWORD, $data)) {
-            $password = $data[self::CREDENTIAL_PASSWORD];
-            if (!$this->_checkPassword($identity, $password)) {
+        $data = $this->_findIdentity($credentials[self::CREDENTIAL_USERNAME]);
+        if (array_key_exists(self::CREDENTIAL_PASSWORD, $credentials)) {
+            $password = $credentials[self::CREDENTIAL_PASSWORD];
+            if (!$this->_checkPassword($data, $password)) {
                 return null;
             }
         }
 
-        return $identity;
+        return $data;
     }
 
     /**
@@ -136,22 +136,22 @@ class PasswordIdentifier extends AbstractIdentifier
      * Input passwords will be hashed even when a user doesn't exist. This
      * helps mitigate timing attacks that are attempting to find valid usernames.
      *
-     * @param array|\ArrayAccess|null $identity The identity or null.
+     * @param array|\ArrayAccess|null $data The identity or null.
      * @param string|null $password The password.
      * @return bool
      */
-    protected function _checkPassword($identity, $password): bool
+    protected function _checkPassword($data, $password): bool
     {
         $passwordField = $this->credentialFields[self::CREDENTIAL_PASSWORD];
 
-        if ($identity === null) {
-            $identity = [
+        if ($data === null) {
+            $data = [
                 $passwordField => ''
             ];
         }
 
         $hasher = $this->passwordHasher;
-        $hashedPassword = $identity[$passwordField];
+        $hashedPassword = $data[$passwordField];
         if (!$hasher->check((string)$password, $hashedPassword)) {
             return false;
         }
