@@ -27,19 +27,16 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
 {
 
     /**
-     * Default config for this object.
-     * - `fields` The fields to use to verify a user by.
-     * - `identify` Whether or not to identify user data stored in a session.
-     *
      * @var array
      */
-    protected $defaultConfig = [
-        'fields' => [
-            IdentifierInterface::CREDENTIAL_USERNAME => 'username'
-        ],
-        'identify' => false,
-        'identityAttribute' => 'identity',
+    protected $credentialFields = [
+        IdentifierInterface::CREDENTIAL_USERNAME => 'username',
     ];
+
+    /**
+     * @var bool
+     */
+    protected $verify = false;
 
     /**
      * @var \Authentication\Authenticator\Storage\StorageInterface
@@ -51,8 +48,7 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
      */
     public function __construct(
         IdentifierInterface $identifiers,
-        StorageInterface $storage,
-        array $config = []
+        StorageInterface $storage
     ) {
         parent::__construct($identifiers);
 
@@ -60,11 +56,47 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
     }
 
     /**
+     * Set the fields to use to verify a user by.
+     *
+     * @param array $fields Credential fields.
+     * @return $this
+     */
+    public function setCredentialFields(array $fields): self
+    {
+        $this->credentialFields = $fields;
+
+        return $this;
+    }
+
+    /**
+     * Enable identity verification after it is retrieved from the session storage.
+     *
+     * @return $this
+     */
+    public function enableVerification(): self
+    {
+        $this->verify = true;
+
+        return $this;
+    }
+
+    /**
+     * Disable identity verification after it is retrieved from the session storage.
+     *
+     * @return $this
+     */
+    public function disableVerification(): self
+    {
+        $this->verify = false;
+
+        return $this;
+    }
+
+    /**
      * Authenticate a user using session data.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request to authenticate with.
-     * @param \Psr\Http\Message\ResponseInterface $response The response to add headers to.
-     * @return ResultInterface
+     * @return \Authentication\Authenticator\ResultInterface
      */
     public function authenticate(ServerRequestInterface $request)
     {
@@ -74,9 +106,9 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
             return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
         }
 
-        if ($this->config['identify'] === true) {
+        if ($this->verify) {
             $credentials = [];
-            foreach ($this->config['fields'] as $key => $field) {
+            foreach ($this->credentialFields as $key => $field) {
                 $credentials[$key] = $user[$field];
             }
             $user = $this->identifier->identify($credentials);
