@@ -3,12 +3,15 @@ namespace Authentication\Middleware;
 
 use Authentication\AuthenticationServiceInterface;
 use Authentication\AuthenticationServiceProviderInterface;
+use Authentication\Authenticator\Exception\UnauthorizedException;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
+use Zend\Diactoros\Stream;
 
 /**
  * PSR 15 Authenticator Middleware
@@ -135,7 +138,12 @@ class AuthenticationMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $service = $this->getService($request);
-        $wasAuthenticated = $service->authenticate($request);
+
+        try {
+            $wasAuthenticated = $service->authenticate($request);
+        } catch (UnauthorizedException $e) {
+            return $this->createUnauthorizedResponse($e);
+        }
 
         $authResult = $service->getResult();
         $authenticator = $service->getSuccessfulAuthenticator();
@@ -151,6 +159,28 @@ class AuthenticationMiddleware implements MiddlewareInterface
             $result = $service->persistIdentity($request, $response);
 
             return $result['response'];
+        }
+
+        return $response;
+    }
+
+    /**
+     * Creates an unauthorized response.
+     *
+     * @param UnauthorizedException $e Exception.
+     * @return ResponseInterface
+     */
+    protected function createUnauthorizedResponse(UnauthorizedException $e): ResponseInterface
+    {
+        $body = new Stream('php://memory', 'rw');
+        $body->write($e->getBody());
+        $response = $this
+            ->responseFactory
+            ->createResponse($e->getCode())
+            ->withBody($body);
+
+        foreach ($e->getHeaders() as $header => $value) {
+            $response = $response->withHeader($header, $value);
         }
 
         return $response;
