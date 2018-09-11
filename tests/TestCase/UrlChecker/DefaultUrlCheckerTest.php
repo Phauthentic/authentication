@@ -89,13 +89,12 @@ class DefaultUrlCheckerTest extends TestCase
     public function testCheckRegexp()
     {
         $checker = new DefaultUrlChecker();
+        $checker->useRegex(true);
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/en/users/login']
         );
 
-        $result = $checker->check($request, '%^/[a-z]{2}/users/login/?$%', [
-            'useRegex' => true
-        ]);
+        $result = $checker->check($request, '%^/[a-z]{2}/users/login/?$%');
         $this->assertTrue($result);
     }
 
@@ -107,13 +106,12 @@ class DefaultUrlCheckerTest extends TestCase
     public function testCheckFull()
     {
         $checker = new DefaultUrlChecker();
+        $checker->checkFullUrl(true);
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/users/login']
         );
 
-        $result = $checker->check($request, 'http://localhost/users/login', [
-            'checkFullUrl' => true
-        ]);
+        $result = $checker->check($request, 'http://localhost/users/login');
         $this->assertTrue($result);
     }
 }
