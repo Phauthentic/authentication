@@ -20,7 +20,7 @@ use Authentication\AuthenticationServiceProviderInterface;
 use Authentication\Authenticator\ResultInterface;
 use Authentication\Authenticator\UnauthenticatedException;
 use Authentication\IdentityInterface;
-use Authentication\Middleware\AuthenticationMiddleware;
+use Authentication\Middleware\CakeAuthenticationMiddleware;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Cake\Http\BaseApplication;
 use Cake\Http\Response;
@@ -29,7 +29,7 @@ use Firebase\JWT\JWT;
 use RuntimeException;
 use TestApp\Application;
 
-class AuthenticationMiddlewareTest extends TestCase
+class CakeAuthenticationMiddlewareTest extends TestCase
 {
 
     /**
@@ -69,7 +69,7 @@ class AuthenticationMiddlewareTest extends TestCase
             return $request;
         };
 
-        $middleware = new AuthenticationMiddleware($this->application);
+        $middleware = new CakeAuthenticationMiddleware($this->application);
         $expected = 'identity';
         $actual = $middleware->getConfig("identityAttribute");
         $this->assertEquals($expected, $actual);
@@ -101,7 +101,7 @@ class AuthenticationMiddlewareTest extends TestCase
             ->method('getAuthenticationService')
             ->willReturn($this->service);
 
-        $middleware = new AuthenticationMiddleware($provider);
+        $middleware = new CakeAuthenticationMiddleware($provider);
         $expected = 'identity';
         $actual = $middleware->getConfig("identityAttribute");
         $this->assertEquals($expected, $actual);
@@ -135,7 +135,7 @@ class AuthenticationMiddlewareTest extends TestCase
             ->method('getAuthenticationService')
             ->willReturn($app);
 
-        $middleware = new AuthenticationMiddleware($provider);
+        $middleware = new CakeAuthenticationMiddleware($provider);
         $expected = 'identity';
         $actual = $middleware->getConfig("identityAttribute");
         $this->assertEquals($expected, $actual);
@@ -163,7 +163,7 @@ class AuthenticationMiddlewareTest extends TestCase
             return $request;
         };
 
-        $middleware = new AuthenticationMiddleware($this->application, [
+        $middleware = new CakeAuthenticationMiddleware($this->application, [
             'identityAttribute' => 'customIdentity'
         ]);
 
@@ -211,7 +211,7 @@ class AuthenticationMiddlewareTest extends TestCase
             )
             ->willReturn($service);
 
-        $middleware = new AuthenticationMiddleware($application);
+        $middleware = new CakeAuthenticationMiddleware($application);
 
         $middleware($request, $response, $next);
     }
@@ -232,7 +232,7 @@ class AuthenticationMiddlewareTest extends TestCase
             return $request;
         };
 
-        $middleware = new AuthenticationMiddleware(new \stdClass());
+        $middleware = new CakeAuthenticationMiddleware(new \stdClass());
         $middleware($request, $response, $next);
     }
 
@@ -250,7 +250,7 @@ class AuthenticationMiddlewareTest extends TestCase
         );
         $response = new Response();
 
-        $middleware = new AuthenticationMiddleware($this->service);
+        $middleware = new CakeAuthenticationMiddleware($this->service);
 
         $next = function ($request, $response) {
             return $request;
@@ -279,7 +279,7 @@ class AuthenticationMiddlewareTest extends TestCase
         );
         $response = new Response();
 
-        $middleware = new AuthenticationMiddleware($this->service, [
+        $middleware = new CakeAuthenticationMiddleware($this->service, [
             'identityAttribute' => 'customIdentity'
         ]);
 
@@ -310,7 +310,7 @@ class AuthenticationMiddlewareTest extends TestCase
         );
         $response = new Response();
 
-        $middleware = new AuthenticationMiddleware($this->application);
+        $middleware = new CakeAuthenticationMiddleware($this->application);
 
         $next = function ($request, $response) {
             return $request;
@@ -339,7 +339,7 @@ class AuthenticationMiddlewareTest extends TestCase
         );
         $response = new Response();
 
-        $middleware = new AuthenticationMiddleware($this->service);
+        $middleware = new CakeAuthenticationMiddleware($this->service);
 
         $next = function ($request, $response) {
             return $request;
@@ -377,7 +377,7 @@ class AuthenticationMiddlewareTest extends TestCase
             ]
         ]);
 
-        $middleware = new AuthenticationMiddleware($service);
+        $middleware = new CakeAuthenticationMiddleware($service);
 
         $next = function ($request, $response) {
             $this->fail('next layer should not be called');
@@ -403,7 +403,7 @@ class AuthenticationMiddlewareTest extends TestCase
         );
         $response = new Response();
 
-        $middleware = new AuthenticationMiddleware($this->service, [
+        $middleware = new CakeAuthenticationMiddleware($this->service, [
             'unauthenticatedRedirect' => false,
         ]);
 
@@ -429,7 +429,7 @@ class AuthenticationMiddlewareTest extends TestCase
         );
         $response = new Response();
 
-        $middleware = new AuthenticationMiddleware($this->service, [
+        $middleware = new CakeAuthenticationMiddleware($this->service, [
             'unauthenticatedRedirect' => '/users/login',
         ]);
 
@@ -457,7 +457,7 @@ class AuthenticationMiddlewareTest extends TestCase
         );
         $response = new Response();
 
-        $middleware = new AuthenticationMiddleware($this->service, [
+        $middleware = new CakeAuthenticationMiddleware($this->service, [
             'unauthenticatedRedirect' => '/users/login',
             'queryParam' => 'redirect',
         ]);
@@ -486,7 +486,7 @@ class AuthenticationMiddlewareTest extends TestCase
         );
         $response = new Response();
 
-        $middleware = new AuthenticationMiddleware($this->service, [
+        $middleware = new CakeAuthenticationMiddleware($this->service, [
             'unauthenticatedRedirect' => '/users/login?hello=world',
             'queryParam' => 'redirect',
         ]);
@@ -537,7 +537,7 @@ class AuthenticationMiddlewareTest extends TestCase
 
         $response = new Response();
 
-        $middleware = new AuthenticationMiddleware($this->service);
+        $middleware = new CakeAuthenticationMiddleware($this->service);
 
         $next = function ($request, $response) {
             return $request;
@@ -582,7 +582,7 @@ class AuthenticationMiddlewareTest extends TestCase
 
         $response = new Response();
 
-        $middleware = new AuthenticationMiddleware($this->service);
+        $middleware = new CakeAuthenticationMiddleware($this->service);
 
         $next = function ($request, $response) {
             return $response;
