@@ -126,11 +126,11 @@ class AuthenticationService implements AuthenticationServiceInterface
      * {@inheritDoc}
      *
      * @throws \RuntimeException Throws a runtime exception when no authenticators are loaded.
-     * @return bool
      */
-    public function authenticate(ServerRequestInterface $request): bool
+    public function authenticate(ServerRequestInterface $request): ResultInterface
     {
         $this->checkAuthenticators();
+        $this->successfulAuthenticator = null;
         $this->failures = [];
 
         $result = null;
@@ -141,7 +141,7 @@ class AuthenticationService implements AuthenticationServiceInterface
                 $this->successfulAuthenticator = $authenticator;
                 $this->result = $result;
 
-                return true;
+                return $result;
             }
 
             if (!$result->isValid()) {
@@ -153,14 +153,13 @@ class AuthenticationService implements AuthenticationServiceInterface
             }
         }
 
-        $this->successfulAuthenticator = null;
         $this->result = $result;
 
-        return false;
+        return $result;
     }
 
     /**
-     * {@inheritDoc
+     * {@inheritDoc}
      */
     public function getFailures(): array
     {

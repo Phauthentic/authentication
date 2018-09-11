@@ -15,6 +15,7 @@
 namespace Authentication;
 
 use Authentication\Authenticator\AuthenticatorInterface;
+use Authentication\Authenticator\ResultInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -24,9 +25,9 @@ interface AuthenticationServiceInterface
      * Authenticate the request against the configured authentication adapters.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
-     * @return bool True on success
+     * @return \Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request): bool;
+    public function authenticate(ServerRequestInterface $request): ResultInterface;
 
     /**
      * Gets an identity object or null if identity has not been resolved.
