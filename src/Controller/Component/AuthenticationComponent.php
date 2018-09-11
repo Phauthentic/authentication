@@ -85,7 +85,7 @@ class AuthenticationComponent extends Component implements EventDispatcherInterf
      */
     public function beforeFilter()
     {
-        $provider = $this->_authentication->getAuthenticationProvider();
+        $provider = $this->_authentication->getSuccessfulAuthenticator();
 
         if ($provider === null ||
             $provider instanceof PersistenceInterface ||

@@ -76,7 +76,7 @@ class AuthenticationServiceTest extends TestCase
         $this->assertInstanceOf(ResponseInterface::class, $result['response']);
         $this->assertTrue($result['result']->isValid());
 
-        $result = $service->getAuthenticationProvider();
+        $result = $service->getSuccessfulAuthenticator();
         $this->assertInstanceOf(FormAuthenticator::class, $result);
 
         $this->assertEquals(
