@@ -48,7 +48,7 @@ interface AuthenticationServiceInterface
      *
      * @return \Authentication\Authenticator\ResultInterface|null Authentication result interface
      */
-    public function getResult();
+    public function getResult(): ?ResultInterface;
 
     /**
      * Returns a list of failed authenticators and their results after an authenticate() call
