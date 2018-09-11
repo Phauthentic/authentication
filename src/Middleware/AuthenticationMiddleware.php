@@ -82,6 +82,15 @@ class AuthenticationMiddleware implements MiddlewareInterface
         return $this;
     }
 
+    /**
+     * Adds an attribute to the request and returns a modified request.
+     *
+     * @param ServerRequestInterface $request Request.
+     * @param string $name Attribute name.
+     * @param mixed $value Attribute value.
+     * @return ServerRequestInterface
+     * @throws RuntimeException When attribute is present.
+     */
     protected function addAttribute(ServerRequestInterface $request, string $name, $value): ServerRequestInterface
     {
         if ($request->getAttribute($name)) {
