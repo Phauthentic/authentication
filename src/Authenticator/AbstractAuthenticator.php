@@ -15,8 +15,6 @@
 namespace Authentication\Authenticator;
 
 use Authentication\Identifier\IdentifierInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 abstract class AbstractAuthenticator implements AuthenticatorInterface
 {
@@ -50,7 +48,7 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
      *
      * @return \Authentication\Identifier\IdentifierInterface
      */
-    public function getIdentifier()
+    public function getIdentifier(): IdentifierInterface
     {
         return $this->identifier;
     }
@@ -61,19 +59,10 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
      * @param \Authentication\Identifier\IdentifierInterface $identifier IdentifierInterface instance.
      * @return $this
      */
-    public function setIdentifier(IdentifierInterface $identifier)
+    public function setIdentifier(IdentifierInterface $identifier): self
     {
         $this->identifier = $identifier;
 
         return $this;
     }
-
-    /**
-     * Authenticate a user based on the request information.
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request Request to get authentication information from.
-     * @param \Psr\Http\Message\ResponseInterface $response A response object that can have headers added.
-     * @return \Authentication\Authenticator\ResultInterface Returns a result object.
-     */
-    abstract public function authenticate(ServerRequestInterface $request);
 }

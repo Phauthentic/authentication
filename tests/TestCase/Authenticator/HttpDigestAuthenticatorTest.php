@@ -285,8 +285,6 @@ DIGEST;
      */
     public function testUnauthorizedFailReChallenge()
     {
-        $this->auth->setConfig('scope.username', 'nate');
-
         $nonce = $this->generateNonce();
         $digest = <<<DIGEST
 Digest username="mariano",

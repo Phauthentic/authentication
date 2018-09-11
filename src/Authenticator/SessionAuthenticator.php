@@ -98,7 +98,7 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
      * @param \Psr\Http\Message\ServerRequestInterface $request The request to authenticate with.
      * @return \Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request)
+    public function authenticate(ServerRequestInterface $request): ResultInterface
     {
         $user = $this->storage->read($request);
 

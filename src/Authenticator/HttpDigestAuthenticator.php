@@ -14,7 +14,6 @@
 namespace Authentication\Authenticator;
 
 use Authentication\Identifier\IdentifierInterface;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -54,9 +53,10 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      */
     protected $nonceLifetime = 300;
 
+    /**
+     * @var string
+     */
     protected $secret;
-
-    protected $nounce;
 
     /**
      * Defaults to 'auth', no other values are supported at this time.
@@ -66,29 +66,9 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
     protected $qop = 'auth';
 
     /**
-     * Constructor
-     *
-     * Besides the keys specified in AbstractAuthenticator::$defaultConfig,
-     * HttpDigestAuthenticate uses the following extra keys:
-     *
-     * - `realm` The realm authentication is for, Defaults to the servername.
-     * - `nonceLifetime` The number of seconds that nonces are valid for. Defaults to 300.
-     * - `qop` Defaults to 'auth', no other values are supported at this time.
-     * - `opaque` A string that must be returned unchanged by clients.
-     *    Defaults to `md5($config['realm'])`
-     *
-     * @param \Authentication\Identifier\IdentifierInterface $identifier Identifier instance.
-     * @param array $config Configuration settings.
-     */
-    public function __construct(IdentifierInterface $identifier)
-    {
-        parent::__construct($identifier);
-    }
-
-    /**
      * Sets the secret
      *
-     * @param string|null $realm Realm
+     * @param string $secret Secret
      * @return $this
      */
     public function setSecret(string $secret): self
@@ -127,7 +107,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
     /**
      * Sets the Opaque
      *
-     * @param string|null $realm Realm
+     * @param string|null $opaque Opaque
      * @return $this
      */
     public function setOpaque(?string $opaque): self
@@ -154,10 +134,9 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * Get a user based on information in the request. Used by cookie-less auth for stateless clients.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @param \Psr\Http\Message\ResponseInterface $response Unused response object.
      * @return \Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request)
+    public function authenticate(ServerRequestInterface $request): ResultInterface
     {
         $digest = $this->_getDigest($request);
         if ($digest === null) {
@@ -198,7 +177,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
      * @return array|null Array of digest information.
      */
-    protected function _getDigest(ServerRequestInterface $request)
+    protected function _getDigest(ServerRequestInterface $request): ?array
     {
         $server = $request->getServerParams();
         $digest = empty($server['PHP_AUTH_DIGEST']) ? null : $server['PHP_AUTH_DIGEST'];
@@ -221,7 +200,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param string $digest The raw digest authentication headers.
      * @return array|null An array of digest authentication headers
      */
-    public function parseAuthData($digest)
+    public function parseAuthData($digest): ?array
     {
         if (substr($digest, 0, 7) === 'Digest ') {
             $digest = substr($digest, 7);
@@ -250,7 +229,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param string $method Request method
      * @return string Response hash
      */
-    public function generateResponseHash($digest, $password, $method)
+    public function generateResponseHash($digest, $password, $method): string
     {
         return md5(
             $password .
@@ -267,7 +246,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param string $realm The realm the password is for.
      * @return string the hashed password that can later be used with Digest authentication.
      */
-    public static function password($username, $password, $realm)
+    public static function password(string $username, string $password, string $realm): string
     {
         return md5($username . ':' . $realm . ':' . $password);
     }
@@ -278,7 +257,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
      * @return array Headers for logging in.
      */
-    protected function loginHeaders(ServerRequestInterface $request)
+    protected function loginHeaders(ServerRequestInterface $request): array
     {
         $server = $request->getServerParams();
         $realm = $this->realm ?: $server['SERVER_NAME'];
@@ -313,7 +292,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      *
      * @return string
      */
-    protected function generateNonce()
+    protected function generateNonce(): string
     {
         $expiryTime = microtime(true) + $this->nonceLifetime;
         $signatureValue = hash_hmac('sha1', $expiryTime . ':' . $this->secret, $this->secret);
@@ -328,7 +307,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param string $nonce The nonce value to check.
      * @return bool
      */
-    protected function validNonce($nonce)
+    protected function validNonce(string $nonce): bool
     {
         $value = base64_decode($nonce);
         if ($value === false) {

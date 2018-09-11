@@ -14,7 +14,6 @@
  */
 namespace Authentication\Authenticator;
 
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 interface AuthenticatorInterface
@@ -23,8 +22,7 @@ interface AuthenticatorInterface
      * Authenticate user.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
-     * @param \Psr\Http\Message\ResponseInterface $response The response.
      * @return \Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request);
+    public function authenticate(ServerRequestInterface $request): ResultInterface;
 }
