@@ -100,7 +100,7 @@ class AuthenticationPsr15Middleware implements MiddlewareInterface
 
     protected function getUnauthorizedRedirectResponse($request, $authResult, $authenticator): ResponseInterface
     {
-        $response = $this->responseFactory->createResponse(301);
+        $response = $this->responseFactory->createResponse(302);
 
         if (is_callable($this->failureDirectUrl)) {
             return $this->redirectUrl($request, $response, $authResult, $authenticator);
