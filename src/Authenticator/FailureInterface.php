@@ -14,9 +14,6 @@
  */
 namespace Authentication\Authenticator;
 
-/**
- * @author Robert Pustułka <robert.pustulka@gmail.com>
- */
 interface FailureInterface
 {
 
