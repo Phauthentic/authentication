@@ -16,10 +16,11 @@ namespace Authentication;
 
 use Authentication\Authenticator\AuthenticatorCollectionInterface;
 use Authentication\Authenticator\AuthenticatorInterface;
+use Authentication\Authenticator\Failure;
 use Authentication\Authenticator\PersistenceInterface;
-use Authentication\Authenticator\Result;
 use Authentication\Authenticator\ResultInterface;
 use Authentication\Authenticator\StatelessInterface;
+use Authentication\Identity\IdentityFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -46,9 +47,9 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * A list of failed authenticators after an authentication attempt
      *
-     * @var array
+     * @var \Authentication\Authenticator\FailureInterface[]
      */
-    protected $failedAuthenticators = [];
+    protected $failures = [];
 
     /**
      * Result of the last authenticate() call.
@@ -58,11 +59,11 @@ class AuthenticationService implements AuthenticationServiceInterface
     protected $result;
 
     /**
-     * Identity class used to instantiate an identity object
+     * Identity factory used to instantiate an identity object
      *
-     * @var string
+     * @var \Authentication\Identity\IdentityFactoryInterface
      */
-    protected $identityClass = Identity::class;
+    protected $identityFactory;
 
     /**
      * Request attribute for the identity
@@ -74,23 +75,13 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * Constructor
      *
-     * @param array $config Configuration options.
+     * @param \Authentication\Authenticator\AuthenticatorCollection $authenticators Authenticator collection.
+     * @param \Authentication\Identity\IdentityFactoryInterface $factory Identity factory.
      */
-    public function __construct(AuthenticatorCollectionInterface $authenticators) {
-        $this->authenticators = $authenticators;
-    }
-
-    /**
-     * Sets the identity class
-     *
-     * @param string $class Class name
-     * @return $this
-     */
-    public function setIdentityClass($class): self
+    public function __construct(AuthenticatorCollectionInterface $authenticators, IdentityFactoryInterface $factory)
     {
-        $this->identityClass = $class;
-
-        return $this;
+        $this->authenticators = $authenticators;
+        $this->identityFactory = $factory;
     }
 
     /**
@@ -99,7 +90,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      * @param string $attribute Attribute name
      * @return $this
      */
-    public function setIdentityAttribute($attribute): self
+    public function setIdentityAttribute(string $attribute): self
     {
         $this->identityAttribute = $attribute;
 
@@ -140,8 +131,9 @@ class AuthenticationService implements AuthenticationServiceInterface
     public function authenticate(ServerRequestInterface $request): bool
     {
         $this->checkAuthenticators();
-        $this->failedAuthenticators = [];
+        $this->failures = [];
 
+        $result = null;
         foreach ($this->authenticators() as $authenticator) {
             /* @var $authenticator \Authentication\Authenticator\AuthenticatorInterface */
             $result = $authenticator->authenticate($request);
@@ -157,7 +149,7 @@ class AuthenticationService implements AuthenticationServiceInterface
                     $authenticator->unauthorizedChallenge($request);
                 }
 
-                $this->failedAuthenticators[] = $authenticator;
+                $this->failures[] = new Failure($authenticator, $result);
             }
         }
 
@@ -168,13 +160,11 @@ class AuthenticationService implements AuthenticationServiceInterface
     }
 
     /**
-     * Returns a list of failed authenticators after an authenticate() call
-     *
-     * @return array
+     * {@inheritDoc
      */
-    public function getFailedAuthenticators(): array
+    public function getFailures(): array
     {
-        return $this->failedAuthenticators;
+        return $this->failures;
     }
 
     /**
@@ -182,17 +172,17 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
      * @param \Psr\Http\Message\ResponseInterface $response The response.
-     * @return array Return an array containing the request and response objects.
+     * @return \Authentication\PersistenceResultInterface Return an array containing the request and response objects.
      */
     public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response): PersistenceResultInterface
     {
         foreach ($this->authenticators() as $authenticator) {
             if ($authenticator instanceof PersistenceInterface) {
-                $result = $authenticator->clearIdentity($request, $response);
-                $request = $result['request'];
-                $response = $result['response'];
+                $response = $authenticator->clearIdentity($request, $response);
             }
         }
+
+        $request = $request->withoutAttribute($this->identityAttribute);
 
         return new PersistenceResult($request, $response);
     }
@@ -202,21 +192,23 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
      * @param \Psr\Http\Message\ResponseInterface $response The response.
-     * @param \Authentication\IdentityInterface $identity Identity data.
-     * @return array
+     * @param \Authentication\IdentityInterface|null $identity Identity.
+     * @return \Authentication\PersistenceResultInterface
      */
     public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, ?IdentityInterface $identity): PersistenceResultInterface
     {
-        if (is_null($identity)) {
+        if ($identity === null) {
             $identity = $this->getIdentity();
         }
 
-        foreach ($this->authenticators() as $authenticator) {
-            if ($authenticator instanceof PersistenceInterface) {
-                $result = $authenticator->persistIdentity($request, $response, $identity);
-                $request = $result['request'];
-                $response = $result['response'];
+        if ($identity !== null) {
+            foreach ($this->authenticators() as $authenticator) {
+                if ($authenticator instanceof PersistenceInterface) {
+                    $response = $authenticator->persistIdentity($request, $response, $identity->getOriginalData());
+                }
             }
+
+            $request = $request->withAttribute($this->identityAttribute, $identity);
         }
 
         return new PersistenceResult($request, $response);
@@ -227,7 +219,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @return \Authentication\Authenticator\AuthenticatorInterface|null
      */
-    public function getAuthenticationProvider(): ?AuthenticatorInterface
+    public function getSuccessfulAuthenticator(): ?AuthenticatorInterface
     {
         return $this->successfulAuthenticator;
     }
@@ -254,7 +246,7 @@ class AuthenticationService implements AuthenticationServiceInterface
         }
 
         $identity = $this->result->getData();
-        if (!($identity instanceof IdentityInterface)) {
+        if (!($identity instanceof IdentityInterface) && $identity !== null) {
             $identity = $this->buildIdentity($identity);
         }
 
@@ -269,14 +261,6 @@ class AuthenticationService implements AuthenticationServiceInterface
      */
     public function buildIdentity($identityData): IdentityInterface
     {
-        $class = $this->identityClass;
-
-        if (is_callable($class)) {
-            $identity = $class($identityData);
-        } else {
-            $identity = new $class($identityData);
-        }
-
-        return $identity;
+        return $this->identityFactory->create($identityData);
     }
 }

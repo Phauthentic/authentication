@@ -12,22 +12,33 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication;
+namespace Authentication\Identity;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Authentication\Identity;
+use Authentication\IdentityInterface;
 
-/**
- *  AuthenticationServiceProviderInterface
- */
-interface AuthenticationServiceProviderInterface
+class DefaultIdentityFactory implements IdentityFactoryInterface
 {
     /**
-     * Returns an authentication service instance.
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request Request
-     * @param \Psr\Http\Message\ResponseInterface $response Response
-     * @return \Authentication\AuthenticationServiceInterface
+     * @var array
      */
-    public function getAuthenticationService(ServerRequestInterface $request, ResponseInterface $response): AuthenticationServiceInterface;
+    protected $config = [];
+
+    /**
+     * Constructor.
+     *
+     * @param array $config Config.
+     */
+    public function __construct(array $config = [])
+    {
+        $this->config = $config;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function create($data): IdentityInterface
+    {
+        return new Identity($data, $this->config);
+    }
 }
