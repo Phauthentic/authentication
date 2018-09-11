@@ -100,7 +100,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      * @param string $attribute Attribute name
      * @return $this
      */
-    public function setIdentityAttribute($attribute): self
+    public function setIdentityAttribute(string $attribute): self
     {
         $this->identityAttribute = $attribute;
 
@@ -189,11 +189,11 @@ class AuthenticationService implements AuthenticationServiceInterface
     {
         foreach ($this->authenticators() as $authenticator) {
             if ($authenticator instanceof PersistenceInterface) {
-                $result = $authenticator->clearIdentity($request, $response);
-                $request = $result['request'];
-                $response = $result['response'];
+                $response = $authenticator->clearIdentity($request, $response);
             }
         }
+
+        $request = $request->withoutAttribute($this->identityAttribute);
 
         return new PersistenceResult($request, $response);
     }
@@ -214,11 +214,11 @@ class AuthenticationService implements AuthenticationServiceInterface
 
         foreach ($this->authenticators() as $authenticator) {
             if ($authenticator instanceof PersistenceInterface) {
-                $result = $authenticator->persistIdentity($request, $response, $identity);
-                $request = $result['request'];
-                $response = $result['response'];
+                $response = $authenticator->persistIdentity($request, $response, $identity);
             }
         }
+
+        $request = $request->withAttribute($this->identityAttribute, $identity);
 
         return new PersistenceResult($request, $response);
     }
