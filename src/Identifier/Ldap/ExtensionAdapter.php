@@ -32,7 +32,7 @@ class ExtensionAdapter implements AdapterInterface
     /**
      * LDAP Object
      *
-     * @var object|null
+     * @var resource|null
      */
     protected $_connection;
 
@@ -94,7 +94,7 @@ class ExtensionAdapter implements AdapterInterface
     public function connect($host, $port, $options)
     {
         $this->_setErrorHandler();
-        $this->_connection = ldap_connect($host, $port);
+        $this->_connection = ldap_connect($host, $port) ?: null;
         $this->_unsetErrorHandler();
 
         if (is_array($options)) {
@@ -151,7 +151,9 @@ class ExtensionAdapter implements AdapterInterface
     public function unbind()
     {
         $this->_setErrorHandler();
-        ldap_unbind($this->_connection);
+        if ($this->_connection) {
+            ldap_unbind($this->_connection);
+        }
         $this->_unsetErrorHandler();
 
         $this->_connection = null;

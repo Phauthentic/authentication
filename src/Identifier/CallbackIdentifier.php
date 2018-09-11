@@ -15,7 +15,6 @@
 namespace Authentication\Identifier;
 
 use ArrayAccess;
-use InvalidArgumentException;
 use RuntimeException;
 
 /**
@@ -23,31 +22,18 @@ use RuntimeException;
  */
 class CallbackIdentifier extends AbstractIdentifier
 {
+
+    /**
+     * @var callable
+     */
     protected $callable;
 
     /**
      * {@inheritDoc}
      */
-    public function __construct($callable)
+    public function __construct(callable $callable)
     {
-        $this->checkCallable($callable);
         $this->callable = $callable;
-    }
-
-    /**
-     * Check the callable option
-     *
-     * @throws \InvalidArgumentException
-     * @return void
-     */
-    protected function checkCallable($callback)
-    {
-        if (!is_callable($callback)) {
-            throw new InvalidArgumentException(sprintf(
-                'The `callback` option is not a callable. Got `%s` instead.',
-                gettype($callback)
-            ));
-        }
     }
 
     /**

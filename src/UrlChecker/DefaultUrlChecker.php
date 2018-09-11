@@ -23,8 +23,14 @@ use Psr\Http\Message\UriInterface;
 class DefaultUrlChecker implements UrlCheckerInterface
 {
 
+    /**
+     * @var bool
+     */
     protected $checkFullUrl = false;
 
+    /**
+     * @var bool
+     */
     protected $useRegex = false;
 
     /**
@@ -56,22 +62,17 @@ class DefaultUrlChecker implements UrlCheckerInterface
     /**
      * {@inheritdoc}
      */
-    public function check(ServerRequestInterface $request, $urls, array $options = [])
+    public function check(ServerRequestInterface $request, $urls): bool
     {
-        $options = array_merge([
-            'checkFullUrl' => $this->checkFullUrl,
-            'useRegex' => $this->useRegex
-        ], $options);
-
         $urls = (array)$urls;
 
         if (empty($urls)) {
             return true;
         }
 
-        $checker = $this->_getChecker($options);
+        $checker = $this->_getChecker();
 
-        $url = $this->_getUrlFromRequest($request->getUri(), $options['checkFullUrl']);
+        $url = $this->_getUrlFromRequest($request->getUri());
 
         foreach ($urls as $validUrl) {
             if ($checker($validUrl, $url)) {
@@ -85,12 +86,11 @@ class DefaultUrlChecker implements UrlCheckerInterface
     /**
      * Gets the checker function name or a callback
      *
-     * @param array $options Array of options
-     * @return string|callable
+     * @return callable
      */
-    protected function _getChecker(array $options = [])
+    protected function _getChecker(): callable
     {
-        if (isset($options['useRegex']) && $options['useRegex']) {
+        if ($this->useRegex) {
             return 'preg_match';
         }
 
@@ -103,12 +103,11 @@ class DefaultUrlChecker implements UrlCheckerInterface
      * Returns current url.
      *
      * @param \Psr\Http\Message\UriInterface $uri Server Request
-     * @param bool $getFullUrl Get the full URL or just the path
      * @return string
      */
-    protected function _getUrlFromRequest(UriInterface $uri, $getFullUrl = false)
+    protected function _getUrlFromRequest(UriInterface $uri): string
     {
-        if ($getFullUrl) {
+        if ($this->checkFullUrl) {
             return (string)$uri;
         }
 

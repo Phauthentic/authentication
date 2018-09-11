@@ -33,19 +33,4 @@ class AbstractAuthenticatorTest extends TestCase
 
         $this->assertSame($identifier, $authenticator->getIdentifier());
     }
-
-    /**
-     * testSetIdentifier
-     *
-     * @return void
-     */
-    public function testSetIdentifier()
-    {
-        $authenticator = $this->getMockForAbstractClass(AbstractAuthenticator::class, [], '', false);
-
-        $identifier = $this->createMock(IdentifierInterface::class);
-        $authenticator->setIdentifier($identifier);
-
-        $this->assertSame($identifier, $authenticator->getIdentifier());
-    }
 }

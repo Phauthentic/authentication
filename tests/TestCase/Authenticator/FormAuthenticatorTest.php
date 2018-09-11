@@ -132,7 +132,7 @@ class FormAuthenticatorTest extends TestCase
 
         $urlChecker = new DefaultUrlChecker();
         $form = (new FormAuthenticator($identifier, $urlChecker))
-            ->setLoginUrl('/users/login');
+            ->addLoginUrl('/users/login');
 
         $result = $form->authenticate($request, $response);
 
@@ -189,7 +189,7 @@ class FormAuthenticatorTest extends TestCase
 
         $urlChecker = new DefaultUrlChecker();
         $form = (new FormAuthenticator($identifier, $urlChecker))
-            ->setLoginUrl('/Users/login');
+            ->addLoginUrl('/Users/login');
 
         $result = $form->authenticate($request, $response);
 
@@ -248,7 +248,7 @@ class FormAuthenticatorTest extends TestCase
             ->useRegex(true);
 
         $form = (new FormAuthenticator($identifier, $urlChecker))
-            ->setLoginUrl('%^/[a-z]{2}/users/login/?$%');
+            ->addLoginUrl('%^/[a-z]{2}/users/login/?$%');
 
         $result = $form->authenticate($request, $response);
 
@@ -280,7 +280,7 @@ class FormAuthenticatorTest extends TestCase
             ->checkFullUrl(true);
 
         $form = (new FormAuthenticator($identifier, $urlChecker))
-            ->setLoginUrl('%auth\.localhost/[a-z]{2}/users/login/?$%');
+            ->addLoginUrl('%auth\.localhost/[a-z]{2}/users/login/?$%');
 
         $result = $form->authenticate($request, $response);
 
@@ -313,7 +313,7 @@ class FormAuthenticatorTest extends TestCase
             ->checkFullUrl(true);
 
         $form = (new FormAuthenticator($identifier, $urlChecker))
-            ->setLoginUrl('%auth\.localhost/[a-z]{2}/users/login/?$%');
+            ->addLoginUrl('%auth\.localhost/[a-z]{2}/users/login/?$%');
 
         $result = $form->authenticate($request, $response);
 
@@ -339,7 +339,7 @@ class FormAuthenticatorTest extends TestCase
         $response = new Response();
 
         $form = (new FormAuthenticator($identifier, new DefaultUrlChecker()))
-            ->setLoginUrl('/users/login')
+            ->addLoginUrl('/users/login')
             ->setCredentialFields('email', 'secret');
 
         $identifier->expects($this->once())
@@ -373,7 +373,7 @@ class FormAuthenticatorTest extends TestCase
         $response = new Response();
 
         $form = (new FormAuthenticator($identifier, new DefaultUrlChecker()))
-            ->setLoginUrl('/users/login');
+            ->addLoginUrl('/users/login');
 
         $identifier->expects($this->once())
             ->method('identify')

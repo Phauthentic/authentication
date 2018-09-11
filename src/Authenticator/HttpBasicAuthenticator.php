@@ -15,7 +15,6 @@ namespace Authentication\Authenticator;
 
 use Authentication\Authenticator\Exception\UnauthorizedException;
 use Authentication\Identifier\IdentifierInterface;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -53,10 +52,9 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
      * login using HTTP auth.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request to authenticate with.
-     * @param \Psr\Http\Message\ResponseInterface $response The response to add headers to.
      * @return \Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request)
+    public function authenticate(ServerRequestInterface $request): ResultInterface
     {
         $user = $this->getUser($request);
 
@@ -98,9 +96,9 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request A request object.
      * @return void
-     * @throws \Authentication\Authenticator\UnauthorizedException
+     * @throws \Authentication\Authenticator\Exception\UnauthorizedException
      */
-    public function unauthorizedChallenge(ServerRequestInterface $request)
+    public function unauthorizedChallenge(ServerRequestInterface $request): void
     {
         throw new UnauthorizedException($this->loginHeaders($request), '');
     }
@@ -111,7 +109,7 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
      * @param \Psr\Http\Message\ServerRequestInterface $request Request object.
      * @return array Headers for logging in.
      */
-    protected function loginHeaders(ServerRequestInterface $request)
+    protected function loginHeaders(ServerRequestInterface $request): array
     {
         $server = $request->getServerParams();
         $realm = $this->realm ?: $server['SERVER_NAME'];

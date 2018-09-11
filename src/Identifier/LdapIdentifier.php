@@ -16,11 +16,7 @@ namespace Authentication\Identifier;
 
 use ArrayObject;
 use Authentication\Identifier\Ldap\AdapterInterface;
-use Authentication\Identifier\Ldap\ExtensionAdapter;
-use Cake\Core\App;
 use ErrorException;
-use InvalidArgumentException;
-use RuntimeException;
 
 /**
  * LDAP Identifier
@@ -29,11 +25,11 @@ use RuntimeException;
  *
  * ```
  *  $identifier = (new LadapIdentifier($ldapAdapter, 'ldap.example.com', function($username) {
-  *         return $username; //transform into a rdn or dn
-  *     })
+ *         return $username; //transform into a rdn or dn
+ *     })
  *      ->setOptions([
-  *         LDAP_OPT_PROTOCOL_VERSION => 3
-  *     ]);
+ *         LDAP_OPT_PROTOCOL_VERSION => 3
+ *     ]);
  * ```
  *
  * @link https://github.com/QueenCityCodeFactory/LDAP

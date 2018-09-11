@@ -14,8 +14,8 @@
  */
 namespace Authentication\Authenticator\Storage;
 
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Storage Interface
