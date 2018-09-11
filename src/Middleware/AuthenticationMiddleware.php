@@ -36,6 +36,13 @@ class AuthenticationMiddleware implements MiddlewareInterface
     protected $serviceAttribute = 'authentication';
 
     /**
+     * Request attribute for the identity
+     *
+     * @var string
+     */
+    protected $identityAttribute = 'identity';
+
+    /**
      * Constructor.
      *
      * @param \Authentication\AuthenticationServiceProviderInterface $provider Provider.
@@ -63,6 +70,29 @@ class AuthenticationMiddleware implements MiddlewareInterface
     }
 
     /**
+     * Sets the identity attribute
+     *
+     * @param string $attribute Attribute name
+     * @return $this
+     */
+    public function setIdentityAttribute(string $attribute): self
+    {
+        $this->identityAttribute = $attribute;
+
+        return $this;
+    }
+
+    protected function addAttribute(ServerRequestInterface $request, string $name, $value): ServerRequestInterface
+    {
+        if ($request->getAttribute($name)) {
+            $message = sprintf('Request attribute `%s` already exists.', $name);
+            throw new RuntimeException($message);
+        }
+
+        return $request->withAttribute($name, $value);
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @throws RuntimeException When request attribute exists.
@@ -70,17 +100,17 @@ class AuthenticationMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $service = $this->provider->getAuthenticationService($request);
-
-        if ($request->getAttribute($this->serviceAttribute)) {
-            $message = sprintf('Request attribute `%s` already exists.', $this->serviceAttribute);
-            throw new RuntimeException($message);
-        }
-        $request = $request->withAttribute($this->serviceAttribute, $service);
+        $request = $this->addAttribute($request, $this->serviceAttribute, $service);
 
         try {
-            $service->authenticate($request);
+            $result = $service->authenticate($request);
         } catch (UnauthorizedException $e) {
             return $this->createUnauthorizedResponse($e);
+        }
+
+        if ($result->isValid()) {
+            $identity = $service->getIdentity();
+            $request = $this->addAttribute($request, $this->identityAttribute, $identity);
         }
 
         $response = $handler->handle($request);
