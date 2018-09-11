@@ -195,7 +195,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      * @param \Authentication\IdentityInterface|null $identity Identity.
      * @return \Authentication\PersistenceResultInterface
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, ?IdentityInterface $identity): PersistenceResultInterface
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, IdentityInterface $identity = null): PersistenceResultInterface
     {
         if ($identity === null) {
             $identity = $this->getIdentity();
