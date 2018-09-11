@@ -103,15 +103,13 @@ class AuthenticationMiddleware implements MiddlewareInterface
         $request = $this->addAttribute($request, $this->serviceAttribute, $service);
 
         try {
-            $result = $service->authenticate($request);
+            $service->authenticate($request);
         } catch (UnauthorizedException $e) {
             return $this->createUnauthorizedResponse($e);
         }
 
-        if ($result->isValid()) {
-            $identity = $service->getIdentity();
-            $request = $this->addAttribute($request, $this->identityAttribute, $identity);
-        }
+        $identity = $service->getIdentity();
+        $request = $this->addAttribute($request, $this->identityAttribute, $identity);
 
         $response = $handler->handle($request);
         if ($response instanceof ResponseInterface) {
