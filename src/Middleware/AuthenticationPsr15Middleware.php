@@ -1,11 +1,14 @@
 <?php
 namespace Authentication\Middleware;
 
+use Authentication\AuthenticationService;
+use Authentication\AuthenticationServiceInterface;
 use Authentication\Authenticator\AuthenticatorCollection;
 use Authentication\Authenticator\AuthenticatorCollectionInterface;
 use Authentication\Authenticator\PersistenceInterface;
 use Authentication\Authenticator\ResultInterface;
 use Authentication\Authenticator\StatelessInterface;
+use InvalidArgumentException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -47,15 +50,22 @@ class AuthenticationPsr15Middleware implements MiddlewareInterface
     protected $successRedirectUrl;
 
     /**
+     * @var \Authentication\AuthenticationServiceInterface
+     */
+    protected $service;
+
+    /**
      * AuthenticationPsr15Middleware constructor.
      *
      * @param \Authentication\Authenticator\AuthenticatorCollectionInterface $collection
      * @param null|\Psr\Http\Message\ResponseFactoryInterface $responseFactory
      */
     public function __construct(
+        AuthenticationServiceInterface $service,
         AuthenticatorCollectionInterface $collection,
         ?ResponseFactoryInterface $responseFactory = null
     ){
+        $this->service = $service;
         $this->authenticators = $collection;
         $this->responseFactory = $responseFactory;
     }
@@ -63,11 +73,11 @@ class AuthenticationPsr15Middleware implements MiddlewareInterface
     protected function setRedirect($redirectUrl, $type)
     {
         if (!is_string($redirectUrl) && !is_callable($redirectUrl)) {
-            throw new \InvalidArgumentException('Redirect URL must be a string or callable');
+            throw new InvalidArgumentException('Redirect URL must be a string or callable');
         }
 
         if (!in_array($type, ['unauthorized', 'success'])) {
-            throw new \InvalidArgumentException('Type must be failure or success');
+            throw new InvalidArgumentException('Type must be failure or success');
         }
 
         $property = $type . 'RedirectUrl';
@@ -108,51 +118,35 @@ class AuthenticationPsr15Middleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if ($this->authenticators->isEmpty()) {
-            throw new RuntimeException('The authenticator collection is empty. You need to add at least one authenticator.');
-        }
+        $wasAuthenticated = $this->service->authenticate($request);
 
-        /* @var $authenticator \Authentication\Authenticator\AuthenticatorInterface */
-        foreach ($this->authenticators as $authenticator) {
-            $authResult = $authenticator->authenticate($request);
-            if ($authResult->isValid()) {
-                break;
-            }
-        }
-
-        if (!$authResult->isValid() && $authenticator instanceof StatelessInterface) {
-            $authenticator->unauthorizedChallenge($request);
-        }
-
-        if (!empty($this->responseFactory) && !empty($this->unauthorizedRedirectUrl)) {
-            return $this->getUnauthorizedRedirectResponse($request, $authResult, $authenticator);
-        }
-
+        $authResult = $this->service->getResult();
+        $authenticator = $this->service->getAuthenticationProvider();
         $request = $request->withAttribute('authentication', $authResult);
-        $handlerResult = $handler->handle($request);
 
-        return $this->handlePersistence($handlerResult, $authResult, $request);
-    }
-
-    /**
-     * Calls the persistence methods on authenticators that support persistence
-     *
-     * @return \Psr\Http\Message\ResponseInterface|\Psr\Http\Server\RequestHandlerInterface
-     */
-    protected function handlePersistence(
-        RequestHandlerInterface $handlerResult,
-        ResultInterface $authResult,
-        ServerRequestInterface $request
-    ) {
-        if ($handlerResult instanceof ResponseInterface) {
-            foreach ($this->authenticators as $authenticator) {
-                if ($authenticator instanceof PersistenceInterface) {
-                    $handlerResult = $authenticator->persistIdentity($request, $handlerResult, $authResult->getData());
-                }
+        if (!$wasAuthenticated) {
+            if (!empty($this->responseFactory) && !empty($this->unauthorizedRedirectUrl)) {
+                return $this->getUnauthorizedRedirectResponse($request, $authResult, $authenticator);
             }
+
+            return $handler->handle($request);
         }
 
-        return $handlerResult;
+        if (!empty($this->responseFactory) && !empty($this->successRedirectUrl)) {
+            $response = $this->getSuccessRedirectResponse($request, $authResult, $authenticator);
+            $result = $this->service->persistIdentity($request, $response);
+
+            return $response['response'];
+        }
+
+        $response = $handler->handle($request);
+        if ($response instanceof ResponseInterface) {
+            $result = $this->service->persistIdentity($request, $response);
+
+            return $result['response'];
+        }
+
+        return $response;
     }
 
     protected function getRedirectResponse(string $targetUrl): ResponseInterface
