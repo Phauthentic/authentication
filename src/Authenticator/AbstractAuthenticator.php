@@ -52,17 +52,4 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
     {
         return $this->identifier;
     }
-
-    /**
-     * Sets the identifier.
-     *
-     * @param \Authentication\Identifier\IdentifierInterface $identifier IdentifierInterface instance.
-     * @return $this
-     */
-    public function setIdentifier(IdentifierInterface $identifier): self
-    {
-        $this->identifier = $identifier;
-
-        return $this;
-    }
 }
