@@ -16,8 +16,9 @@ namespace Authentication;
 
 use Authentication\Authenticator\AuthenticatorCollectionInterface;
 use Authentication\Authenticator\AuthenticatorInterface;
+use Authentication\Authenticator\Failure;
+use Authentication\Authenticator\FailureInterface;
 use Authentication\Authenticator\PersistenceInterface;
-use Authentication\Authenticator\Result;
 use Authentication\Authenticator\ResultInterface;
 use Authentication\Authenticator\StatelessInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -46,9 +47,9 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * A list of failed authenticators after an authentication attempt
      *
-     * @var array
+     * @var \Authentication\Authenticator\FailureInterface[]
      */
-    protected $failedAuthenticators = [];
+    protected $failures = [];
 
     /**
      * Result of the last authenticate() call.
@@ -140,7 +141,7 @@ class AuthenticationService implements AuthenticationServiceInterface
     public function authenticate(ServerRequestInterface $request): bool
     {
         $this->checkAuthenticators();
-        $this->failedAuthenticators = [];
+        $this->failures = [];
 
         foreach ($this->authenticators() as $authenticator) {
             /* @var $authenticator \Authentication\Authenticator\AuthenticatorInterface */
@@ -157,7 +158,7 @@ class AuthenticationService implements AuthenticationServiceInterface
                     $authenticator->unauthorizedChallenge($request);
                 }
 
-                $this->failedAuthenticators[] = $authenticator;
+                $this->failures[] = new Failure($authenticator, $result);
             }
         }
 
@@ -172,9 +173,9 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @return array
      */
-    public function getFailedAuthenticators(): array
+    public function getFailures(): array
     {
-        return $this->failedAuthenticators;
+        return $this->failures;
     }
 
     /**

@@ -15,7 +15,6 @@
 namespace Authentication;
 
 use Authentication\Authenticator\AuthenticatorInterface;
-use Authentication\Authenticator\PersistenceInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -52,11 +51,11 @@ interface AuthenticationServiceInterface
     public function getResult();
 
     /**
-     * Returns a list of failed authenticators after an authenticate() call
+     * Returns a list of failed authenticators and their results after an authenticate() call
      *
-     * @return array
+     * @return \Authentication\Authenticator\FailureInterface[]
      */
-    public function getFailedAuthenticators(): array;
+    public function getFailures(): array;
 
     /**
      * Clears the identity from authenticators that store them and the request
