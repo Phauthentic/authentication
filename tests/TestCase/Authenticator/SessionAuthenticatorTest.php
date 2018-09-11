@@ -17,14 +17,13 @@ namespace Authentication\Test\TestCase\Authenticator;
 use ArrayObject;
 use Authentication\Authenticator\Result;
 use Authentication\Authenticator\SessionAuthenticator;
-use Authentication\Authenticator\Storage\CakeSessionStorage;
+use Authentication\Authenticator\Storage\StorageInterface;
 use Authentication\Identifier\PasswordIdentifier;
 use Authentication\Identifier\Resolver\OrmResolver;
 use Authentication\PasswordHasher\DefaultPasswordHasher;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Cake\Http\Response;
 use Cake\Http\ServerRequestFactory;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 class SessionAuthenticatorTest extends TestCase
@@ -41,22 +40,15 @@ class SessionAuthenticatorTest extends TestCase
     ];
 
     /**
-     * @inheritdoc
+     * @param StorageInterface $storage Storage instance.
+     * @return SessionAuthenticator
      */
-    public function setUp()
+    protected function createAuthenticator(StorageInterface $storage)
     {
-        parent::setUp();
+        $hasher = new DefaultPasswordHasher();
+        $identifiers = new PasswordIdentifier(new OrmResolver(), $hasher);
 
-        $this->identifiers = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
-
-        $class = 'Cake\Http\Session';
-        if (!class_exists($class)) {
-            $class = '\Cake\Network\Session';
-        }
-        $this->sessionMock = $this->getMockBuilder($class)
-            ->disableOriginalConstructor()
-            ->setMethods(['read', 'write', 'delete'])
-            ->getMock();
+        return new SessionAuthenticator($identifiers, $storage);
     }
 
     /**
@@ -69,30 +61,41 @@ class SessionAuthenticatorTest extends TestCase
         $request = ServerRequestFactory::fromGlobals(['REQUEST_URI' => '/']);
         $response = new Response();
 
-        $this->sessionMock->expects($this->at(0))
+        $storage = $this->createMock(StorageInterface::class);
+        $storage
+            ->expects($this->once())
             ->method('read')
-            ->with('Auth')
-            ->will($this->returnValue([
+            ->with($request)
+            ->willReturn([
                 'username' => 'mariano',
-                'password' => 'password'
-            ]));
+                'password' => 'h45h'
+            ]);
 
-        $request = $request->withAttribute('session', $this->sessionMock);
-
-        $authenticator = new SessionAuthenticator($this->identifiers, new CakeSessionStorage());
+        $authenticator = $this->createAuthenticator($storage);
         $result = $authenticator->authenticate($request, $response);
 
         $this->assertInstanceOf(Result::class, $result);
         $this->assertEquals(Result::SUCCESS, $result->getStatus());
+    }
 
-        $this->sessionMock->expects($this->at(0))
+    /**
+     * Test authentication
+     *
+     * @return void
+     */
+    public function testAuthenticateMissing()
+    {
+        $request = ServerRequestFactory::fromGlobals(['REQUEST_URI' => '/']);
+        $response = new Response();
+
+        $storage = $this->createMock(StorageInterface::class);
+        $storage
+            ->expects($this->once())
             ->method('read')
-            ->with('Auth')
-            ->will($this->returnValue(null));
+            ->with($request)
+            ->willReturn(null);
 
-        $request = $request->withAttribute('session', $this->sessionMock);
-
-        $authenticator = new SessionAuthenticator($this->identifiers);
+        $authenticator = $this->createAuthenticator($storage);
         $result = $authenticator->authenticate($request, $response);
 
         $this->assertInstanceOf(Result::class, $result);
@@ -109,37 +112,48 @@ class SessionAuthenticatorTest extends TestCase
         $request = ServerRequestFactory::fromGlobals(['REQUEST_URI' => '/']);
         $response = new Response();
 
-        $this->sessionMock->expects($this->at(0))
+        $storage = $this->createMock(StorageInterface::class);
+        $storage
+            ->expects($this->once())
             ->method('read')
-            ->with('Auth')
-            ->will($this->returnValue([
+            ->with($request)
+            ->willReturn([
                 'username' => 'mariano',
                 'password' => 'h45h'
-            ]));
+            ]);
 
-        $request = $request->withAttribute('session', $this->sessionMock);
+        $authenticator = $this->createAuthenticator($storage);
+        $authenticator->enableVerification();
 
-        $authenticator = new SessionAuthenticator($this->identifiers, [
-            'identify' => true
-        ]);
         $result = $authenticator->authenticate($request, $response);
 
         $this->assertInstanceOf(Result::class, $result);
         $this->assertEquals(Result::SUCCESS, $result->getStatus());
+    }
 
-        $this->sessionMock->expects($this->at(0))
+    /**
+     * Test session data verification by database lookup
+     *
+     * @return void
+     */
+    public function testVerifyByDatabaseInvalid()
+    {
+        $request = ServerRequestFactory::fromGlobals(['REQUEST_URI' => '/']);
+        $response = new Response();
+
+        $storage = $this->createMock(StorageInterface::class);
+        $storage
+            ->expects($this->once())
             ->method('read')
-            ->with('Auth')
-            ->will($this->returnValue([
+            ->with($request)
+            ->willReturn([
                 'username' => 'does-not',
                 'password' => 'exist'
-            ]));
+            ]);
 
-        $request = $request->withAttribute('session', $this->sessionMock);
+        $authenticator = $this->createAuthenticator($storage);
+        $authenticator->enableVerification();
 
-        $authenticator = new SessionAuthenticator($this->identifiers, [
-            'identify' => true
-        ]);
         $result = $authenticator->authenticate($request, $response);
 
         $this->assertInstanceOf(Result::class, $result);
@@ -154,21 +168,19 @@ class SessionAuthenticatorTest extends TestCase
     public function testPersistIdentity()
     {
         $request = ServerRequestFactory::fromGlobals(['REQUEST_URI' => '/']);
-        $request = $request->withAttribute('session', $this->sessionMock);
         $response = new Response();
-        $authenticator = new SessionAuthenticator($this->identifiers);
-
         $data = new ArrayObject(['username' => 'florian']);
-        $this->sessionMock->expects($this->at(0))
+
+        $storage = $this->createMock(StorageInterface::class);
+        $storage
+            ->expects($this->once())
             ->method('write')
-            ->with('Auth', $data);
+            ->with($request, $response, $data);
+
+        $authenticator = $this->createAuthenticator($storage);
 
         $result = $authenticator->persistIdentity($request, $response, $data);
-        $this->assertInternalType('array', $result);
-        $this->assertArrayHasKey('request', $result);
-        $this->assertArrayHasKey('response', $result);
-        $this->assertInstanceOf(RequestInterface::class, $result['request']);
-        $this->assertInstanceOf(ResponseInterface::class, $result['response']);
+        $this->assertInstanceOf(ResponseInterface::class, $result);
     }
 
     /**
@@ -179,20 +191,14 @@ class SessionAuthenticatorTest extends TestCase
     public function testClearIdentity()
     {
         $request = ServerRequestFactory::fromGlobals(['REQUEST_URI' => '/']);
-        $request = $request->withAttribute('session', $this->sessionMock);
         $response = new Response();
 
-        $authenticator = new SessionAuthenticator($this->identifiers);
+        $storage = $this->createMock(StorageInterface::class);
+        $storage->expects($this->once())->method('clear');
 
-        $this->sessionMock->expects($this->at(0))
-            ->method('delete')
-            ->with('Auth');
+        $authenticator = $this->createAuthenticator($storage);
 
         $result = $authenticator->clearIdentity($request, $response);
-        $this->assertInternalType('array', $result);
-        $this->assertArrayHasKey('request', $result);
-        $this->assertArrayHasKey('response', $result);
-        $this->assertInstanceOf(RequestInterface::class, $result['request']);
-        $this->assertInstanceOf(ResponseInterface::class, $result['response']);
+        $this->assertInstanceOf(ResponseInterface::class, $result);
     }
 }
