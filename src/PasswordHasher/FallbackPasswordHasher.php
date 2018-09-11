@@ -25,7 +25,7 @@ class FallbackPasswordHasher extends AbstractPasswordHasher
      *
      * @var \Authentication\PasswordHasher\PasswordHasherCollectionInterface
      */
-    protected $hashers = [];
+    protected $hashers;
 
     /**
      * Constructor
@@ -40,9 +40,11 @@ class FallbackPasswordHasher extends AbstractPasswordHasher
     /**
      * Adds a hasher
      *
+     * @param PasswordHasherInterface $hasher Hasher instance.
      * @return void
      */
-    public function addHasher(PasswordHasherInterface $hasher) {
+    public function addHasher(PasswordHasherInterface $hasher): void
+    {
         $this->hashers->add($hasher);
     }
 
@@ -54,7 +56,7 @@ class FallbackPasswordHasher extends AbstractPasswordHasher
      * @param string $password Plain text password to hash.
      * @return string Password hash
      */
-    public function hash($password)
+    public function hash($password): string
     {
         return $this->hashers[0]->hash($password);
     }
@@ -69,7 +71,7 @@ class FallbackPasswordHasher extends AbstractPasswordHasher
      * @param string $hashedPassword Existing hashed password.
      * @return bool True if hashes match else false.
      */
-    public function check($password, $hashedPassword)
+    public function check($password, string $hashedPassword): bool
     {
         /* @var $hasher \Authentication\PasswordHasher\PasswordHasherInterface */
         foreach ($this->hashers as $hasher) {
@@ -88,7 +90,7 @@ class FallbackPasswordHasher extends AbstractPasswordHasher
      * @param string $password The password to verify
      * @return bool
      */
-    public function needsRehash($password)
+    public function needsRehash(string $password): bool
     {
         return $this->hashers[0]->needsRehash($password);
     }

@@ -57,12 +57,12 @@ class LegacyPasswordHasherTest extends TestCase
     public function testHashAndCheck()
     {
         $hasher = new LegacyPasswordHasher();
-        $hasher->setConfig('hashType', 'md5');
+        $hasher->setHashType('md5');
         $password = $hasher->hash('foo');
         $this->assertTrue($hasher->check('foo', $password));
         $this->assertFalse($hasher->check('bar', $password));
 
-        $hasher->setConfig('hashType', 'sha1');
+        $hasher->setHashType('sha1');
         $this->assertFalse($hasher->check('foo', $password));
     }
 }

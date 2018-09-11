@@ -21,4 +21,13 @@ use IteratorAggregate;
  * intended only to be used with legacy databases where passwords have
  * not been migrated to a stronger algorithm yet.
  */
-interface PasswordHasherCollectionInterface extends IteratorAggregate, ArrayAccess {}
+interface PasswordHasherCollectionInterface extends IteratorAggregate, ArrayAccess
+{
+    /**
+     * Adds a password hasher to the collection
+     *
+     * @param \Authentication\PasswordHasher\PasswordHasherInterface $hasher Hasher
+     * @return void
+     */
+    public function add(PasswordHasherInterface $hasher): void;
+}
