@@ -21,6 +21,7 @@ use Authentication\Authenticator\FailureInterface;
 use Authentication\Authenticator\PersistenceInterface;
 use Authentication\Authenticator\ResultInterface;
 use Authentication\Authenticator\StatelessInterface;
+use Authentication\Identity\IdentityFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -59,11 +60,11 @@ class AuthenticationService implements AuthenticationServiceInterface
     protected $result;
 
     /**
-     * Identity class used to instantiate an identity object
+     * Identity factory used to instantiate an identity object
      *
-     * @var string
+     * @var \Authentication\Identity\IdentityFactoryInterface
      */
-    protected $identityClass = Identity::class;
+    protected $identityFactory;
 
     /**
      * Request attribute for the identity
@@ -77,21 +78,9 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @param array $config Configuration options.
      */
-    public function __construct(AuthenticatorCollectionInterface $authenticators) {
+    public function __construct(AuthenticatorCollectionInterface $authenticators, IdentityFactoryInterface $factory) {
         $this->authenticators = $authenticators;
-    }
-
-    /**
-     * Sets the identity class
-     *
-     * @param string $class Class name
-     * @return $this
-     */
-    public function setIdentityClass($class): self
-    {
-        $this->identityClass = $class;
-
-        return $this;
+        $this->identityFactory = $factory;
     }
 
     /**
@@ -270,14 +259,6 @@ class AuthenticationService implements AuthenticationServiceInterface
      */
     public function buildIdentity($identityData): IdentityInterface
     {
-        $class = $this->identityClass;
-
-        if (is_callable($class)) {
-            $identity = $class($identityData);
-        } else {
-            $identity = new $class($identityData);
-        }
-
-        return $identity;
+        return $this->identityFactory->create($identityData);
     }
 }
