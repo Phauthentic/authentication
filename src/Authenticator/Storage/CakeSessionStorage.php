@@ -23,49 +23,79 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class CakeSessionStorage implements StorageInterface
 {
-    /**
-     * Default Config
-     *
-     * @var array
-     */
-    protected $defaultConfig = [
-        'sessionKey' => 'Auth',
-        'sessionAttribute' => 'session',
-    ];
 
     /**
-     * Config
-     *
-     * @var array
+     * @var string
      */
-    protected $config = [];
+    protected $key = 'Auth';
 
-    public function __construct(array $config = [])
+    /**
+     * @var string
+     */
+    protected $attribute = 'session';
+
+    /**
+     * Set request attribute name for a session object.
+     *
+     * @param string $attribute Request attribute name.
+     * @return $this
+     */
+    public function setAttribute(string $attribute): self
     {
-        $this->config = $config + $this->defaultConfig;
+        $this->attribute = $attribute;
+
+        return $this;
     }
 
+    /**
+     * Set session key for stored identity.
+     *
+     * @param string $key Session key.
+     * @return $this
+     */
+    public function setKey(string $key): self
+    {
+        $this->key = $key;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function clear(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $this->getSession($request)->delete($this->config['sessionKey']);
+        $this->getSession($request)->delete($this->key);
 
         return $response;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function read(ServerRequestInterface $request)
     {
-        return $this->getSession($request)->read($this->config['sessionKey']);
+        return $this->getSession($request)->read($this->key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function write(ServerRequestInterface $request, ResponseInterface $response, $data): ResponseInterface
     {
-        $this->getSession($request)->write($this->config['sessionKey'], $data);
+        $this->getSession($request)->write($this->key, $data);
 
         return $response;
     }
 
+    /**
+     * Returns session object.
+     *
+     * @param ServerRequestInterface $request Request.
+     * @return Session
+     */
     protected function getSession(ServerRequestInterface $request): Session
     {
-        return $request->getAttribute($this->config['sessionAttribute']);
+        return $request->getAttribute($this->attribute);
     }
 }

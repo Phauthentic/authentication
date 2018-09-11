@@ -25,31 +25,33 @@ use Psr\Http\Message\ServerRequestInterface;
 class CakeCookieStorage implements StorageInterface
 {
     /**
-     * Default Config
-     *
      * @var array
      */
-    protected $defaultConfig = [
-        'cookie' => [
-            'name' => 'CookieAuth',
-            'expire' => null,
-            'path' => '/',
-            'domain' => '',
-            'secure' => false,
-            'httpOnly' => false
-        ]
+    protected $cookieData = [
+        'name' => 'CookieAuth',
+        'expire' => null,
+        'path' => '/',
+        'domain' => '',
+        'secure' => false,
+        'httpOnly' => false
     ];
 
     /**
-     * Config
+     * Sets cookie data.
      *
-     * @var array
+     * @param array $data Cookie data.
+     * @param bool $merge Whether to merge or replace.
+     * @return $this
      */
-    protected $config = [];
-
-    public function __construct(array $config = [])
+    public function setCookieData(array $data, bool $merge = true): self
     {
-        $this->config = array_merge_recursive($this->defaultConfig, $config);
+        if ($merge) {
+            $this->cookieData = $data + $this->cookieData;
+        } else {
+            $this->cookieData = $data;
+        }
+
+        return $this;
     }
 
     /**
@@ -60,7 +62,7 @@ class CakeCookieStorage implements StorageInterface
      */
     protected function _createCookie($value)
     {
-        $data = $this->config['cookie'];
+        $data = $this->cookieData;
 
         $cookie = new Cookie(
             $data['name'],
@@ -75,10 +77,13 @@ class CakeCookieStorage implements StorageInterface
         return $cookie;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function read(ServerRequestInterface $request)
     {
         $cookies = $request->getCookieParams();
-        $cookieName = $this->config['cookie']['name'];
+        $cookieName = $this->cookieData['name'];
 
         if (!isset($cookies[$cookieName])) {
             return null;
