@@ -18,7 +18,7 @@ use ArrayObject;
 use Authentication\Identifier\PasswordIdentifier;
 use Authentication\Identifier\Resolver\ResolverInterface;
 use Authentication\PasswordHasher\DefaultPasswordHasher;
-use Authentication\PasswordHasher\LegacyPasswordHasher;
+use Authentication\PasswordHasher\CakeLegacyPasswordHasher;
 use Authentication\PasswordHasher\PasswordHasherInterface;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 
