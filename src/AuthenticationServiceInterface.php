@@ -70,8 +70,8 @@ interface AuthenticationServiceInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
      * @param \Psr\Http\Message\ResponseInterface $response The response.
-     * @param \Authentication\IdentityInterface $identity Identity data.
+     * @param \Authentication\IdentityInterface|null $identity Identity object.
      * @return \Authentication\PersistenceResultInterface
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, ?IdentityInterface $identity): PersistenceResultInterface;
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, IdentityInterface $identity = null): PersistenceResultInterface;
 }
