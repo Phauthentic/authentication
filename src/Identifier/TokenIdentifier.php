@@ -39,9 +39,19 @@ class TokenIdentifier extends AbstractIdentifier
     /**
      * Data field
      *
-     * @var string
+     * @var string|null
      */
     protected $dataField = self::CREDENTIAL_TOKEN;
+
+    /**
+     * Constructor
+     *
+     * @param ResolverInterface $resolver Resolver instance.
+     */
+    public function __construct(ResolverInterface $resolver)
+    {
+        $this->resolver = $resolver;
+    }
 
     /**
      * Sets data field
@@ -60,23 +70,13 @@ class TokenIdentifier extends AbstractIdentifier
      * Sets the token field
      *
      * @param string $field Field name
-     * @return
+     * @return $this
      */
     public function setTokenField(string $field): self
     {
         $this->tokenField = $field;
 
         return $this;
-    }
-
-    /**
-     * Constructor
-     *
-     * @param array $config Configuration
-     */
-    public function __construct(ResolverInterface $resolver)
-    {
-        $this->resolver = $resolver;
     }
 
     /**

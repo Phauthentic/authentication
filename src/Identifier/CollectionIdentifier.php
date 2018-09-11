@@ -14,10 +14,6 @@
  */
 namespace Authentication\Identifier;
 
-use ArrayAccess;
-use InvalidArgumentException;
-use RuntimeException;
-
 /**
  * Callback Identifier
  */
@@ -33,17 +29,17 @@ class CollectionIdentifier implements IdentifierInterface
     /**
      * Identifier Collection
      *
-     * @var \Authentication\Identifier\IdentifierCollectionInterface
+     * @var iterable
      */
     protected $collection;
 
     /**
      * Constructor
      *
-     * @param \Authentication\Identifier\IdentifierCollectionInterface
-     * @param array $config Config options
+     * @param iterable $collection Identifier collection.
      */
-    public function __construct(IdentifierCollectionInterface $collection) {
+    public function __construct(iterable $collection)
+    {
         $this->collection = $collection;
     }
 
@@ -52,7 +48,7 @@ class CollectionIdentifier implements IdentifierInterface
      *
      * @return array
      */
-    public function getErrors()
+    public function getErrors(): array
     {
         return $this->errors;
     }
