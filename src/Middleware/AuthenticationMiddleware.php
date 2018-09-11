@@ -26,7 +26,7 @@ class AuthenticationMiddleware implements MiddlewareInterface
     protected $responseFactory;
 
     /**
-     * @var AuthenticationServiceProviderInterface
+     * @var \Authentication\AuthenticationServiceProviderInterface
      */
     protected $provider;
 
@@ -36,19 +36,25 @@ class AuthenticationMiddleware implements MiddlewareInterface
     protected $serviceAttribute = 'authentication';
 
     /**
-     * AuthenticationPsr15Middleware constructor.
+     * Constructor.
      *
-     * @param AuthenticationServiceProviderInterface $service
-     * @param ResponseFactoryInterface $responseFactory
+     * @param \Authentication\AuthenticationServiceProviderInterface $provider Provider.
+     * @param \Psr\Http\Message\ResponseFactoryInterface $responseFactory Factory.
      */
     public function __construct(
         AuthenticationServiceProviderInterface $provider,
-        ResponseFactoryInterface $responseFactory = null
-    ){
+        ResponseFactoryInterface $responseFactory
+    ) {
         $this->provider = $provider;
         $this->responseFactory = $responseFactory;
     }
 
+    /**
+     * Sets request attribute name for authentication service.
+     *
+     * @param string $attribute Attribute name.
+     * @return $this
+     */
     public function setServiceAttribute(string $attribute): self
     {
         $this->serviceAttribute = $attribute;
@@ -57,11 +63,9 @@ class AuthenticationMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Process an incoming server request
+     * {@inheritDoc}
      *
-     * Processes an incoming server request in order to produce a response.
-     * If unable to produce the response itself, it may delegate to the provided
-     * request handler to do so.
+     * @throws RuntimeException When request attribute exists.
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
