@@ -66,13 +66,6 @@ class AuthenticationService implements AuthenticationServiceInterface
     protected $identityFactory;
 
     /**
-     * Request attribute for the identity
-     *
-     * @var string
-     */
-    protected $identityAttribute = 'identity';
-
-    /**
      * Constructor
      *
      * @param \Authentication\Authenticator\AuthenticatorCollection $authenticators Authenticator collection.
@@ -82,19 +75,6 @@ class AuthenticationService implements AuthenticationServiceInterface
     {
         $this->authenticators = $authenticators;
         $this->identityFactory = $factory;
-    }
-
-    /**
-     * Sets the identity attribute
-     *
-     * @param string $attribute Attribute name
-     * @return $this
-     */
-    public function setIdentityAttribute(string $attribute): self
-    {
-        $this->identityAttribute = $attribute;
-
-        return $this;
     }
 
     /**
@@ -181,8 +161,6 @@ class AuthenticationService implements AuthenticationServiceInterface
             }
         }
 
-        $request = $request->withoutAttribute($this->identityAttribute);
-
         return new PersistenceResult($request, $response);
     }
 
@@ -206,8 +184,6 @@ class AuthenticationService implements AuthenticationServiceInterface
                     $response = $authenticator->persistIdentity($request, $response, $identity->getOriginalData());
                 }
             }
-
-            $request = $request->withAttribute($this->identityAttribute, $identity);
         }
 
         return new PersistenceResult($request, $response);
