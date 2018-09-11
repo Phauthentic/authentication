@@ -14,6 +14,7 @@
  */
 namespace Authentication;
 
+use Authentication\Authenticator\AuthenticatorInterface;
 use Authentication\Authenticator\PersistenceInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -34,14 +35,14 @@ interface AuthenticationServiceInterface
      *
      * @return null|\Authentication\IdentityInterface
      */
-    public function getIdentity();
+    public function getIdentity(): ?IdentityInterface;
 
     /**
      * Gets the successful authenticator instance if one was successful after calling authenticate
      *
      * @return \Authentication\Authenticator\AuthenticatorInterface|null
      */
-    public function getAuthenticationProvider();
+    public function getAuthenticationProvider(): ?AuthenticatorInterface;
 
     /**
      * Gets the result of the last authenticate() call.
@@ -49,4 +50,30 @@ interface AuthenticationServiceInterface
      * @return \Authentication\Authenticator\ResultInterface|null Authentication result interface
      */
     public function getResult();
+
+    /**
+     * Returns a list of failed authenticators after an authenticate() call
+     *
+     * @return array
+     */
+    public function getFailedAuthenticators(): array;
+
+    /**
+     * Clears the identity from authenticators that store them and the request
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request The request.
+     * @param \Psr\Http\Message\ResponseInterface $response The response.
+     * @return \Authentication\PersistenceResultInterface
+     */
+    public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response): PersistenceResultInterface;
+
+    /**
+     * Sets identity data and persists it in the authenticators that support it.
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request The request.
+     * @param \Psr\Http\Message\ResponseInterface $response The response.
+     * @param \Authentication\IdentityInterface $identity Identity data.
+     * @return \Authentication\PersistenceResultInterface
+     */
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, ?IdentityInterface $identity): PersistenceResultInterface;
 }
