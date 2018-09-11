@@ -1,20 +1,14 @@
 <?php
 namespace Authentication\Middleware;
 
-use Authentication\AuthenticationService;
 use Authentication\AuthenticationServiceInterface;
-use Authentication\Authenticator\AuthenticatorCollection;
-use Authentication\Authenticator\AuthenticatorCollectionInterface;
-use Authentication\Authenticator\PersistenceInterface;
-use Authentication\Authenticator\ResultInterface;
-use Authentication\Authenticator\StatelessInterface;
+use Authentication\AuthenticationServiceProviderInterface;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Symfony\Component\Translation\Exception\RuntimeException;
 
 /**
  * PSR 15 Authenticator Middleware
@@ -43,21 +37,26 @@ class AuthenticationMiddleware implements MiddlewareInterface
     protected $successRedirectUrl;
 
     /**
-     * @var \Authentication\AuthenticationServiceInterface
+     * @var AuthenticationServiceInterface|null
      */
     protected $service;
 
     /**
+     * @var AuthenticationServiceProviderInterface
+     */
+    protected $provider;
+
+    /**
      * AuthenticationPsr15Middleware constructor.
      *
-     * @param AuthenticationServiceInterface $service
+     * @param AuthenticationServiceProviderInterface $service
      * @param ResponseFactoryInterface $responseFactory
      */
     public function __construct(
-        AuthenticationServiceInterface $service,
+        AuthenticationServiceProviderInterface $provider,
         ResponseFactoryInterface $responseFactory = null
     ){
-        $this->service = $service;
+        $this->provider = $provider;
         $this->responseFactory = $responseFactory;
     }
 
@@ -101,6 +100,20 @@ class AuthenticationMiddleware implements MiddlewareInterface
     }
 
     /**
+     *
+     * @param ServerRequestInterface $request
+     * @return AuthenticationServiceInterface
+     */
+    protected function getService(ServerRequestInterface $request): AuthenticationServiceInterface
+    {
+        if ($this->service === null) {
+            $this->service = $this->provider->getAuthenticationService($request);
+        }
+
+        return $this->service;
+    }
+
+    /**
      * Process an incoming server request
      *
      * Processes an incoming server request in order to produce a response.
@@ -109,10 +122,11 @@ class AuthenticationMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $wasAuthenticated = $this->service->authenticate($request);
+        $service = $this->getService($request);
+        $wasAuthenticated = $service->authenticate($request);
 
-        $authResult = $this->service->getResult();
-        $authenticator = $this->service->getSuccessfulAuthenticator();
+        $authResult = $service->getResult();
+        $authenticator = $service->getSuccessfulAuthenticator();
         $request = $request->withAttribute('authentication', $authResult);
 
         if (!$wasAuthenticated) {
@@ -125,14 +139,14 @@ class AuthenticationMiddleware implements MiddlewareInterface
 
         if (!empty($this->successRedirectUrl)) {
             $response = $this->getSuccessRedirectResponse($request, $authResult, $authenticator);
-            $result = $this->service->persistIdentity($request, $response);
+            $result = $service->persistIdentity($request, $response);
 
             return $response['response'];
         }
 
         $response = $handler->handle($request);
         if ($response instanceof ResponseInterface) {
-            $result = $this->service->persistIdentity($request, $response);
+            $result = $service->persistIdentity($request, $response);
 
             return $result['response'];
         }
