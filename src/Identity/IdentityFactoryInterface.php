@@ -12,22 +12,18 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication;
+namespace Authentication\Identity;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Authentication\IdentityInterface;
 
-/**
- *  AuthenticationServiceProviderInterface
- */
-interface AuthenticationServiceProviderInterface
+interface IdentityFactoryInterface
 {
+
     /**
-     * Returns an authentication service instance.
+     * Creates identity object.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request Request
-     * @param \Psr\Http\Message\ResponseInterface $response Response
-     * @return \Authentication\AuthenticationServiceInterface
+     * @param array|\ArrayAccess $data Data.
+     * @return \Authentication\IdentityInterface
      */
-    public function getAuthenticationService(ServerRequestInterface $request, ResponseInterface $response): AuthenticationServiceInterface;
+    public function create($data): IdentityInterface;
 }

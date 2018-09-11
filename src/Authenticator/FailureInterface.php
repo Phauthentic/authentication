@@ -12,22 +12,22 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication;
+namespace Authentication\Authenticator;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-
-/**
- *  AuthenticationServiceProviderInterface
- */
-interface AuthenticationServiceProviderInterface
+interface FailureInterface
 {
+
     /**
-     * Returns an authentication service instance.
+     * Returns failed authenticator.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request Request
-     * @param \Psr\Http\Message\ResponseInterface $response Response
-     * @return \Authentication\AuthenticationServiceInterface
+     * @return AuthenticatorInterface
      */
-    public function getAuthenticationService(ServerRequestInterface $request, ResponseInterface $response): AuthenticationServiceInterface;
+    public function getAuthenticator(): AuthenticatorInterface;
+
+    /**
+     * Returns failed result.
+     *
+     * @return ResultInterface
+     */
+    public function getResult(): ResultInterface;
 }
