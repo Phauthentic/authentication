@@ -88,9 +88,9 @@ class AuthenticationMiddleware implements MiddlewareInterface
 
     public function setLoginRedirect($redirectUrl): self
     {
-        return $this;
-
         $this->setRedirect($redirectUrl, 'success');
+
+        return $this;
     }
 
     public function setUnauhtorizedRedirect($redirectUrl): self
@@ -145,21 +145,6 @@ class AuthenticationMiddleware implements MiddlewareInterface
             throw new RuntimeException($message);
         }
         $request = $request->withAttribute($this->serviceAttribute, $authResult);
-
-        if (!$wasAuthenticated) {
-            if (!empty($this->unauthorizedRedirectUrl)) {
-                return $this->getUnauthorizedRedirectResponse($request, $authResult, $authenticator);
-            }
-
-            return $handler->handle($request);
-        }
-
-        if (!empty($this->successRedirectUrl)) {
-            $response = $this->getSuccessRedirectResponse($request, $authResult, $authenticator);
-            $result = $service->persistIdentity($request, $response);
-
-            return $response['response'];
-        }
 
         $response = $handler->handle($request);
         if ($response instanceof ResponseInterface) {
