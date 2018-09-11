@@ -29,13 +29,6 @@ class AuthenticationPsr15Middleware implements MiddlewareInterface
     protected $responseFactory;
 
     /**
-     * Authenticator Collection
-     *
-     * @var \Authentication\Authenticator\AuthenticatorCollection
-     */
-    protected $authenticators;
-
-    /**
      * Authentication failure redirect URL
      *
      * @var string|callable
@@ -57,16 +50,13 @@ class AuthenticationPsr15Middleware implements MiddlewareInterface
     /**
      * AuthenticationPsr15Middleware constructor.
      *
-     * @param \Authentication\Authenticator\AuthenticatorCollectionInterface $collection
      * @param null|\Psr\Http\Message\ResponseFactoryInterface $responseFactory
      */
     public function __construct(
         AuthenticationServiceInterface $service,
-        AuthenticatorCollectionInterface $collection,
         ?ResponseFactoryInterface $responseFactory = null
     ){
         $this->service = $service;
-        $this->authenticators = $collection;
         $this->responseFactory = $responseFactory;
     }
 
