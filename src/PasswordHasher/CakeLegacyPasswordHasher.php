@@ -23,7 +23,7 @@ use RuntimeException;
  * intended only to be used with legacy databases where passwords have
  * not been migrated to a stronger algorithm yet.
  */
-class LegacyPasswordHasher extends AbstractPasswordHasher
+class CakeLegacyPasswordHasher extends AbstractPasswordHasher
 {
 
     /**

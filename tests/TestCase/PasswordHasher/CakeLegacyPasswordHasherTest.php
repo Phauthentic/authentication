@@ -13,14 +13,14 @@
  */
 namespace Authentication\Test\TestCase\PasswordHasher;
 
-use Authentication\PasswordHasher\LegacyPasswordHasher;
+use Authentication\PasswordHasher\CakeLegacyPasswordHasher;
 use Cake\TestSuite\TestCase;
 use Cake\Utility\Security;
 
 /**
  * Test case for LegacyPasswordHasher
  */
-class LegacyPasswordHasherTest extends TestCase
+class CakeLegacyPasswordHasherTest extends TestCase
 {
 
     /**
@@ -43,7 +43,7 @@ class LegacyPasswordHasherTest extends TestCase
      */
     public function testNeedsRehash()
     {
-        $hasher = new LegacyPasswordHasher();
+        $hasher = new CakeLegacyPasswordHasher();
         $this->assertTrue($hasher->needsRehash(md5('foo')));
         $this->assertTrue($hasher->needsRehash('bar'));
         $this->assertFalse($hasher->needsRehash('$2y$10$juOA0XVFpvZa0KTxRxEYVuX5kIS7U1fKDRcxyYhhUQECN1oHYnBMy'));
@@ -56,7 +56,7 @@ class LegacyPasswordHasherTest extends TestCase
      */
     public function testHashAndCheck()
     {
-        $hasher = new LegacyPasswordHasher();
+        $hasher = new CakeLegacyPasswordHasher();
         $hasher->setHashType('md5');
         $password = $hasher->hash('foo');
         $this->assertTrue($hasher->check('foo', $password));
