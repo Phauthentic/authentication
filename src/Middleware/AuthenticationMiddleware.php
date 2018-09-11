@@ -86,7 +86,7 @@ class AuthenticationMiddleware implements MiddlewareInterface
         if ($response instanceof ResponseInterface) {
             $result = $service->persistIdentity($request, $response);
 
-            return $result['response'];
+            return $result->getResponse();
         }
 
         return $response;
