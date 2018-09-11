@@ -47,6 +47,11 @@ class AuthenticationMiddleware implements MiddlewareInterface
     protected $provider;
 
     /**
+     * @var string
+     */
+    protected $serviceAttribute = 'authentication';
+
+    /**
      * AuthenticationPsr15Middleware constructor.
      *
      * @param AuthenticationServiceProviderInterface $service
@@ -58,6 +63,13 @@ class AuthenticationMiddleware implements MiddlewareInterface
     ){
         $this->provider = $provider;
         $this->responseFactory = $responseFactory;
+    }
+
+    public function setServiceAttribute(string $attribute): self
+    {
+        $this->serviceAttribute = $attribute;
+
+        return $this;
     }
 
     protected function setRedirect($redirectUrl, $type)
@@ -127,7 +139,12 @@ class AuthenticationMiddleware implements MiddlewareInterface
 
         $authResult = $service->getResult();
         $authenticator = $service->getSuccessfulAuthenticator();
-        $request = $request->withAttribute('authentication', $authResult);
+
+        if ($request->getAttribute($this->serviceAttribute)) {
+            $message = sprintf('Request attribute `%s` already exists.', $this->serviceAttribute);
+            throw new RuntimeException($message);
+        }
+        $request = $request->withAttribute($this->serviceAttribute, $authResult);
 
         if (!$wasAuthenticated) {
             if (!empty($this->unauthorizedRedirectUrl)) {
