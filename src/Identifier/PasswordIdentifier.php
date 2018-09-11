@@ -20,22 +20,23 @@ use Authentication\PasswordHasher\PasswordHasherInterface;
 /**
  * Password Identifier
  *
- * Identifies authentication credentials with password
- *
- * ```
- *  new PasswordIdentifier([
- *      'fields' => [
- *          'username' => ['username', 'email'],
- *          'password' => 'password'
- *      ]
- *  ]);
- * ```
+ * Identifies authentication credentials with password.
  *
  * When configuring PasswordIdentifier you can pass in config to which fields,
  * model and additional conditions are used.
  */
 class PasswordIdentifier extends AbstractIdentifier
 {
+
+    /**
+     * Credential fields
+     *
+     * @var array
+     */
+    protected $credentialFields = [
+        IdentifierInterface::CREDENTIAL_USERNAME => 'username',
+        IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
+    ];
 
     /**
      * Resolver
@@ -60,48 +61,52 @@ class PasswordIdentifier extends AbstractIdentifier
     protected $needsPasswordRehash = false;
 
     /**
-     * Default configuration.
-     * - `fields` The fields to use to identify a user by:
-     *   - `username`: one or many username fields.
-     *   - `password`: password field.
-     *
-     * @var array
-     */
-    protected $defaultConfig = [
-        'fields' => [
-            self::CREDENTIAL_USERNAME => 'username',
-            self::CREDENTIAL_PASSWORD => 'password'
-        ]
-    ];
-
-    protected $config = [];
-
-    /**
      * Constructor
      *
-     * @param array $config Configuration
+     * @param ResolverInterface $resolver Resolver instance.
+     * @param PasswordHasherInterface $passwordHasher Password hasher.
      */
     public function __construct(
         ResolverInterface $resolver,
-        PasswordHasherInterface $passwordHasher,
-        array $config = []
+        PasswordHasherInterface $passwordHasher
     ) {
-        $this->config = array_merge_recursive($this->defaultConfig, $config);
         $this->resolver = $resolver;
         $this->passwordHasher = $passwordHasher;
     }
 
     /**
-     * Set the fields used to to get the credentials from
+     * Set the username fields used to to get the credentials from.
      *
-     * @param string $username Username field
-     * @param string $password Password field
+     * @param array $usernames An array of fields.
      * @return $this
      */
-    public function setCredentialFields(string $username, string $password): self
+    public function setUsernameFields(array $usernames): self
     {
-        $this->config['fields'][self::CREDENTIAL_USERNAME] = $username;
-        $this->config['fields'][self::CREDENTIAL_PASSWORD] = $password;
+        $this->credentialFields[self::CREDENTIAL_USERNAME] = $usernames;
+
+        return $this;
+    }
+
+    /**
+     * Set the single username field used to to get the credentials from.
+     *
+     * @param string $username Username field.
+     * @return $this
+     */
+    public function setUsernameField(string $username): self
+    {
+        return $this->setUsernameFields([$username]);
+    }
+
+    /**
+     * Sets the password field.
+     *
+     * @param string $password Password field.
+     * @return $this
+     */
+    public function setPasswordField(string $password): self
+    {
+        $this->credentialFields[self::CREDENTIAL_PASSWORD] = $password;
 
         return $this;
     }
@@ -135,9 +140,9 @@ class PasswordIdentifier extends AbstractIdentifier
      * @param string|null $password The password.
      * @return bool
      */
-    protected function _checkPassword($identity, $password)
+    protected function _checkPassword($identity, $password): bool
     {
-        $passwordField = $this->config['fields'][self::CREDENTIAL_PASSWORD];
+        $passwordField = $this->credentialFields[self::CREDENTIAL_PASSWORD];
 
         if ($identity === null) {
             $identity = [
@@ -147,7 +152,7 @@ class PasswordIdentifier extends AbstractIdentifier
 
         $hasher = $this->passwordHasher;
         $hashedPassword = $identity[$passwordField];
-        if (!$hasher->check($password, $hashedPassword)) {
+        if (!$hasher->check((string)$password, $hashedPassword)) {
             return false;
         }
 
@@ -161,7 +166,7 @@ class PasswordIdentifier extends AbstractIdentifier
      *
      * @return bool
      */
-    public function needsPasswordRehash()
+    public function needsPasswordRehash(): bool
     {
         return $this->needsPasswordRehash;
     }
@@ -174,7 +179,7 @@ class PasswordIdentifier extends AbstractIdentifier
      */
     protected function _findIdentity($identifier)
     {
-        $fields = $this->config['fields'][self::CREDENTIAL_USERNAME];
+        $fields = $this->credentialFields[self::CREDENTIAL_USERNAME];
         $conditions = [];
         foreach ((array)$fields as $field) {
             $conditions[$field] = $identifier;

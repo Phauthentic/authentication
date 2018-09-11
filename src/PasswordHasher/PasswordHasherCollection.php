@@ -14,6 +14,7 @@
 namespace Authentication\PasswordHasher;
 
 use ArrayIterator;
+use Traversable;
 
 /**
  * Password hashing class that use weak hashing algorithms. This class is
@@ -32,9 +33,9 @@ class PasswordHasherCollection implements PasswordHasherCollectionInterface
     /**
      * Constructor
      *
-     * @param array An array of password hashers
+     * @param iterable $hashers An iterable of password hashers
      */
-    public function __construct(array $hashers = [])
+    public function __construct(iterable $hashers = [])
     {
         foreach ($hashers as $hasher) {
             $this->add($hasher);
@@ -47,7 +48,7 @@ class PasswordHasherCollection implements PasswordHasherCollectionInterface
      * @param \Authentication\PasswordHasher\PasswordHasherInterface $hasher Hasher
      * @return void
      */
-    public function add(PasswordHasherInterface $hasher)
+    public function add(PasswordHasherInterface $hasher): void
     {
         $this->hashers[] = $hasher;
     }
@@ -58,9 +59,8 @@ class PasswordHasherCollection implements PasswordHasherCollectionInterface
      * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
      * @return Traversable An instance of an object implementing <b>Iterator</b> or
      * <b>Traversable</b>
-     * @since 5.0.0
      */
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return new ArrayIterator($this->hashers);
     }
@@ -72,11 +72,10 @@ class PasswordHasherCollection implements PasswordHasherCollectionInterface
      * @param mixed $offset <p>
      * An offset to check for.
      * </p>
-     * @return boolean true on success or false on failure.
+     * @return bool true on success or false on failure.
      * </p>
      * <p>
      * The return value will be casted to boolean if non-boolean was returned.
-     * @since 5.0.0
      */
     public function offsetExists($offset)
     {
@@ -91,7 +90,6 @@ class PasswordHasherCollection implements PasswordHasherCollectionInterface
      * The offset to retrieve.
      * </p>
      * @return mixed Can return all value types.
-     * @since 5.0.0
      */
     public function offsetGet($offset)
     {
@@ -111,7 +109,6 @@ class PasswordHasherCollection implements PasswordHasherCollectionInterface
      * The value to set.
      * </p>
      * @return void
-     * @since 5.0.0
      */
     public function offsetSet($offset, $value)
     {
@@ -126,7 +123,6 @@ class PasswordHasherCollection implements PasswordHasherCollectionInterface
      * The offset to unset.
      * </p>
      * @return void
-     * @since 5.0.0
      */
     public function offsetUnset($offset)
     {

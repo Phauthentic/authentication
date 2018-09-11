@@ -13,6 +13,8 @@
  */
 namespace Authentication\PasswordHasher;
 
+use RuntimeException;
+
 /**
  * Default password hashing class.
  */
@@ -23,7 +25,7 @@ class DefaultPasswordHasher extends AbstractPasswordHasher
      * Hashing algo to use. Valid values are those supported by `$algo` argument
      * of `password_hash()`. Defaults to `PASSWORD_DEFAULT`
      *
-     * @var null|int|string
+     * @var int
      */
     protected $hashType = PASSWORD_DEFAULT;
 
@@ -51,10 +53,10 @@ class DefaultPasswordHasher extends AbstractPasswordHasher
     /**
      * Sets the hash type
      *
-     * @param string|int $type Hashing algo to use. Valid values are those supported by `$algo` argument of `password_hash()`. Defaults to `PASSWORD_DEFAULT`
+     * @param int $type Hashing algo to use. Valid values are those supported by `$algo` argument of `password_hash()`. Defaults to `PASSWORD_DEFAULT`
      * @return $this
      */
-    public function setHashType($type): self
+    public function setHashType(int $type): self
     {
         $this->hashType = $type;
 
@@ -65,15 +67,21 @@ class DefaultPasswordHasher extends AbstractPasswordHasher
      * Generates password hash.
      *
      * @param string $password Plain text password to hash.
-     * @return bool|string Password hash or false on failure.
+     * @return string Password hash or false on failure.
      */
-    public function hash($password)
+    public function hash($password): string
     {
-        return password_hash(
+        $hash = password_hash(
             $password,
             $this->hashType,
             $this->hashOptions
         );
+
+        if ($hash === false) {
+            throw new RuntimeException('Failed to hash password.');
+        }
+
+        return $hash;
     }
 
     /**
@@ -83,7 +91,7 @@ class DefaultPasswordHasher extends AbstractPasswordHasher
      * @param string $hashedPassword Existing hashed password.
      * @return bool True if hashes match else false.
      */
-    public function check($password, $hashedPassword)
+    public function check($password, string $hashedPassword): bool
     {
         return password_verify($password, $hashedPassword);
     }
@@ -95,7 +103,7 @@ class DefaultPasswordHasher extends AbstractPasswordHasher
      * @param string $password The password to verify
      * @return bool
      */
-    public function needsRehash($password)
+    public function needsRehash(string $password): bool
     {
         return password_needs_rehash($password, $this->hashType, $this->hashOptions);
     }

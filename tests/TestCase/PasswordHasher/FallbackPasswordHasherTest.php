@@ -15,7 +15,7 @@ namespace Authentication\Test\TestCase\PasswordHasher;
 
 use Authentication\PasswordHasher\DefaultPasswordHasher;
 use Authentication\PasswordHasher\FallbackPasswordHasher;
-use Authentication\PasswordHasher\LegacyPasswordHasher;
+use Authentication\PasswordHasher\CakeLegacyPasswordHasher;
 use Authentication\PasswordHasher\PasswordHasherCollection;
 use Cake\TestSuite\TestCase;
 
@@ -32,7 +32,7 @@ class FallbackPasswordHasherTest extends TestCase
      */
     public function testHash()
     {
-        $legacy = new LegacyPasswordHasher();
+        $legacy = new CakeLegacyPasswordHasher();
         $simple = new DefaultPasswordHasher();
         $hasherCollection = new PasswordHasherCollection([
             $legacy,
@@ -51,7 +51,7 @@ class FallbackPasswordHasherTest extends TestCase
      */
     public function testCheck()
     {
-        $legacy = new LegacyPasswordHasher();
+        $legacy = new CakeLegacyPasswordHasher();
         $simple = new DefaultPasswordHasher();
         $hasherCollection = new PasswordHasherCollection([
             $legacy,
@@ -74,7 +74,7 @@ class FallbackPasswordHasherTest extends TestCase
     public function testCheckWithConfigs()
     {
         $simple = new DefaultPasswordHasher();
-        $legacy = (new LegacyPasswordHasher())
+        $legacy = (new CakeLegacyPasswordHasher())
             ->setHashType('md5');
         $collection = new PasswordHasherCollection([
             $legacy,
@@ -96,7 +96,7 @@ class FallbackPasswordHasherTest extends TestCase
      */
     public function testNeedsRehash()
     {
-        $legacy = new LegacyPasswordHasher();
+        $legacy = new CakeLegacyPasswordHasher();
         $collection = new PasswordHasherCollection([
             new DefaultPasswordHasher(),
             $legacy

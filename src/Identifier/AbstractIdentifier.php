@@ -14,23 +14,8 @@
  */
 namespace Authentication\Identifier;
 
-use Cake\Core\InstanceConfigTrait;
-
 abstract class AbstractIdentifier implements IdentifierInterface
 {
-    /**
-     * Default configuration
-     *
-     * @var array
-     */
-    protected $defaultConfig = [];
-
-    /**
-     * Config Options
-     *
-     * @var array
-     */
-    protected $config = [];
 
     /**
      * Errors
@@ -44,7 +29,7 @@ abstract class AbstractIdentifier implements IdentifierInterface
      *
      * @return array
      */
-    public function getErrors()
+    public function getErrors(): array
     {
         return $this->errors;
     }

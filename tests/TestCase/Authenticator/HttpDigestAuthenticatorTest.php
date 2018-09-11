@@ -61,7 +61,7 @@ class HttpDigestAuthenticatorTest extends TestCase
             ->setRealm('localhost')
             ->setOpaque('123abc');
 
-        $password = HttpDigestAuthenticator::password('mariano', 'cake', 'localhost');
+        $password = HttpDigestAuthenticator::generatePasswordHash('mariano', 'cake', 'localhost');
         $User = TableRegistry::get('Users');
         $User->updateAll(['password' => $password], []);
 
@@ -285,8 +285,6 @@ DIGEST;
      */
     public function testUnauthorizedFailReChallenge()
     {
-        $this->auth->setConfig('scope.username', 'nate');
-
         $nonce = $this->generateNonce();
         $digest = <<<DIGEST
 Digest username="mariano",
@@ -452,7 +450,7 @@ DIGEST;
      */
     public function testPassword()
     {
-        $result = HttpDigestAuthenticator::password('mark', 'password', 'localhost');
+        $result = HttpDigestAuthenticator::generatePasswordHash('mark', 'password', 'localhost');
         $expected = md5('mark:localhost:password');
         $this->assertEquals($expected, $result);
     }

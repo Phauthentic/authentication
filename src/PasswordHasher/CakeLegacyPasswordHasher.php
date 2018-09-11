@@ -14,7 +14,6 @@
 namespace Authentication\PasswordHasher;
 
 use Cake\Core\Configure;
-use Cake\Core\InstanceConfigTrait;
 use Cake\Error\Debugger;
 use Cake\Utility\Security;
 use RuntimeException;
@@ -24,44 +23,40 @@ use RuntimeException;
  * intended only to be used with legacy databases where passwords have
  * not been migrated to a stronger algorithm yet.
  */
-class LegacyPasswordHasher extends AbstractPasswordHasher
+class CakeLegacyPasswordHasher extends AbstractPasswordHasher
 {
-    use InstanceConfigTrait;
 
     /**
-     * Default Config
+     * Hash type
      *
-     * @var array
+     * @var string
      */
-    protected $_defaultConfig = [
-        'hashType' => null
-    ];
-
-    /**
-     * Sets the hash type
-     *
-     * @param string|int $type Hashing algo to use. Valid values are those supported by `$algo` argument of `password_hash()`. Defaults to `PASSWORD_DEFAULT`
-     * @return $this
-     */
-    public function setHashType($type): self
-    {
-        $this->setConfig('hashType', $type);
-
-        return $this;
-    }
+    protected $hashType;
 
     /**
      * {@inheritDoc}
      */
-    public function __construct(array $config = [])
+    public function __construct()
     {
-        parent::__construct($config);
         if (Configure::read('debug')) {
             Debugger::checkSecurityKeys();
         }
         if (!class_exists(Security::class)) {
             throw new RuntimeException('You must install the cakephp/utility dependency to use this password hasher');
-        };
+        }
+    }
+
+    /**
+     * Sets the hash type
+     *
+     * @param string $type Hashing algo to use. Valid values are those supported by `$algo` argument of `password_hash()`. Defaults to `PASSWORD_DEFAULT`
+     * @return $this
+     */
+    public function setHashType(string $type): self
+    {
+        $this->hashType = $type;
+
+        return $this;
     }
 
     /**
@@ -70,9 +65,9 @@ class LegacyPasswordHasher extends AbstractPasswordHasher
      * @param string $password Plain text password to hash.
      * @return string Password hash
      */
-    public function hash($password)
+    public function hash($password): string
     {
-        return Security::hash($password, $this->getConfig('hashType'), true);
+        return Security::hash($password, $this->hashType, true);
     }
 
     /**
@@ -82,7 +77,7 @@ class LegacyPasswordHasher extends AbstractPasswordHasher
      * @param string $hashedPassword Existing hashed password.
      * @return bool True if hashes match else false.
      */
-    public function check($password, $hashedPassword)
+    public function check($password, string $hashedPassword): bool
     {
         return $hashedPassword === $this->hash($password);
     }

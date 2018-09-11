@@ -97,12 +97,13 @@ class LdapIdentifierTest extends TestCase
     {
         $this->skipIf(!extension_loaded('ldap'), 'LDAP extension is not loaded.');
 
-        $identifier = new LdapIdentifier([
-            'host' => 'ldap.example.com',
-            'bindDN' => function () {
+        $identifier = new LdapIdentifier(
+            new ExtensionAdapter(),
+            'ldap.example.com',
+            function () {
                 return 'dc=example,dc=com';
             }
-        ]);
+        );
 
         $this->assertInstanceOf(ExtensionAdapter::class, $identifier->getAdapter());
     }

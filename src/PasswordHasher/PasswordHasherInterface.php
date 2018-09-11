@@ -26,7 +26,7 @@ interface PasswordHasherInterface
      *   required to generate password hash.
      * @return string Password hash
      */
-    public function hash($password);
+    public function hash($password): string;
 
     /**
      * Check hash. Generate hash from user provided password string or data array
@@ -36,7 +36,7 @@ interface PasswordHasherInterface
      * @param string $hashedPassword Existing hashed password.
      * @return bool True if hashes match else false.
      */
-    public function check($password, $hashedPassword);
+    public function check($password, string $hashedPassword): bool;
 
     /**
      * Returns true if the password need to be rehashed, due to the password being
@@ -48,5 +48,5 @@ interface PasswordHasherInterface
      * @param string $password The password to verify
      * @return bool
      */
-    public function needsRehash($password);
+    public function needsRehash(string $password): bool;
 }

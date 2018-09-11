@@ -18,7 +18,7 @@ use ArrayObject;
 use Authentication\Identifier\PasswordIdentifier;
 use Authentication\Identifier\Resolver\ResolverInterface;
 use Authentication\PasswordHasher\DefaultPasswordHasher;
-use Authentication\PasswordHasher\LegacyPasswordHasher;
+use Authentication\PasswordHasher\CakeLegacyPasswordHasher;
 use Authentication\PasswordHasher\PasswordHasherInterface;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 
@@ -286,9 +286,8 @@ class PasswordIdentifierTest extends TestCase
             ->method('needsRehash')
             ->with('h45hedpa55w0rd');
 
-        $identifier = new PasswordIdentifier($resolver, $hasher, [
-            'fields' => ['username' => ['email', 'username']]
-        ]);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
+        $identifier->setUsernameFields(['email', 'username']);
 
         $result = $identifier->identify([
             'username' => 'mariano@example.com',

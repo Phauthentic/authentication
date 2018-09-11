@@ -79,26 +79,6 @@ class CallbackIdentifierTest extends TestCase
     }
 
     /**
-     * testInvalidCallbackType
-     *
-     * @expectedException \InvalidArgumentException
-     */
-    public function testInvalidCallbackTypeString(): void
-    {
-        new CallbackIdentifier('no');
-    }
-
-    /**
-     * testInvalidCallbackTypeObject
-     *
-     * @expectedException \InvalidArgumentException
-     */
-    public function testInvalidCallbackTypeObject(): void
-    {
-        new CallbackIdentifier(new stdClass());
-    }
-
-    /**
      * testInvalidCallbackTypeObject
      *
      * @expectedException \RuntimeException

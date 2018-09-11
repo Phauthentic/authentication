@@ -115,9 +115,8 @@ class CakeRouterUrlCheckerTest extends TestCase
                 'SERVER_NAME' => 'auth.localhost',
             ]
         );
-        $result = $checker->check($request, ['_name' => 'secureLogin'], [
-            'checkFullUrl' => true
-        ]);
+        $checker->checkFullUrl(true);
+        $result = $checker->check($request, ['_name' => 'secureLogin']);
         $this->assertTrue($result);
     }
 
