@@ -71,20 +71,17 @@ class AuthenticationMiddleware implements MiddlewareInterface
     {
         $service = $this->provider->getAuthenticationService($request);
 
-        try {
-            $wasAuthenticated = $service->authenticate($request);
-        } catch (UnauthorizedException $e) {
-            return $this->createUnauthorizedResponse($e);
-        }
-
-        $authResult = $service->getResult();
-        $authenticator = $service->getSuccessfulAuthenticator();
-
         if ($request->getAttribute($this->serviceAttribute)) {
             $message = sprintf('Request attribute `%s` already exists.', $this->serviceAttribute);
             throw new RuntimeException($message);
         }
-        $request = $request->withAttribute($this->serviceAttribute, $authResult);
+        $request = $request->withAttribute($this->serviceAttribute, $service);
+
+        try {
+            $service->authenticate($request);
+        } catch (UnauthorizedException $e) {
+            return $this->createUnauthorizedResponse($e);
+        }
 
         $response = $handler->handle($request);
         if ($response instanceof ResponseInterface) {
