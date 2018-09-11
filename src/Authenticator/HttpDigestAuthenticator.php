@@ -151,7 +151,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
             return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
         }
 
-        if (!$this->validNonce($digest['nonce'])) {
+        if (!$this->isNonceValid($digest['nonce'])) {
             return new Result(null, Result::FAILURE_CREDENTIALS_INVALID);
         }
 
@@ -270,7 +270,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
         ];
 
         $digest = $this->_getDigest($request);
-        if ($digest !== null && isset($digest['nonce']) && !$this->validNonce($digest['nonce'])) {
+        if ($digest !== null && isset($digest['nonce']) && !$this->isNonceValid($digest['nonce'])) {
             $options['stale'] = true;
         }
 
@@ -307,7 +307,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param string $nonce The nonce value to check.
      * @return bool
      */
-    protected function validNonce(string $nonce): bool
+    protected function isNonceValid(string $nonce): bool
     {
         $value = base64_decode($nonce);
         if ($value === false) {
