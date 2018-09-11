@@ -24,7 +24,6 @@ interface AuthenticationServiceInterface
      * Authenticate the request against the configured authentication adapters.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
-     * @param \Psr\Http\Message\ResponseInterface $response The response.
      * @return bool True on success
      */
     public function authenticate(ServerRequestInterface $request): bool;
