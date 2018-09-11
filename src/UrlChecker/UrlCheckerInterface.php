@@ -26,8 +26,7 @@ interface UrlCheckerInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request Server Request
      * @param string|array $loginUrls Login URL string or array of URLs
-     * @param array $options Array of options
      * @return bool
      */
-    public function check(ServerRequestInterface $request, $loginUrls, array $options = []);
+    public function check(ServerRequestInterface $request, $loginUrls): bool;
 }

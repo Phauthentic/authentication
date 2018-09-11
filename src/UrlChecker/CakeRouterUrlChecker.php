@@ -23,24 +23,13 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class CakeRouterUrlChecker extends DefaultUrlChecker
 {
-    /**
-     * Default Options
-     *
-     * - `checkFullUrl` Whether or not to check the full request URI.
-     *
-     * @var array
-     */
-    protected $_defaultOptions = [
-        'checkFullUrl' => false,
-    ];
 
     /**
      * {@inheritdoc}
      */
-    public function check(ServerRequestInterface $request, $loginUrls, array $options = [])
+    public function check(ServerRequestInterface $request, $loginUrls): bool
     {
-        $options += $this->_defaultOptions;
-        $url = $this->_getUrlFromRequest($request->getUri(), $options['checkFullUrl']);
+        $url = $this->_getUrlFromRequest($request->getUri());
 
         if (!is_array($loginUrls) || empty($loginUrls)) {
             throw new InvalidArgumentException('The $loginUrls parameter is empty or not of type array.');
@@ -52,7 +41,7 @@ class CakeRouterUrlChecker extends DefaultUrlChecker
         }
 
         foreach ($loginUrls as $validUrl) {
-            $validUrl = Router::url($validUrl, $options['checkFullUrl']);
+            $validUrl = Router::url($validUrl, $this->checkFullUrl);
 
             if ($validUrl === $url) {
                 return true;
