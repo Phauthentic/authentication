@@ -219,7 +219,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @return \Authentication\Authenticator\AuthenticatorInterface|null
      */
-    public function getAuthenticationProvider(): ?AuthenticatorInterface
+    public function getSuccessfulAuthenticator(): ?AuthenticatorInterface
     {
         return $this->successfulAuthenticator;
     }

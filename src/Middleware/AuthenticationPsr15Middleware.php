@@ -121,7 +121,7 @@ class AuthenticationPsr15Middleware implements MiddlewareInterface
         $wasAuthenticated = $this->service->authenticate($request);
 
         $authResult = $this->service->getResult();
-        $authenticator = $this->service->getAuthenticationProvider();
+        $authenticator = $this->service->getSuccessfulAuthenticator();
         $request = $request->withAttribute('authentication', $authResult);
 
         if (!$wasAuthenticated) {

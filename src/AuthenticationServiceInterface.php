@@ -41,7 +41,7 @@ interface AuthenticationServiceInterface
      *
      * @return \Authentication\Authenticator\AuthenticatorInterface|null
      */
-    public function getAuthenticationProvider(): ?AuthenticatorInterface;
+    public function getSuccessfulAuthenticator(): ?AuthenticatorInterface;
 
     /**
      * Gets the result of the last authenticate() call.
