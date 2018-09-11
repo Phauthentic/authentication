@@ -16,12 +16,9 @@ namespace Authentication\Authenticator;
 
 use ArrayObject;
 use Authentication\Identifier\IdentifierInterface;
-use Cake\Utility\Security;
 use Exception;
 use Firebase\JWT\JWT;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 use stdClass;
 
 /**
@@ -74,39 +71,6 @@ class JwtAuthenticator extends TokenAuthenticator
     protected $secretKey = null;
 
     /**
-     * Sets algorithms to use
-     *
-     * @param array $algorithms List of algorithms
-     * @return $this
-     */
-    public function setAlgorithms(array $algorithms): self
-    {
-        $this->algorithms = $algorithms;
-
-        return $this;
-    }
-
-    /**
-     *
-     */
-    public function setReturnPayload(bool $return): self
-    {
-        $this->returnPayload = $return;
-
-        return $this;
-    }
-
-    /**
-     *
-     */
-    public function setSecretKey(string $key): self
-    {
-        $this->secretKey = $key;
-
-        return $this;
-    }
-
-    /**
      * Payload data.
      *
      * @var object|null
@@ -124,14 +88,52 @@ class JwtAuthenticator extends TokenAuthenticator
     }
 
     /**
+     * Sets algorithms to use
+     *
+     * @param array $algorithms List of algorithms
+     * @return $this
+     */
+    public function setAlgorithms(array $algorithms): self
+    {
+        $this->algorithms = $algorithms;
+
+        return $this;
+    }
+
+    /**
+     * Sets return payload.
+     *
+     * @param bool $return Return payload.
+     * @return $this
+     */
+    public function setReturnPayload(bool $return): self
+    {
+        $this->returnPayload = $return;
+
+        return $this;
+    }
+
+    /**
+     * Sets secret key.
+     *
+     * @param string $key Secret key.
+     * @return $this
+     */
+    public function setSecretKey(string $key): self
+    {
+        $this->secretKey = $key;
+
+        return $this;
+    }
+
+    /**
      * Authenticates the identity based on a JWT token contained in a request.
      *
      * @link https://jwt.io/
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @param \Psr\Http\Message\ResponseInterface $response Unused response object.
      * @return \Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request)
+    public function authenticate(ServerRequestInterface $request): ResultInterface
     {
         try {
             $result = $this->getPayload($request);
@@ -150,7 +152,7 @@ class JwtAuthenticator extends TokenAuthenticator
             return new Result(null, Result::FAILURE_CREDENTIALS_INVALID);
         }
 
-        $result = json_decode(json_encode($result), true);
+        $result = json_decode((string)json_encode($result), true);
 
         $key = IdentifierInterface::CREDENTIAL_JWT_SUBJECT;
         if (empty($result[$key])) {
@@ -208,7 +210,7 @@ class JwtAuthenticator extends TokenAuthenticator
     {
         return JWT::decode(
             $token,
-            $this->secretKey,
+            (string)$this->secretKey,
             $this->algorithms
         );
     }

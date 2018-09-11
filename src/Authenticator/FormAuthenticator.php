@@ -16,7 +16,6 @@ namespace Authentication\Authenticator;
 
 use Authentication\Identifier\IdentifierInterface;
 use Authentication\UrlChecker\UrlCheckerInterface;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -50,18 +49,30 @@ class FormAuthenticator extends AbstractAuthenticator
         IdentifierInterface $identifier,
         UrlCheckerInterface $urlChecker
     ) {
-        $this->identifier = $identifier;
+        parent::__construct($identifier);
         $this->urlChecker = $urlChecker;
     }
 
-    public function setLoginUrls(array $urls)
+    /**
+     * Sets multiple login URLs.
+     *
+     * @param array $urls An array of URLs.
+     * @return $this
+     */
+    public function setLoginUrls(array $urls): self
     {
         $this->loginUrls = $urls;
 
         return $this;
     }
 
-    public function setLoginUrl(string $url)
+    /**
+     * Adds a login URL.
+     *
+     * @param string $url Login URL.
+     * @return $this
+     */
+    public function addLoginUrl(string $url): self
     {
         $this->loginUrls[] = $url;
 
@@ -74,7 +85,7 @@ class FormAuthenticator extends AbstractAuthenticator
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
      * @return array|null Username and password retrieved from a request body.
      */
-    protected function getData(ServerRequestInterface $request)
+    protected function getData(ServerRequestInterface $request): ?array
     {
         $body = (array)$request->getParsedBody();
 
@@ -101,7 +112,7 @@ class FormAuthenticator extends AbstractAuthenticator
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
      * @return \Authentication\Authenticator\ResultInterface
      */
-    protected function _buildLoginUrlErrorResult($request)
+    protected function _buildLoginUrlErrorResult($request): ResultInterface
     {
         $errors = [
             sprintf(
@@ -120,10 +131,9 @@ class FormAuthenticator extends AbstractAuthenticator
      * there is no post data, either username or password is missing, or if the scope conditions have not been met.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @param \Psr\Http\Message\ResponseInterface $response Unused response object.
      * @return \Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request)
+    public function authenticate(ServerRequestInterface $request): ResultInterface
     {
         if (!$this->urlChecker->check($request, $this->loginUrls)) {
             return $this->_buildLoginUrlErrorResult($request);

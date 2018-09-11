@@ -77,7 +77,7 @@ class Result implements ResultInterface
      *
      * @return bool
      */
-    public function isValid()
+    public function isValid(): bool
     {
         return $this->status === ResultInterface::SUCCESS;
     }
@@ -87,7 +87,7 @@ class Result implements ResultInterface
      *
      * @return string
      */
-    public function getStatus()
+    public function getStatus(): string
     {
         return $this->status;
     }
@@ -109,7 +109,7 @@ class Result implements ResultInterface
      *
      * @return array
      */
-    public function getErrors()
+    public function getErrors(): array
     {
         return $this->errors;
     }
