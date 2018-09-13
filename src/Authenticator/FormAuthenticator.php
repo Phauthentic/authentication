@@ -27,20 +27,7 @@ class FormAuthenticator extends AbstractAuthenticator
 {
 
     use CredentialFieldsTrait;
-
-    /**
-     * URL Checker
-     *
-     * @var \Authentication\UrlChecker\UrlCheckerInterface
-     */
-    protected $urlChecker;
-
-    /**
-     * URLs to check for the login credentials
-     *
-     * @var array
-     */
-    protected $loginUrls = [];
+    use UrlAwareTrait;
 
     /**
      * {@inheritDoc}
@@ -51,32 +38,6 @@ class FormAuthenticator extends AbstractAuthenticator
     ) {
         parent::__construct($identifier);
         $this->urlChecker = $urlChecker;
-    }
-
-    /**
-     * Sets multiple login URLs.
-     *
-     * @param array $urls An array of URLs.
-     * @return $this
-     */
-    public function setLoginUrls(array $urls): self
-    {
-        $this->loginUrls = $urls;
-
-        return $this;
-    }
-
-    /**
-     * Adds a login URL.
-     *
-     * @param string $url Login URL.
-     * @return $this
-     */
-    public function addLoginUrl(string $url): self
-    {
-        $this->loginUrls[] = $url;
-
-        return $this;
     }
 
     /**
@@ -135,7 +96,7 @@ class FormAuthenticator extends AbstractAuthenticator
      */
     public function authenticate(ServerRequestInterface $request): ResultInterface
     {
-        if (!$this->urlChecker->check($request, $this->loginUrls)) {
+        if (!$this->checkUrl($request)) {
             return $this->_buildLoginUrlErrorResult($request);
         }
 
