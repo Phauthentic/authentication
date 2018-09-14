@@ -61,18 +61,6 @@ class OrmResolverTest extends AuthenticationTestCase
         $this->assertEquals(1, $user['id']);
     }
 
-    public function testFindOr()
-    {
-        $resolver = new OrmResolver();
-
-        $user = $resolver->find([
-            'id' => 1,
-            'username' => 'luigiano'
-        ], 'OR');
-
-        $this->assertEquals(1, $user['id']);
-    }
-
     public function testFindMissing()
     {
         $resolver = new OrmResolver();
