@@ -31,6 +31,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
 {
 
     use CredentialFieldsTrait;
+    use UrlAwareTrait;
 
     /**
      * Password hasher
@@ -40,25 +41,11 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     protected $passwordHasher;
 
     /**
-     * Url Checker
-     *
-     * @var \Authentication\UrlChecker\UrlCheckerInterface
-     */
-    protected $urlChecker;
-
-    /**
      * Storage Implementation
      *
      * @var \Authentication\Authenticator\Storage\StorageInterface
      */
     protected $storage;
-
-    /**
-     * Login URLs
-     *
-     * @var array
-     */
-    protected $loginUrls = [];
 
     /**
      * "Remember me" field
@@ -81,32 +68,6 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
         $this->storage = $storage;
         $this->passwordHasher = $passwordHasher;
         $this->urlChecker = $urlChecker;
-    }
-
-    /**
-     * Sets multiple login URLs.
-     *
-     * @param array $urls An array of URLs.
-     * @return $this
-     */
-    public function setLoginUrls(array $urls): self
-    {
-        $this->loginUrls = $urls;
-
-        return $this;
-    }
-
-    /**
-     * Adds a login URL.
-     *
-     * @param string $url Login URL.
-     * @return $this
-     */
-    public function addLoginUrl(string $url): self
-    {
-        $this->loginUrls[] = $url;
-
-        return $this;
     }
 
     /**
@@ -168,7 +129,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
         $field = $this->rememberMeField;
         $bodyData = $request->getParsedBody();
 
-        if (!$this->urlChecker->check($request, $this->loginUrls) || !is_array($bodyData) || empty($bodyData[$field])) {
+        if (!$this->checkUrl($request) || !is_array($bodyData) || empty($bodyData[$field])) {
             return $response;
         }
 
