@@ -15,13 +15,13 @@
 namespace Authentication\Test\TestCase\UrlChecker;
 
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
-use Authentication\UrlChecker\DefaultUrlChecker;
+use Authentication\UrlChecker\RegexUrlChecker;
 use Cake\Http\ServerRequestFactory;
 
 /**
- * DefaultUrlCheckerTest
+ * RegexUrlCheckerTest
  */
-class DefaultUrlCheckerTest extends TestCase
+class RegexUrlCheckerTest extends TestCase
 {
 
     /**
@@ -31,62 +31,63 @@ class DefaultUrlCheckerTest extends TestCase
      */
     public function testCheckFailure()
     {
-        $checker = new DefaultUrlChecker();
+        $checker = new RegexUrlChecker();
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/users/does-not-match']
         );
 
-        $result = $checker->check($request, '/users/login');
+        $result = $checker->check($request, '%^/[a-z]{2}/users/login/?$%');
         $this->assertFalse($result);
     }
 
     /**
-     * testCheck
+     * testCheckArray
      *
      * @return void
      */
     public function testCheck()
     {
-        $checker = new DefaultUrlChecker();
+        $checker = new RegexUrlChecker();
         $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/login']
+            ['REQUEST_URI' => '/en/users/login']
         );
-        $result = $checker->check($request, '/users/login');
+
+        $result = $checker->check($request, '%^/[a-z]{2}/users/login/?$%');
         $this->assertTrue($result);
     }
 
     /**
-     * testCheckFull
+     * testCheckArray
      *
      * @return void
      */
     public function testCheckFull()
     {
-        $checker = new DefaultUrlChecker();
+        $checker = new RegexUrlChecker();
         $checker->checkFullUrl(true);
         $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/login']
+            ['REQUEST_URI' => '/en/users/login']
         );
 
-        $result = $checker->check($request, 'http://localhost/users/login');
+        $result = $checker->check($request, '%^http.*/[a-z]{2}/users/login/?$%');
         $this->assertTrue($result);
     }
 
     /**
-     * testCheckFullFailure
+     * testCheckArray
      *
      * @return void
      */
     public function testCheckFullFailure()
     {
-        $checker = new DefaultUrlChecker();
+        $checker = new RegexUrlChecker();
         $checker->checkFullUrl(true);
         $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/does-not-match']
+            ['REQUEST_URI' => '/en/users/login']
         );
 
-        $result = $checker->check($request, 'http://localhost/users/login');
+        $result = $checker->check($request, '%^https.*/[a-z]{2}/users/login/?$%');
         $this->assertFalse($result);
     }
 }

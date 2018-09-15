@@ -18,9 +18,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 /**
- * Checks if a request object contains a valid URL
+ * Checks if a request object contains a valid URL using regular expression
  */
-class DefaultUrlChecker implements UrlCheckerInterface
+class RegexUrlChecker implements UrlCheckerInterface
 {
 
     /**
@@ -44,11 +44,11 @@ class DefaultUrlChecker implements UrlCheckerInterface
     /**
      * {@inheritdoc}
      */
-    public function check(ServerRequestInterface $request, string $loginUrl): bool
+    public function check(ServerRequestInterface $request, string $regex): bool
     {
         $requestUrl = $this->_getUrlFromRequest($request->getUri());
 
-        return $requestUrl === $loginUrl;
+        return (bool)preg_match($regex, $requestUrl);
     }
 
     /**
