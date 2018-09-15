@@ -12,7 +12,7 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication;
+namespace Authentication\Identity;
 
 use ArrayAccess;
 use BadMethodCallException;

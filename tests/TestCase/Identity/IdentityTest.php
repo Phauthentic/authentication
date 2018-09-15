@@ -12,10 +12,10 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase;
+namespace Authentication\Test\TestCase\Identity;
 
 use ArrayObject;
-use Authentication\Identity;
+use Authentication\Identity\Identity;
 use BadMethodCallException;
 use Cake\ORM\Entity;
 use Cake\TestSuite\TestCase;
