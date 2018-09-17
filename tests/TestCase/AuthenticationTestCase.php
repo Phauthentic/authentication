@@ -14,47 +14,34 @@
  */
 namespace Authentication\Test\TestCase;
 
-use Cake\ORM\TableRegistry;
-use Cake\TestSuite\TestCase;
+use Authentication\Test\Fixture\UsersDataSet;
+use PHPUnit\DbUnit\TestCaseTrait;
+use PHPUnit\Framework\TestCase;
+use PDO;
 
 class AuthenticationTestCase extends TestCase
 {
+    use TestCaseTrait;
 
-    /**
-     * Fixtures
-     *
-     * @var array
-     */
-    public $fixtures = [
-        'core.auth_users',
-        'core.users'
-    ];
+    // only instantiate pdo once for test clean-up/fixture load
+    protected static $pdo = null;
 
-    /**
-     * @inheritdoc
-     */
-    public function setUp()
+    // only instantiate PHPUnit\DbUnit\Database\Connection once per test
+    protected $connection = null;
+
+    final public function getConnection()
     {
-        parent::setUp();
-        $this->_setupUsersAndPasswords();
+        if ($this->connection === null) {
+            if (self::$pdo == null) {
+                self::$pdo = new PDO('sqlite::memory:');
+            }
+            $this->connection = $this->createDefaultDBConnection(self::$pdo, 'db.mysqli');
+        }
+
+        return $this->connection;
     }
 
-    /**
-     * _setupUsersAndPasswords
-     *
-     * @return void
-     */
-    protected function _setupUsersAndPasswords()
-    {
-        $password = password_hash('password', PASSWORD_DEFAULT);
-        TableRegistry::clear();
-
-        $Users = TableRegistry::get('Users');
-        $Users->updateAll(['password' => $password], []);
-
-        $AuthUsers = TableRegistry::get('AuthUsers', [
-            'className' => 'TestApp\Model\Table\AuthUsersTable'
-        ]);
-        $AuthUsers->updateAll(['password' => $password], []);
+    public function getDataSet() {
+        return new UsersDataSet();
     }
 }
