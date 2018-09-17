@@ -15,20 +15,16 @@
  */
 namespace Authentication\Test\TestCase\Authentication;
 
+use Authentication\Authenticator\Exception\UnauthorizedException;
 use Authentication\Authenticator\HttpDigestAuthenticator;
 use Authentication\Authenticator\Result;
 use Authentication\Authenticator\StatelessInterface;
-use Authentication\Authenticator\Exception\UnauthorizedException;
-use Authentication\Identifier\IdentifierCollection;
 use Authentication\Identifier\PasswordIdentifier;
-use Authentication\Identifier\Resolver\OrmResolver;
+use Authentication\Test\Resolver\TestResolver;
+use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Phauthentic\PasswordHasher\DefaultPasswordHasher;
-use Cake\Core\Configure;
-use Cake\Http\Response;
-use Cake\Http\ServerRequestFactory;
-use Cake\I18n\Time;
-use Cake\ORM\TableRegistry;
-use Cake\TestSuite\TestCase;
+use Zend\Diactoros\Response;
+use Zend\Diactoros\ServerRequestFactory;
 
 /**
  * Test case for HttpDigestAuthentication
@@ -37,33 +33,20 @@ class HttpDigestAuthenticatorTest extends TestCase
 {
 
     /**
-     * Fixtures
-     *
-     * @var array
-     */
-    public $fixtures = [
-        'core.auth_users',
-        'core.users'
-    ];
-
-    /**
      * setup
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
-        $this->identifiers = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
+        $resolver = new TestResolver($this->getConnection()->getConnection());
+        $this->identifiers = new PasswordIdentifier($resolver, new DefaultPasswordHasher());
 
         $this->auth = (new HttpDigestAuthenticator($this->identifiers))
             ->setRealm('localhost')
             ->setOpaque('123abc');
-
-        $password = HttpDigestAuthenticator::generatePasswordHash('mariano', 'cake', 'localhost');
-        $User = TableRegistry::get('Users');
-        $User->updateAll(['password' => $password], []);
 
         $this->response = $this->getMockBuilder(Response::class)->getMock();
     }
@@ -135,14 +118,14 @@ DIGEST;
     public function testAuthenticateSuccess()
     {
         $data = [
-            'username' => 'mariano',
+            'username' => 'digest',
             'uri' => '/dir/index.html',
             'nonce' => $this->generateNonce(),
             'nc' => 1,
             'cnonce' => '123',
             'qop' => 'auth',
         ];
-        $data['response'] = $this->auth->generateResponseHash($data, '09faa9931501bf30f0d4253fa7763022', 'GET');
+        $data['response'] = $this->auth->generateResponseHash($data, HttpDigestAuthenticator::generatePasswordHash('digest', 'password', 'localhost'), 'GET');
 
         $request = ServerRequestFactory::fromGlobals(
             [
@@ -155,14 +138,12 @@ DIGEST;
 
         $result = $this->auth->authenticate($request, $this->response);
         $expected = [
-            'id' => 1,
-            'username' => 'mariano',
-            'created' => new Time('2007-03-17 01:16:23'),
-            'updated' => new Time('2007-03-17 01:18:31')
+            'id' => 4,
+            'username' => 'digest',
         ];
         $this->assertInstanceOf(Result::class, $result);
         $this->assertTrue($result->isValid());
-        $this->assertArraySubset($expected, $result->getData()->toArray());
+        $this->assertArraySubset($expected, $result->getData());
     }
 
     /**
@@ -173,7 +154,7 @@ DIGEST;
     public function testAuthenticateFailsOnBadNonce()
     {
         $data = [
-            'username' => 'mariano',
+            'username' => 'digest',
             'uri' => '/dir/index.html',
             'nonce' => 'notbase64data',
             'nc' => 1,
@@ -204,7 +185,7 @@ DIGEST;
     public function testAuthenticateFailsNonceWithTooManyParts()
     {
         $data = [
-            'username' => 'mariano',
+            'username' => 'digest',
             'uri' => '/dir/index.html',
             'nonce' => base64_encode(time() . ':lol:lol'),
             'nc' => 1,
@@ -234,10 +215,6 @@ DIGEST;
      */
     public function testAuthenticateFailsOnStaleNonce()
     {
-        $request = ServerRequestFactory::fromGlobals([
-            'REQUEST_URI' => '/posts/index',
-            'REQUEST_METHOD' => 'GET'
-        ]);
 
         $data = [
             'uri' => '/dir/index.html',
@@ -247,7 +224,11 @@ DIGEST;
             'qop' => 'auth',
         ];
         $data['response'] = $this->auth->generateResponseHash($data, '09faa9931501bf30f0d4253fa7763022', 'GET');
-        $request = $request->withEnv('PHP_AUTH_DIGEST', $this->digestHeader($data));
+        $request = ServerRequestFactory::fromGlobals([
+            'REQUEST_URI' => '/posts/index',
+            'REQUEST_METHOD' => 'GET',
+            'PHP_AUTH_DIGEST' => $this->digestHeader($data),
+        ]);
 
         $result = $this->auth->authenticate($request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
@@ -272,7 +253,7 @@ DIGEST;
             $this->assertEquals(401, $e->getCode());
             $header = $e->getHeaders()['WWW-Authenticate'];
             $this->assertRegexp(
-                '/^Digest realm="localhost",qop="auth",nonce="[A-Za-z0-9=]+",opaque="123abc"$/',
+                '/^Digest realm="localhost",qop="auth",nonce="[A-Za-z0-9=]+",opaque="123abc"/',
                 $header
             );
         }
@@ -287,7 +268,7 @@ DIGEST;
     {
         $nonce = $this->generateNonce();
         $digest = <<<DIGEST
-Digest username="mariano",
+Digest username="digest",
 realm="localhost",
 nonce="{$this->generateNonce()}",
 uri="/dir/index.html",
@@ -313,7 +294,7 @@ DIGEST;
             $this->assertSame(401, $e->getCode());
             $header = $e->getHeaders()['WWW-Authenticate'];
             $this->assertRegexp(
-                '/^Digest realm="localhost",qop="auth",nonce="[A-Za-z0-9=]+",opaque="123abc"$/',
+                '/^Digest realm="localhost",qop="auth",nonce="[A-Za-z0-9=]+",opaque="123abc"/',
                 $header
             );
         }
@@ -326,10 +307,6 @@ DIGEST;
      */
     public function testUnauthorizedChallengeIncludesStaleAttributeOnStaleNonce()
     {
-        $request = ServerRequestFactory::fromGlobals([
-            'REQUEST_URI' => '/posts/index',
-            'REQUEST_METHOD' => 'GET'
-        ]);
         $data = [
             'uri' => '/dir/index.html',
             'nonce' => $this->generateNonce(null, 5, strtotime('-10 minutes')),
@@ -338,7 +315,11 @@ DIGEST;
             'qop' => 'auth',
         ];
         $data['response'] = $this->auth->generateResponseHash($data, '09faa9931501bf30f0d4253fa7763022', 'GET');
-        $request = $request->withEnv('PHP_AUTH_DIGEST', $this->digestHeader($data));
+        $request = ServerRequestFactory::fromGlobals([
+            'REQUEST_URI' => '/posts/index',
+            'REQUEST_METHOD' => 'GET',
+            'PHP_AUTH_DIGEST' => $this->digestHeader($data)
+        ]);
 
         try {
             $this->auth->unauthorizedChallenge($request);
@@ -464,7 +445,7 @@ DIGEST;
     protected function digestHeader($data)
     {
         $data += [
-            'username' => 'mariano',
+            'username' => 'digest',
             'realm' => 'localhost',
             'opaque' => '123abc'
         ];
@@ -493,7 +474,6 @@ DIGEST;
      */
     protected function generateNonce($secret = null, $expires = 300, $time = null)
     {
-        $secret = $secret ?: Configure::read('Security.salt');
         $time = $time ?: microtime(true);
         $expiryTime = $time + $expires;
         $signatureValue = hash_hmac('sha1', $expiryTime . ':' . $secret, $secret);
