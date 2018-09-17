@@ -18,7 +18,7 @@ namespace Authentication\Authenticator;
 use ArrayAccess;
 use Authentication\Authenticator\Storage\StorageInterface;
 use Authentication\Identifier\IdentifierInterface;
-use PasswordHasher\PasswordHasherInterface;
+use Phauthentic\PasswordHasher\PasswordHasherInterface;
 use Authentication\UrlChecker\UrlCheckerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -37,7 +37,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     /**
      * Password hasher
      *
-     * @var \Authentication\PasswordHasher\PasswordHasherInterface
+     * @var \Phauthentic\PasswordHasher\PasswordHasherInterface
      */
     protected $passwordHasher;
 
