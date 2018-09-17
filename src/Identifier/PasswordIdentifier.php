@@ -15,7 +15,7 @@
 namespace Authentication\Identifier;
 
 use Authentication\Identifier\Resolver\ResolverInterface;
-use Authentication\PasswordHasher\PasswordHasherInterface;
+use PasswordHasher\PasswordHasherInterface;
 
 /**
  * Password Identifier
