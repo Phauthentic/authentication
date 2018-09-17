@@ -14,13 +14,14 @@
  */
 namespace TestApp\Identifier\Resolver;
 
+use ArrayAccess;
 use ArrayObject;
 use Authentication\Identifier\Resolver\ResolverInterface;
 
 class TestResolver implements ResolverInterface
 {
 
-    public function find(array $conditions, $type = self::TYPE_AND)
+    public function find(array $conditions): ?ArrayAccess
     {
         return new ArrayObject([]);
     }

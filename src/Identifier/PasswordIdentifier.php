@@ -14,6 +14,8 @@
  */
 namespace Authentication\Identifier;
 
+use ArrayAccess;
+use ArrayObject;
 use Authentication\Identifier\Resolver\ResolverInterface;
 use PasswordHasher\PasswordHasherInterface;
 
@@ -114,7 +116,7 @@ class PasswordIdentifier extends AbstractIdentifier
     /**
      * {@inheritDoc}
      */
-    public function identify(array $credentials)
+    public function identify(array $credentials): ?ArrayAccess
     {
         if (!isset($credentials[self::CREDENTIAL_USERNAME])) {
             return null;
@@ -136,18 +138,18 @@ class PasswordIdentifier extends AbstractIdentifier
      * Input passwords will be hashed even when a user doesn't exist. This
      * helps mitigate timing attacks that are attempting to find valid usernames.
      *
-     * @param array|\ArrayAccess|null $data The identity or null.
+     * @param \ArrayAccess|null $data The identity or null.
      * @param string|null $password The password.
      * @return bool
      */
-    protected function _checkPassword($data, $password): bool
+    protected function _checkPassword(?ArrayAccess $data, $password): bool
     {
         $passwordField = $this->credentialFields[self::CREDENTIAL_PASSWORD];
 
         if ($data === null) {
-            $data = [
+            $data = new ArrayObject([
                 $passwordField => ''
-            ];
+            ]);
         }
 
         $hasher = $this->passwordHasher;
@@ -175,9 +177,9 @@ class PasswordIdentifier extends AbstractIdentifier
      * Find a user record using the username/identifier provided.
      *
      * @param string $identifier The username/identifier.
-     * @return \ArrayAccess|array|null
+     * @return \ArrayAccess|null
      */
-    protected function _findIdentity($identifier)
+    protected function _findIdentity($identifier): ?ArrayAccess
     {
         $fields = $this->credentialFields[self::CREDENTIAL_USERNAME];
 

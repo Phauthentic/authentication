@@ -14,6 +14,7 @@
  */
 namespace Authentication\Identifier;
 
+use ArrayAccess;
 use ArrayObject;
 use Authentication\Identifier\Ldap\AdapterInterface;
 use ErrorException;
@@ -130,7 +131,7 @@ class LdapIdentifier extends AbstractIdentifier
     /**
      * {@inheritDoc}
      */
-    public function identify(array $data)
+    public function identify(array $data): ?ArrayAccess
     {
         $this->_connectLdap();
         $fields = $this->credentialFields;

@@ -39,7 +39,7 @@ class CallbackIdentifier extends AbstractIdentifier
     /**
      * {@inheritDoc}
      */
-    public function identify(array $data)
+    public function identify(array $data): ?ArrayAccess
     {
         $callback = $this->callable;
 

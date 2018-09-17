@@ -16,6 +16,7 @@ namespace Authentication;
 
 use Authentication\Authenticator\AuthenticatorInterface;
 use Authentication\Authenticator\ResultInterface;
+use Authentication\Identity\IdentityInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -32,7 +33,7 @@ interface AuthenticationServiceInterface
     /**
      * Gets an identity object or null if identity has not been resolved.
      *
-     * @return null|\Authentication\IdentityInterface
+     * @return null|\Authentication\Identity\IdentityInterface
      */
     public function getIdentity(): ?IdentityInterface;
 
@@ -71,7 +72,7 @@ interface AuthenticationServiceInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
      * @param \Psr\Http\Message\ResponseInterface $response The response.
-     * @param \Authentication\IdentityInterface|null $identity Identity object.
+     * @param \Authentication\Identity\IdentityInterface|null $identity Identity object.
      * @return \Authentication\PersistenceResultInterface
      */
     public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, IdentityInterface $identity = null): PersistenceResultInterface;

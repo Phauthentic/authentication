@@ -14,9 +14,8 @@
  */
 namespace Authentication;
 
-use ArrayAccess;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Persistence Result Interface
@@ -24,16 +23,16 @@ use Psr\Http\Message\ResponseInterface;
 interface PersistenceResultInterface
 {
     /**
-     * Get the primary key/id field for the identity.
+     * Returns response.
      *
-     * @return string|int|null
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function getResponse(): ResponseInterface;
 
     /**
-     * Gets the original data object.
+     * Returns request.
      *
-     * @return \ArrayAccess|array
+     * @return \Psr\Http\Message\ServerRequestInterface
      */
-    public function getRequest(): RequestInterface;
+    public function getRequest(): ServerRequestInterface;
 }

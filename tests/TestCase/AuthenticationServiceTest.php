@@ -22,8 +22,8 @@ use Authentication\Authenticator\Result;
 use Authentication\Authenticator\UnauthorizedException;
 use Authentication\Identifier\IdentifierCollection;
 use Authentication\Identifier\PasswordIdentifier;
-use Authentication\Identity;
-use Authentication\IdentityInterface;
+use Authentication\Identity\Identity;
+use Authentication\Identity\IdentityInterface;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Cake\Http\Response;
 use Cake\Http\ServerRequest;
@@ -519,7 +519,7 @@ class AuthenticationServiceTest extends TestCase
      * testBuildIdentityRuntimeException
      *
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Object `stdClass` does not implement `Authentication\IdentityInterface`
+     * @expectedExceptionMessage Object `stdClass` does not implement `Authentication\Identity\IdentityInterface`
      * @return void
      */
     public function testBuildIdentityRuntimeException()

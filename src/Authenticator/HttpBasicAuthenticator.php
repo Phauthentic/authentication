@@ -14,6 +14,7 @@ declare(strict_types=1);
  */
 namespace Authentication\Authenticator;
 
+use ArrayAccess;
 use Authentication\Authenticator\Exception\UnauthorizedException;
 use Authentication\Identifier\IdentifierInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -70,9 +71,9 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
      * Get a user based on information in the request. Used by cookie-less auth for stateless clients.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request Request object.
-     * @return \ArrayAccess|array|null User entity or null on failure.
+     * @return \ArrayAccess|null User entity or null on failure.
      */
-    public function getUser(ServerRequestInterface $request)
+    public function getUser(ServerRequestInterface $request): ?ArrayAccess
     {
         $server = $request->getServerParams();
         if (!isset($server['PHP_AUTH_USER']) || !isset($server['PHP_AUTH_PW'])) {

@@ -19,7 +19,7 @@ use Authentication\AuthenticationServiceInterface;
 use Authentication\AuthenticationServiceProviderInterface;
 use Authentication\Authenticator\ResultInterface;
 use Authentication\Authenticator\UnauthenticatedException;
-use Authentication\IdentityInterface;
+use Authentication\Identity\IdentityInterface;
 use Authentication\Middleware\CakeAuthenticationMiddleware;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Cake\Http\BaseApplication;
@@ -43,7 +43,7 @@ class CakeAuthenticationMiddlewareTest extends TestCase
     /**
      * @inheritdoc
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->service = new AuthenticationService([

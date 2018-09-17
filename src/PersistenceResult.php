@@ -14,10 +14,8 @@
  */
 namespace Authentication;
 
-use ArrayAccess;
-use http\Env\Response;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Persistence Result Interface
@@ -33,26 +31,26 @@ class PersistenceResult implements PersistenceResultInterface
     /**
      * Request
      *
-     * @var \Psr\Http\Message\RequestInterface
+     * @var \Psr\Http\Message\ServerRequestInterface
      */
     protected $request;
 
     /**
      * Constructor
      *
-     * @param \Psr\Http\Message\RequestInterface
+     * @param \Psr\Http\Message\ServerRequestInterface
      * @param \Psr\Http\Message\ResponseInterface
      */
-    public function __construct(RequestInterface $request, ResponseInterface $response)
+    public function __construct(ServerRequestInterface $request, ResponseInterface $response)
     {
+        $this->request = $request;
         $this->response = $response;
-        $this->request = $response;
     }
 
     /**
-     * Get the primary key/id field for the identity.
+     * Returns response.
      *
-     * @return string|int|null
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function getResponse(): ResponseInterface
     {
@@ -60,11 +58,11 @@ class PersistenceResult implements PersistenceResultInterface
     }
 
     /**
-     * Gets the original data object.
+     * Returns request.
      *
-     * @return \ArrayAccess|array
+     * @return \Psr\Http\Message\ServerRequestInterface
      */
-    public function getRequest(): RequestInterface
+    public function getRequest(): ServerRequestInterface
     {
         return $this->request;
     }

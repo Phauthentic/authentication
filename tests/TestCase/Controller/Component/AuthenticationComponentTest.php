@@ -19,8 +19,8 @@ use Authentication\AuthenticationServiceInterface;
 use Authentication\Authenticator\AuthenticatorInterface;
 use Authentication\Authenticator\UnauthenticatedException;
 use Authentication\Controller\Component\AuthenticationComponent;
-use Authentication\Identity;
-use Authentication\IdentityInterface;
+use Authentication\Identity\Identity;
+use Authentication\Identity\IdentityInterface;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Cake\Controller\ComponentRegistry;
 use Cake\Controller\Controller;
@@ -40,7 +40,7 @@ class AuthenticationComponentTest extends TestCase
     /**
      * {@inheritDoc}
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

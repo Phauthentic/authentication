@@ -14,6 +14,7 @@
  */
 namespace Authentication\Identifier\Resolver;
 
+use ArrayAccess;
 use Cake\Core\InstanceConfigTrait;
 use Cake\ORM\Locator\LocatorAwareTrait;
 
@@ -53,7 +54,7 @@ class OrmResolver implements ResolverInterface
     /**
      * {@inheritDoc}
      */
-    public function find(array $conditions)
+    public function find(array $conditions): ?ArrayAccess
     {
         $table = $this->getTableLocator()->get($this->getConfig('userModel'));
 

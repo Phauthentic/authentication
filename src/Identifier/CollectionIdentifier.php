@@ -14,6 +14,8 @@
  */
 namespace Authentication\Identifier;
 
+use ArrayAccess;
+
 /**
  * Callback Identifier
  */
@@ -57,9 +59,9 @@ class CollectionIdentifier implements IdentifierInterface
      * Identifies an user or service by the passed credentials
      *
      * @param array $credentials Authentication credentials
-     * @return \ArrayAccess|array|null
+     * @return \ArrayAccess|null
      */
-    public function identify(array $credentials)
+    public function identify(array $credentials): ?ArrayAccess
     {
         /** @var \Authentication\Identifier\IdentifierInterface $identifier */
         foreach ($this->collection as $identifier) {

@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Authentication\Identifier\Resolver;
 
+use ArrayAccess;
+
 /**
  * A simple callable resolver that allows a quick implementation of any kind
  * of resolver logic
@@ -19,7 +21,7 @@ class CallbackResolver implements ResolverInterface
     /**
      * Constructor.
      *
-     * @param array $config Config array.
+     * @param callable $callable Callable.
      */
     public function __construct(callable $callable)
     {
@@ -29,10 +31,10 @@ class CallbackResolver implements ResolverInterface
     /**
      * {@inheritDoc}
      */
-    public function find(array $conditions, $type = self::TYPE_AND)
+    public function find(array $conditions): ?ArrayAccess
     {
         $callable = $this->callable;
 
-        return $callable($conditions, $type);
+        return $callable($conditions);
     }
 }
