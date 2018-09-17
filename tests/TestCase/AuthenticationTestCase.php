@@ -14,34 +14,23 @@
  */
 namespace Authentication\Test\TestCase;
 
-use Authentication\Test\Fixture\UsersDataSet;
-use PHPUnit\DbUnit\TestCaseTrait;
-use PHPUnit\Framework\TestCase;
-use PDO;
+use Authentication\Test\Fixture\FixtureInterface;
+use Authentication\Test\Fixture\UsersFixture;
 
-class AuthenticationTestCase extends TestCase
+/**
+ * @author Robert Pustułka <robert.pustulka@gmail.com>
+ */
+class AuthenticationTestCase extends FixturizedTestCase
 {
-    use TestCaseTrait;
 
-    // only instantiate pdo once for test clean-up/fixture load
-    protected static $pdo = null;
-
-    // only instantiate PHPUnit\DbUnit\Database\Connection once per test
-    protected $connection = null;
-
-    final public function getConnection()
+    /**
+     * Returns users fixture.
+     *
+     * @return FixtureInterface
+     */
+    protected function createFixture(): FixtureInterface
     {
-        if ($this->connection === null) {
-            if (self::$pdo == null) {
-                self::$pdo = new PDO('sqlite::memory:');
-            }
-            $this->connection = $this->createDefaultDBConnection(self::$pdo, 'db.mysqli');
-        }
-
-        return $this->connection;
+        return new UsersFixture();
     }
 
-    public function getDataSet() {
-        return new UsersDataSet();
-    }
 }
