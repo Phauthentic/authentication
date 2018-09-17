@@ -14,6 +14,8 @@
  */
 namespace Authentication\Identifier\Resolver;
 
+use ArrayAccess;
+
 interface ResolverInterface
 {
 
@@ -23,7 +25,7 @@ interface ResolverInterface
      * Should return `null` if the conditions cannot be resolved.
      *
      * @param array $conditions Find conditions.
-     * @return \ArrayAccess|array|null
+     * @return \ArrayAccess|null
      */
-    public function find(array $conditions);
+    public function find(array $conditions): ?ArrayAccess;
 }

@@ -46,10 +46,9 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
      * Returns a service provider instance.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request Request
-     * @param \Psr\Http\Message\ResponseInterface $response Response
      * @return \Authentication\AuthenticationServiceInterface
      */
-    public function getAuthenticationService(ServerRequestInterface $request, ResponseInterface $response)
+    public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface
     {
         $service = new AuthenticationService();
         $service->loadIdentifier('Authentication.Password');

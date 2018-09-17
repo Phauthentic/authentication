@@ -14,7 +14,7 @@
  */
 namespace Authentication\Test\TestCase\View\Helper;
 
-use Authentication\Identity;
+use Authentication\Identity\Identity;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Authentication\View\Helper\IdentityHelper;
 use Cake\Http\ServerRequest;

@@ -14,7 +14,7 @@
  */
 namespace Authentication\Identity;
 
-use Authentication\IdentityInterface;
+use ArrayAccess;
 
 interface IdentityFactoryInterface
 {
@@ -22,8 +22,8 @@ interface IdentityFactoryInterface
     /**
      * Creates identity object.
      *
-     * @param array|\ArrayAccess $data Data.
-     * @return \Authentication\IdentityInterface
+     * @param \ArrayAccess $data Data.
+     * @return \Authentication\Identity\IdentityInterface
      */
-    public function create($data): IdentityInterface;
+    public function create(ArrayAccess $data): IdentityInterface;
 }

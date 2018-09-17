@@ -14,6 +14,7 @@
  */
 namespace Authentication\Identifier;
 
+use ArrayAccess;
 use Authentication\Identifier\Resolver\ResolverInterface;
 
 /**
@@ -82,7 +83,7 @@ class TokenIdentifier extends AbstractIdentifier
     /**
      * {@inheritDoc}
      */
-    public function identify(array $data)
+    public function identify(array $data): ?ArrayAccess
     {
         if (!isset($data[$this->dataField])) {
             return null;

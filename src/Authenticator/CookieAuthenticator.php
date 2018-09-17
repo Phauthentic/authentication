@@ -15,6 +15,7 @@ declare(strict_types=1);
  */
 namespace Authentication\Authenticator;
 
+use ArrayAccess;
 use Authentication\Authenticator\Storage\StorageInterface;
 use Authentication\Identifier\IdentifierInterface;
 use Authentication\PasswordHasher\PasswordHasherInterface;
@@ -124,7 +125,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     /**
      * {@inheritDoc}
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $data): ResponseInterface
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, ArrayAccess $data): ResponseInterface
     {
         $field = $this->rememberMeField;
         $bodyData = $request->getParsedBody();
@@ -151,10 +152,10 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      *
      * Returns concatenated username and password hash.
      *
-     * @param array|\ArrayAccess $data Identity data.
+     * @param \ArrayAccess $data Identity data.
      * @return string
      */
-    protected function createPlainToken($data): string
+    protected function createPlainToken(ArrayAccess $data): string
     {
         $usernameField = $this->credentialFields[IdentifierInterface::CREDENTIAL_USERNAME];
         $passwordField = $this->credentialFields[IdentifierInterface::CREDENTIAL_PASSWORD];
@@ -167,10 +168,10 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      *
      * Cookie token consists of a username and hashed username + password hash.
      *
-     * @param array|\ArrayAccess $data Identity data.
+     * @param \ArrayAccess $data Identity data.
      * @return string
      */
-    protected function createToken($data): string
+    protected function createToken(ArrayAccess $data): string
     {
         $plain = $this->createPlainToken($data);
         $hash = $this->passwordHasher->hash($plain);
@@ -183,11 +184,11 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     /**
      * Checks whether a token hash matches the identity data.
      *
-     * @param array|\ArrayAccess $data Identity data.
+     * @param \ArrayAccess $data Identity data.
      * @param string $tokenHash Hashed part of a cookie token.
      * @return bool
      */
-    protected function checkToken($data, $tokenHash): bool
+    protected function checkToken(ArrayAccess $data, $tokenHash): bool
     {
         $plain = $this->createPlainToken($data);
 

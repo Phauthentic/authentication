@@ -14,6 +14,7 @@
  */
 namespace Authentication;
 
+use ArrayAccess;
 use Authentication\Authenticator\AuthenticatorCollectionInterface;
 use Authentication\Authenticator\AuthenticatorInterface;
 use Authentication\Authenticator\Failure;
@@ -21,6 +22,7 @@ use Authentication\Authenticator\PersistenceInterface;
 use Authentication\Authenticator\ResultInterface;
 use Authentication\Authenticator\StatelessInterface;
 use Authentication\Identity\IdentityFactoryInterface;
+use Authentication\Identity\IdentityInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -169,7 +171,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
      * @param \Psr\Http\Message\ResponseInterface $response The response.
-     * @param \Authentication\IdentityInterface|null $identity Identity.
+     * @param \Authentication\Identity\IdentityInterface|null $identity Identity.
      * @return \Authentication\PersistenceResultInterface
      */
     public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, IdentityInterface $identity = null): PersistenceResultInterface
@@ -212,7 +214,7 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * Gets an identity object
      *
-     * @return null|\Authentication\IdentityInterface
+     * @return null|\Authentication\Identity\IdentityInterface
      */
     public function getIdentity(): ?IdentityInterface
     {
@@ -231,10 +233,10 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * Builds the identity object
      *
-     * @param \ArrayAccess|array $data Identity data
-     * @return \Authentication\IdentityInterface
+     * @param \ArrayAccess $data Identity data
+     * @return \Authentication\Identity\IdentityInterface
      */
-    public function buildIdentity($data): IdentityInterface
+    public function buildIdentity(ArrayAccess $data): IdentityInterface
     {
         return $this->identityFactory->create($data);
     }
