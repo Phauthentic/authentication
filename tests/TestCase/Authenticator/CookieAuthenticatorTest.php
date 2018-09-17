@@ -20,7 +20,7 @@ use Authentication\Authenticator\Storage\CakeCookieStorage;
 use Authentication\Authenticator\Storage\StorageInterface;
 use Authentication\Identifier\PasswordIdentifier;
 use Authentication\Identifier\Resolver\OrmResolver;
-use Authentication\PasswordHasher\DefaultPasswordHasher;
+use PasswordHasher\DefaultPasswordHasher;
 use Authentication\UrlChecker\DefaultUrlChecker;
 use Cake\Http\Response;
 use Cake\Http\ServerRequestFactory;
