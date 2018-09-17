@@ -19,7 +19,7 @@ use Authentication\Authenticator\Exception\UnauthorizedException;
 use Authentication\Identifier\IdentifierCollection;
 use Authentication\Identifier\PasswordIdentifier;
 use Authentication\Identifier\Resolver\OrmResolver;
-use Authentication\PasswordHasher\DefaultPasswordHasher;
+use PasswordHasher\DefaultPasswordHasher;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Cake\Http\Response;
 use Cake\Http\ServerRequestFactory;

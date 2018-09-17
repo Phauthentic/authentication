@@ -22,7 +22,7 @@ use Authentication\Authenticator\Exception\UnauthorizedException;
 use Authentication\Identifier\IdentifierCollection;
 use Authentication\Identifier\PasswordIdentifier;
 use Authentication\Identifier\Resolver\OrmResolver;
-use Authentication\PasswordHasher\DefaultPasswordHasher;
+use PasswordHasher\DefaultPasswordHasher;
 use Cake\Core\Configure;
 use Cake\Http\Response;
 use Cake\Http\ServerRequestFactory;

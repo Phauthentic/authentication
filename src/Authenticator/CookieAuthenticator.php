@@ -18,7 +18,7 @@ namespace Authentication\Authenticator;
 use ArrayAccess;
 use Authentication\Authenticator\Storage\StorageInterface;
 use Authentication\Identifier\IdentifierInterface;
-use Authentication\PasswordHasher\PasswordHasherInterface;
+use PasswordHasher\PasswordHasherInterface;
 use Authentication\UrlChecker\UrlCheckerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
