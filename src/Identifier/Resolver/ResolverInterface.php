@@ -17,15 +17,13 @@ namespace Authentication\Identifier\Resolver;
 interface ResolverInterface
 {
 
-    const TYPE_OR = 'OR';
-    const TYPE_AND = 'AND';
-
     /**
-     * Returns identity with given conditions.
+     * Returns identity for given conditions.
+     *
+     * Should return `null` if the conditions cannot be resolved.
      *
      * @param array $conditions Find conditions.
-     * @param string $type Condition type. Can be `AND` or `OR`.
      * @return \ArrayAccess|array|null
      */
-    public function find(array $conditions, $type = self::TYPE_AND);
+    public function find(array $conditions);
 }
