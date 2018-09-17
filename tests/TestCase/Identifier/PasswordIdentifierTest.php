@@ -269,12 +269,14 @@ class PasswordIdentifierTest extends TestCase
             'password' => 'h45hedpa55w0rd'
         ]);
 
-        $resolver->expects($this->once())
+        $resolver->expects($this->at(0))
             ->method('find')
-            ->with([
-                'username' => 'mariano@example.com',
-                'email' => 'mariano@example.com'
-            ], 'OR')
+            ->with(['username' => 'mariano@example.com'])
+            ->willReturn(null);
+
+        $resolver->expects($this->at(1))
+            ->method('find')
+            ->with(['email' => 'mariano@example.com'])
             ->willReturn($user);
 
         $hasher->expects($this->once())
@@ -287,7 +289,7 @@ class PasswordIdentifierTest extends TestCase
             ->with('h45hedpa55w0rd');
 
         $identifier = new PasswordIdentifier($resolver, $hasher);
-        $identifier->setUsernameFields(['email', 'username']);
+        $identifier->setUsernameFields(['username', 'email']);
 
         $result = $identifier->identify([
             'username' => 'mariano@example.com',
