@@ -19,11 +19,9 @@ use Authentication\Authenticator\HttpBasicAuthenticator;
 use Authentication\Identifier\PasswordIdentifier;
 use Authentication\Test\Resolver\TestResolver;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
-use Cake\Http\Response;
-use Cake\Http\ServerRequestFactory;
-use Cake\I18n\Time;
-use Cake\ORM\TableRegistry;
 use Phauthentic\PasswordHasher\DefaultPasswordHasher;
+use Zend\Diactoros\Response;
+use Zend\Diactoros\ServerRequestFactory;
 
 class HttpBasicAuthenticatorTest extends TestCase
 {
