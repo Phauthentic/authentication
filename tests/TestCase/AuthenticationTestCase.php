@@ -14,47 +14,23 @@
  */
 namespace Authentication\Test\TestCase;
 
-use Cake\ORM\TableRegistry;
-use Cake\TestSuite\TestCase;
+use Authentication\Test\Fixture\FixtureInterface;
+use Authentication\Test\Fixture\UsersFixture;
 
-class AuthenticationTestCase extends TestCase
+/**
+ * @author Robert Pustułka <robert.pustulka@gmail.com>
+ */
+class AuthenticationTestCase extends FixturizedTestCase
 {
 
     /**
-     * Fixtures
+     * Returns users fixture.
      *
-     * @var array
+     * @return FixtureInterface
      */
-    public $fixtures = [
-        'core.auth_users',
-        'core.users'
-    ];
-
-    /**
-     * @inheritdoc
-     */
-    public function setUp()
+    protected function createFixture(): FixtureInterface
     {
-        parent::setUp();
-        $this->_setupUsersAndPasswords();
+        return new UsersFixture();
     }
 
-    /**
-     * _setupUsersAndPasswords
-     *
-     * @return void
-     */
-    protected function _setupUsersAndPasswords()
-    {
-        $password = password_hash('password', PASSWORD_DEFAULT);
-        TableRegistry::clear();
-
-        $Users = TableRegistry::get('Users');
-        $Users->updateAll(['password' => $password], []);
-
-        $AuthUsers = TableRegistry::get('AuthUsers', [
-            'className' => 'TestApp\Model\Table\AuthUsersTable'
-        ]);
-        $AuthUsers->updateAll(['password' => $password], []);
-    }
 }
