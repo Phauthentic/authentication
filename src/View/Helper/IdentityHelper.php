@@ -13,7 +13,7 @@
  */
 namespace Authentication\View\Helper;
 
-use Authentication\IdentityInterface;
+use Authentication\Identity\IdentityInterface;
 use Cake\Utility\Hash;
 use Cake\View\Helper;
 use RuntimeException;
@@ -28,7 +28,7 @@ class IdentityHelper extends Helper
     /**
      * Identity Object
      *
-     * @var null|\Authentication\IdentityInterface
+     * @var null|\Authentication\Identity\IdentityInterface
      */
     protected $_identity;
 

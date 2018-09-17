@@ -26,7 +26,7 @@ class CakeCookieStorageTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->skipIf(!class_exists(Cookie::class));
 

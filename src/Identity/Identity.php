@@ -16,7 +16,6 @@ namespace Authentication\Identity;
 
 use ArrayAccess;
 use BadMethodCallException;
-use InvalidArgumentException;
 
 /**
  * Identity object
@@ -46,25 +45,19 @@ class Identity implements IdentityInterface
     /**
      * Identity data
      *
-     * @var array|\ArrayAccess
+     * @var \ArrayAccess
      */
     protected $data;
 
     /**
      * Constructor
      *
-     * @param array|\ArrayAccess $data Identity data
+     * @param \ArrayAccess $data Identity data
      * @param array $config Config options
      * @throws \InvalidArgumentException When invalid identity data is passed.
      */
-    public function __construct($data, array $config = [])
+    public function __construct(ArrayAccess $data, array $config = [])
     {
-        if (!is_array($data) && !($data instanceof ArrayAccess)) {
-            $type = is_object($data) ? get_class($data) : gettype($data);
-            $message = sprintf('Identity data must be an `array` or implement `ArrayAccess` interface, `%s` given.', $type);
-            throw new InvalidArgumentException($message);
-        }
-
         $this->config = array_merge_recursive($this->defaultConfig, $config);
         $this->data = $data;
     }
@@ -173,7 +166,7 @@ class Identity implements IdentityInterface
     /**
      * {@inheritDoc}
      */
-    public function getOriginalData()
+    public function getOriginalData(): ArrayAccess
     {
         return $this->data;
     }

@@ -31,7 +31,7 @@ interface IdentityInterface extends ArrayAccess
     /**
      * Gets the original data object.
      *
-     * @return \ArrayAccess|array
+     * @return \ArrayAccess
      */
-    public function getOriginalData();
+    public function getOriginalData(): ArrayAccess;
 }

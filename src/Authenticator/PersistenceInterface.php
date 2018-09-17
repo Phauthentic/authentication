@@ -15,6 +15,7 @@ declare(strict_types=1);
  */
 namespace Authentication\Authenticator;
 
+use ArrayAccess;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -29,10 +30,10 @@ interface PersistenceInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request object.
      * @param \Psr\Http\Message\ResponseInterface $response The response object.
-     * @param \ArrayAccess|array $data Identity data to persist.
+     * @param \ArrayAccess $data Identity data to persist.
      * @return ResponseInterface Returns response object
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $data): ResponseInterface;
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, ArrayAccess $data): ResponseInterface;
 
     /**
      * Clears the identity data

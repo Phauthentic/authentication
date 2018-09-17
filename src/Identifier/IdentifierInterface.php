@@ -14,6 +14,8 @@
  */
 namespace Authentication\Identifier;
 
+use ArrayAccess;
+
 interface IdentifierInterface
 {
     const CREDENTIAL_USERNAME = 'username';
@@ -28,9 +30,9 @@ interface IdentifierInterface
      * Identifies an user or service by the passed credentials
      *
      * @param array $credentials Authentication credentials
-     * @return \ArrayAccess|array|null
+     * @return \ArrayAccess|null
      */
-    public function identify(array $credentials);
+    public function identify(array $credentials): ?ArrayAccess;
 
     /**
      * Gets a list of errors happened in the identification process
