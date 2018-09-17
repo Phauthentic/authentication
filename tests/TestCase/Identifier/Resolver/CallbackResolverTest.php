@@ -14,15 +14,14 @@
  */
 namespace Authentication\Test\TestCase\Identifier\Resolver;
 
+use ArrayObject;
 use Authentication\Identifier\Resolver\CallbackResolver;
-use Authentication\Identifier\Resolver\OrmResolver;
-use Authentication\Test\TestCase\AuthenticationTestCase;
-use Cake\Datasource\EntityInterface;
+use PHPUnit\Framework\TestCase;
 
 /**
  * CallbackResolverTest
  */
-class CallbackResolverTest extends AuthenticationTestCase
+class CallbackResolverTest extends TestCase
 {
     /**
      * testFindDefault
@@ -33,7 +32,7 @@ class CallbackResolverTest extends AuthenticationTestCase
     {
         $function = function($data) {
             if (isset($data['username']) && $data['username'] === 'mariano') {
-                return new \ArrayObject([
+                return new ArrayObject([
                     'id' => 1,
                     'username' => 'mariano'
                 ]);
@@ -46,7 +45,7 @@ class CallbackResolverTest extends AuthenticationTestCase
             'username' => 'mariano'
         ]);
 
-        $this->assertInstanceOf(\ArrayObject::class, $user);
+        $this->assertInstanceOf(ArrayObject::class, $user);
         $this->assertEquals('mariano', $user['username']);
         $this->assertEquals(1, $user['id']);
     }
