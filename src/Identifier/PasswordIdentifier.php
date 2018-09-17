@@ -180,11 +180,18 @@ class PasswordIdentifier extends AbstractIdentifier
     protected function _findIdentity($identifier)
     {
         $fields = $this->credentialFields[self::CREDENTIAL_USERNAME];
-        $conditions = [];
+
         foreach ((array)$fields as $field) {
-            $conditions[$field] = $identifier;
+            $conditions = [
+                $field => $identifier,
+            ];
+            $data = $this->resolver->find($conditions);
+
+            if ($data !== null) {
+                return $data;
+            }
         }
 
-        return $this->resolver->find($conditions, ResolverInterface::TYPE_OR);
+        return null;
     }
 }

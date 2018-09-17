@@ -53,7 +53,7 @@ class OrmResolver implements ResolverInterface
     /**
      * {@inheritDoc}
      */
-    public function find(array $conditions, $type = self::TYPE_AND)
+    public function find(array $conditions)
     {
         $table = $this->getTableLocator()->get($this->getConfig('userModel'));
 
@@ -76,6 +76,6 @@ class OrmResolver implements ResolverInterface
             $where[$field] = $value;
         }
 
-        return $query->where([$type => $where])->first();
+        return $query->where($where)->first();
     }
 }
