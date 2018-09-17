@@ -14,30 +14,19 @@
  */
 namespace Authentication\Test\TestCase\Authenticator;
 
-use Authentication\Authenticator\HttpBasicAuthenticator;
 use Authentication\Authenticator\Exception\UnauthorizedException;
-use Authentication\Identifier\IdentifierCollection;
+use Authentication\Authenticator\HttpBasicAuthenticator;
 use Authentication\Identifier\PasswordIdentifier;
-use Authentication\Identifier\Resolver\OrmResolver;
-use Phauthentic\PasswordHasher\DefaultPasswordHasher;
+use Authentication\Test\Resolver\TestResolver;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Cake\Http\Response;
 use Cake\Http\ServerRequestFactory;
 use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
+use Phauthentic\PasswordHasher\DefaultPasswordHasher;
 
 class HttpBasicAuthenticatorTest extends TestCase
 {
-
-    /**
-     * Fixtures
-     *
-     * @var array
-     */
-    public $fixtures = [
-        'core.auth_users',
-        'core.users'
-    ];
 
     /**
      * @inheritdoc
@@ -46,12 +35,8 @@ class HttpBasicAuthenticatorTest extends TestCase
     {
         parent::setUp();
 
-        $this->identifiers = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
-/*
-        $this->identifiers = new IdentifierCollection([
-           'Authentication.Password'
-        ]);
-*/
+        $resolver = new TestResolver($this->getConnection()->getConnection());
+        $this->identifiers = new PasswordIdentifier($resolver, new DefaultPasswordHasher());
         $this->auth = new HttpBasicAuthenticator($this->identifiers);
         $this->response = new Response();
     }
@@ -101,7 +86,7 @@ class HttpBasicAuthenticatorTest extends TestCase
         $request = ServerRequestFactory::fromGlobals(
             [
                 'REQUEST_URI' => '/posts/index',
-                'PHP_AUTH_USER' => 'mariano',
+                'PHP_AUTH_USER' => 'robert',
             ]
         );
 
@@ -135,34 +120,29 @@ class HttpBasicAuthenticatorTest extends TestCase
      */
     public function testAuthenticateUsernameZero()
     {
-        $User = TableRegistry::get('Users');
-        $User->updateAll(['username' => '0'], ['username' => 'mariano']);
-
         $_SERVER['PHP_AUTH_USER'] = '0';
-        $_SERVER['PHP_AUTH_PW'] = 'password';
+        $_SERVER['PHP_AUTH_PW'] = 'robert';
 
         $request = ServerRequestFactory::fromGlobals(
             [
                 'REQUEST_URI' => '/posts/index',
                 'SERVER_NAME' => 'localhost',
                 'PHP_AUTH_USER' => '0',
-                'PHP_AUTH_PW' => 'password'
+                'PHP_AUTH_PW' => 'robert'
             ],
             [
                 'user' => '0',
-                'password' => 'password'
+                'password' => 'robert'
             ]
         );
 
         $expected = [
-            'id' => 1,
+            'id' => 3,
             'username' => '0',
-            'created' => new Time('2007-03-17 01:16:23'),
-            'updated' => new Time('2007-03-17 01:18:31'),
         ];
         $result = $this->auth->authenticate($request, $this->response);
         $this->assertTrue($result->isValid());
-        $this->assertArraySubset($expected, $result->getData()->toArray());
+        $this->assertArraySubset($expected, $result->getData());
     }
 
     /**
@@ -199,20 +179,18 @@ class HttpBasicAuthenticatorTest extends TestCase
         $request = ServerRequestFactory::fromGlobals(
             [
                 'REQUEST_URI' => '/posts/index',
-                'PHP_AUTH_USER' => 'mariano',
-                'PHP_AUTH_PW' => 'password'
+                'PHP_AUTH_USER' => 'robert',
+                'PHP_AUTH_PW' => 'robert'
             ]
         );
 
         $result = $this->auth->authenticate($request, $this->response);
         $expected = [
-            'id' => 1,
-            'username' => 'mariano',
-            'created' => new Time('2007-03-17 01:16:23'),
-            'updated' => new Time('2007-03-17 01:18:31')
+            'id' => 2,
+            'username' => 'robert',
         ];
 
         $this->assertTrue($result->isValid());
-        $this->assertArraySubset($expected, $result->getData()->toArray());
+        $this->assertArraySubset($expected, $result->getData());
     }
 }
