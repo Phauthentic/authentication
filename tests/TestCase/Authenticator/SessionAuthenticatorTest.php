@@ -20,7 +20,7 @@ use Authentication\Authenticator\SessionAuthenticator;
 use Authentication\Authenticator\Storage\StorageInterface;
 use Authentication\Identifier\PasswordIdentifier;
 use Authentication\Identifier\Resolver\OrmResolver;
-use PasswordHasher\DefaultPasswordHasher;
+use Phauthentic\PasswordHasher\DefaultPasswordHasher;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Cake\Http\Response;
 use Cake\Http\ServerRequestFactory;

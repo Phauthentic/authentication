@@ -17,9 +17,9 @@ namespace Authentication\Test\TestCase\Identifier;
 use ArrayObject;
 use Authentication\Identifier\PasswordIdentifier;
 use Authentication\Identifier\Resolver\ResolverInterface;
-use PasswordHasher\DefaultPasswordHasher;
-use PasswordHasher\CakeLegacyPasswordHasher;
-use PasswordHasher\PasswordHasherInterface;
+use Phauthentic\PasswordHasher\DefaultPasswordHasher;
+use Phauthentic\PasswordHasher\CakeLegacyPasswordHasher;
+use Phauthentic\PasswordHasher\PasswordHasherInterface;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 
 class PasswordIdentifierTest extends TestCase

@@ -17,7 +17,7 @@ namespace Authentication\Identifier;
 use ArrayAccess;
 use ArrayObject;
 use Authentication\Identifier\Resolver\ResolverInterface;
-use PasswordHasher\PasswordHasherInterface;
+use Phauthentic\PasswordHasher\PasswordHasherInterface;
 
 /**
  * Password Identifier
@@ -50,7 +50,7 @@ class PasswordIdentifier extends AbstractIdentifier
     /**
      * Password Hasher
      *
-     * @var \Authentication\PasswordHasher\PasswordHasherInterface
+     * @var \Phauthentic\PasswordHasher\PasswordHasherInterface
      */
     protected $passwordHasher;
 
