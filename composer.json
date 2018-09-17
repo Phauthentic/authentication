@@ -1,13 +1,11 @@
 {
-    "name": "cakephp/authentication",
-    "description": "Authentication plugin for CakePHP",
+    "name": "phauthentic/authentication",
+    "description": "Authentication lib for PHP",
     "keywords": [
         "auth",
         "authentication",
         "middleware"
     ],
-    "type": "cakephp-plugin",
-    "homepage": "https://cakephp.org",
     "require": {
         "psr/http-message": "~1.0",
         "psr/http-server-handler": "~1.0",
@@ -18,22 +16,20 @@
         "phauthentic/password-hashers": "dev-master"
     },
     "require-dev": {
-        "cakephp/core": "~3.5",
         "cakephp/cakephp": "~3.5",
         "cakephp/cakephp-codesniffer": "^3.0",
         "phpunit/phpunit": "^7.0",
         "firebase/php-jwt": "~4.0",
-        "phpunit/dbunit": "^4.0"
+        "phpunit/dbunit": "^4.0",
+        "phpstan/phpstan": "^0.10.3"
     },
     "suggest": {
-        "cakephp/orm": "To use \"OrmResolver\" (Not needed separately if using full CakePHP framework).",
-        "cakephp/cakephp": "Install version >=3.5.0 to use \"CookieAuthenticator\".",
         "firebase/php-jwt": "If you want to use the JWT adapter add this dependency",
-        "ext-ldap": "Make sure this php extension is installed and enabled on your system if you want to use the built-in LDAP adapter for \"LdapIdentifier\".",
-        "cakephp/utility": "Provides CakePHP security methods. Required for the JWT adapter and Legacy password hasher."
+        "ext-ldap": "Make sure this php extension is installed and enabled on your system if you want to use the built-in LDAP adapter for \"LdapIdentifier\"."
     },
     "license": "MIT",
     "minimum-stability": "dev",
+    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "Authentication\\": "src/"
@@ -48,18 +44,6 @@
             "TestApp\\": "tests/test_app/TestApp/",
             "TestPlugin\\": "tests/test_app/Plugin/TestPlugin/src/"
         }
-    },
-    "authors": [
-        {
-            "name": "CakePHP Community",
-            "homepage": "https://github.com/cakephp/authentication/graphs/contributors"
-        }
-    ],
-    "support": {
-        "issues": "https://github.com/cakephp/authentication/issues",
-        "forum": "https://stackoverflow.com/tags/cakephp",
-        "irc": "irc://irc.freenode.org/cakephp",
-        "source": "https://github.com/cakephp/authentication"
     },
     "scripts": {
         "check": [
