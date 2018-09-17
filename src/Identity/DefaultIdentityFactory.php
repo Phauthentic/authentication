@@ -14,8 +14,7 @@
  */
 namespace Authentication\Identity;
 
-use Authentication\Identity;
-use Authentication\IdentityInterface;
+use ArrayAccess;
 
 class DefaultIdentityFactory implements IdentityFactoryInterface
 {
@@ -37,7 +36,7 @@ class DefaultIdentityFactory implements IdentityFactoryInterface
     /**
      * {@inheritDoc}
      */
-    public function create($data): IdentityInterface
+    public function create(ArrayAccess $data): IdentityInterface
     {
         return new Identity($data, $this->config);
     }

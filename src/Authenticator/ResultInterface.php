@@ -15,6 +15,8 @@ declare(strict_types=1);
  */
 namespace Authentication\Authenticator;
 
+use ArrayAccess;
+
 interface ResultInterface
 {
     /**
@@ -59,9 +61,9 @@ interface ResultInterface
     /**
      * Returns the identity data used in the authentication attempt.
      *
-     * @return \ArrayAccess|array|null
+     * @return \ArrayAccess|null
      */
-    public function getData();
+    public function getData(): ?ArrayAccess;
 
     /**
      * Returns an array of string reasons why the authentication attempt was unsuccessful.
