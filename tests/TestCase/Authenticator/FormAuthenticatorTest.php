@@ -27,18 +27,11 @@ use Cake\Http\Response;
 use Cake\Http\ServerRequestFactory;
 use RuntimeException;
 
+/**
+ * FormAuthenticatorTest
+ */
 class FormAuthenticatorTest extends TestCase
 {
-
-    /**
-     * Fixtures
-     *
-     * @var array
-     */
-    public $fixtures = [
-        'core.auth_users',
-        'core.users'
-    ];
 
     /**
      * testAuthenticate
