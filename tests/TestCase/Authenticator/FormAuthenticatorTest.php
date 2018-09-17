@@ -20,7 +20,7 @@ use Authentication\Identifier\IdentifierCollection;
 use Authentication\Identifier\IdentifierInterface;
 use Authentication\Identifier\PasswordIdentifier;
 use Authentication\Identifier\Resolver\OrmResolver;
-use PasswordHasher\DefaultPasswordHasher;
+use Phauthentic\PasswordHasher\DefaultPasswordHasher;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Authentication\UrlChecker\DefaultUrlChecker;
 use Cake\Http\Response;
