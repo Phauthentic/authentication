@@ -17,7 +17,7 @@ namespace Authentication\Identifier;
 use ArrayAccess;
 use ArrayObject;
 use Authentication\Identifier\Resolver\ResolverInterface;
-use Authentication\PasswordHasher\PasswordHasherInterface;
+use PasswordHasher\PasswordHasherInterface;
 
 /**
  * Password Identifier
