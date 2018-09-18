@@ -15,17 +15,17 @@
 namespace Authentication\Test\TestCase\Identifier;
 
 use ArrayAccess;
+use ArrayObject;
 use Authentication\Identifier\CallbackIdentifier;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
-use Cake\ORM\Entity;
-use stdClass;
+use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class MyCallback
 {
 
     public static function callme($data)
     {
-        return new Entity();
+        return new ArrayObject();
     }
 }
 
@@ -40,7 +40,7 @@ class CallbackIdentifierTest extends TestCase
     {
         $callback = function ($data) {
             if (isset($data['username']) && $data['username'] === 'florian') {
-                return new Entity($data);
+                return new ArrayObject($data);
             }
 
             return null;
@@ -66,7 +66,7 @@ class CallbackIdentifierTest extends TestCase
     public function testValidCallable(): void
     {
         $identifier = new CallbackIdentifier(function () {
-            return new Entity();
+            return new ArrayObject();
         });
         $result = $identifier->identify([]);
 
@@ -81,7 +81,7 @@ class CallbackIdentifierTest extends TestCase
     /**
      * testInvalidCallbackTypeObject
      *
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testInvalidReturnValue(): void
     {

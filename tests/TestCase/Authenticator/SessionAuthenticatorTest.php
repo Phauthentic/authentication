@@ -19,25 +19,15 @@ use Authentication\Authenticator\Result;
 use Authentication\Authenticator\SessionAuthenticator;
 use Authentication\Authenticator\Storage\StorageInterface;
 use Authentication\Identifier\PasswordIdentifier;
-use Authentication\Identifier\Resolver\OrmResolver;
-use Phauthentic\PasswordHasher\DefaultPasswordHasher;
+use Authentication\Test\Resolver\TestResolver;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
-use Cake\Http\Response;
-use Cake\Http\ServerRequestFactory;
+use Phauthentic\PasswordHasher\DefaultPasswordHasher;
 use Psr\Http\Message\ResponseInterface;
+use Zend\Diactoros\Response;
+use Zend\Diactoros\ServerRequestFactory;
 
 class SessionAuthenticatorTest extends TestCase
 {
-
-    /**
-     * Fixtures
-     *
-     * @var array
-     */
-    public $fixtures = [
-        'core.auth_users',
-        'core.users'
-    ];
 
     /**
      * @param StorageInterface $storage Storage instance.
@@ -46,7 +36,8 @@ class SessionAuthenticatorTest extends TestCase
     protected function createAuthenticator(StorageInterface $storage)
     {
         $hasher = new DefaultPasswordHasher();
-        $identifiers = new PasswordIdentifier(new OrmResolver(), $hasher);
+        $resolver = new TestResolver($this->getConnection()->getConnection());
+        $identifiers = new PasswordIdentifier($resolver, $hasher);
 
         return new SessionAuthenticator($identifiers, $storage);
     }
@@ -67,7 +58,7 @@ class SessionAuthenticatorTest extends TestCase
             ->method('read')
             ->with($request)
             ->willReturn([
-                'username' => 'mariano',
+                'username' => 'robert',
                 'password' => 'h45h'
             ]);
 
@@ -118,7 +109,7 @@ class SessionAuthenticatorTest extends TestCase
             ->method('read')
             ->with($request)
             ->willReturn([
-                'username' => 'mariano',
+                'username' => 'robert',
                 'password' => 'h45h'
             ]);
 

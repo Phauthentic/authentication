@@ -14,11 +14,10 @@
  */
 namespace Authentication\Test\TestCase\Authenticator;
 
+use ArrayObject;
 use Authentication\Authenticator\Result;
-use Cake\ORM\Entity;
-use Cake\TestSuite\TestCase;
 use InvalidArgumentException;
-use stdClass;
+use PHPUnit\Framework\TestCase;
 
 class ResultTest extends TestCase
 {
@@ -33,18 +32,6 @@ class ResultTest extends TestCase
     public function testConstructorEmptyData()
     {
         new Result(null, Result::SUCCESS);
-    }
-
-    /**
-     * testConstructorInvalidData
-     *
-     * @return void
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Identity data must be `null`, an `array` or implement `ArrayAccess` interface, `stdClass` given.
-     */
-    public function testConstructorInvalidData()
-    {
-        new Result(new stdClass, Result::FAILURE_CREDENTIALS_INVALID);
     }
 
     /**
@@ -66,7 +53,7 @@ class ResultTest extends TestCase
         $result = new Result(null, Result::FAILURE_OTHER);
         $this->assertFalse($result->isValid());
 
-        $entity = new Entity(['user' => 'florian']);
+        $entity = new ArrayObject(['user' => 'florian']);
         $result = new Result($entity, Result::SUCCESS);
         $this->assertTrue($result->isValid());
     }
@@ -78,21 +65,9 @@ class ResultTest extends TestCase
      */
     public function testGetIdentity()
     {
-        $entity = new Entity(['user' => 'florian']);
+        $entity = new ArrayObject(['user' => 'florian']);
         $result = new Result($entity, Result::SUCCESS);
         $this->assertEquals($entity, $result->getData());
-    }
-
-    /**
-     * testGetIdentityArray
-     *
-     * @return void
-     */
-    public function testGetIdentityArray()
-    {
-        $data = ['user' => 'florian'];
-        $result = new Result($data, Result::SUCCESS);
-        $this->assertEquals($data, $result->getData());
     }
 
     /**
@@ -105,7 +80,7 @@ class ResultTest extends TestCase
         $result = new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
         $this->assertEquals(Result::FAILURE_IDENTITY_NOT_FOUND, $result->getStatus());
 
-        $entity = new Entity(['user' => 'florian']);
+        $entity = new ArrayObject(['user' => 'florian']);
         $result = new Result($entity, Result::SUCCESS);
         $this->assertEquals(Result::SUCCESS, $result->getStatus());
     }
@@ -121,7 +96,7 @@ class ResultTest extends TestCase
             'Out of coffee!',
             'Out of beer!'
         ];
-        $entity = new Entity(['user' => 'florian']);
+        $entity = new ArrayObject(['user' => 'florian']);
         $result = new Result($entity, Result::FAILURE_OTHER, $messages);
         $this->assertEquals($messages, $result->getErrors());
     }

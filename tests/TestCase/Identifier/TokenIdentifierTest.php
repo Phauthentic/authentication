@@ -17,7 +17,7 @@ namespace Authentication\Test\TestCase\Identifier;
 use ArrayObject;
 use Authentication\Identifier\Resolver\ResolverInterface;
 use Authentication\Identifier\TokenIdentifier;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 
 class TokenIdentifierTest extends TestCase
 {

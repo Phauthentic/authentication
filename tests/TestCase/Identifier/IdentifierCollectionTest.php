@@ -14,15 +14,9 @@
  */
 namespace Authentication\Test\TestCase\Identifier;
 
-use Authentication\Authenticator\AuthenticatorInterface;
 use Authentication\Identifier\IdentifierCollection;
 use Authentication\Identifier\IdentifierInterface;
-use Authentication\Identifier\Resolver\OrmResolver;
-use Authentication\Identity\Identity;
-use Authentication\Identity\IdentityInterface;
-use Authentication\Identifier\PasswordIdentifier;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
-use TestApp\Authentication\Identifier\InvalidIdentifier;
+use PHPUnit\Framework\TestCase;
 
 class IdentifierCollectionTest extends TestCase
 {

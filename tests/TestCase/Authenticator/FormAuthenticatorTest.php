@@ -14,24 +14,30 @@
  */
 namespace Authentication\Test\TestCase\Authenticator;
 
+use ArrayObject;
 use Authentication\Authenticator\FormAuthenticator;
 use Authentication\Authenticator\Result;
-use Authentication\Identifier\IdentifierCollection;
 use Authentication\Identifier\IdentifierInterface;
 use Authentication\Identifier\PasswordIdentifier;
-use Authentication\Identifier\Resolver\OrmResolver;
-use Phauthentic\PasswordHasher\DefaultPasswordHasher;
+use Authentication\Test\Resolver\TestResolver;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Authentication\UrlChecker\DefaultUrlChecker;
-use Cake\Http\Response;
-use Cake\Http\ServerRequestFactory;
-use RuntimeException;
+use Authentication\UrlChecker\RegexUrlChecker;
+use Phauthentic\PasswordHasher\DefaultPasswordHasher;
+use Zend\Diactoros\Response;
+use Zend\Diactoros\ServerRequestFactory;
 
 /**
  * FormAuthenticatorTest
  */
 class FormAuthenticatorTest extends TestCase
 {
+    protected function getIdentifier(): IdentifierInterface
+    {
+        $resolver = new TestResolver($this->getConnection()->getConnection());
+
+        return new PasswordIdentifier($resolver, new DefaultPasswordHasher());
+    }
 
     /**
      * testAuthenticate
@@ -40,11 +46,11 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testAuthenticate()
     {
-        $identifier = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
+        $identifier = $this->getIdentifier();
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/testpath'],
             [],
-            ['username' => 'mariano', 'password' => 'password']
+            ['username' => 'florian', 'password' => 'florian']
         );
         $response = new Response();
 
@@ -62,7 +68,7 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testCredentialsNotPresent()
     {
-        $identifier = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
+        $identifier = $this->getIdentifier();
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/users/does-not-match'],
@@ -88,7 +94,7 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testCredentialsEmpty()
     {
-        $identifier = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
+        $identifier = $this->getIdentifier();
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/users/does-not-match'],
@@ -114,12 +120,15 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testSingleLoginUrlMismatch()
     {
-        $identifier = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
+        $identifier = $this->getIdentifier();
 
         $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/does-not-match'],
+            [
+                'REQUEST_URI' => '/users/does-not-match',
+                'HTTP_HOST' => 'localhost',
+            ],
             [],
-            ['username' => 'mariano', 'password' => 'password']
+            ['username' => 'florian', 'password' => 'florian']
         );
         $response = new Response();
 
@@ -141,12 +150,15 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testMultipleLoginUrlMismatch()
     {
-        $identifier = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
+        $identifier = $this->getIdentifier();
 
         $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/does-not-match'],
+            [
+                'REQUEST_URI' => '/users/does-not-match',
+                'HTTP_HOST' => 'localhost',
+            ],
             [],
-            ['username' => 'mariano', 'password' => 'password']
+            ['username' => 'florian', 'password' => 'florian']
         );
         $response = new Response();
 
@@ -171,12 +183,12 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testSingleLoginUrlSuccess()
     {
-        $identifier = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
+        $identifier = $this->getIdentifier();
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/Users/login'],
             [],
-            ['username' => 'mariano', 'password' => 'password']
+            ['username' => 'florian', 'password' => 'florian']
         );
         $response = new Response();
 
@@ -198,12 +210,12 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testMultipleLoginUrlSuccess()
     {
-        $identifier = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
+        $identifier = $this->getIdentifier();
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/de/users/login'],
             [],
-            ['username' => 'mariano', 'password' => 'password']
+            ['username' => 'florian', 'password' => 'florian']
         );
         $response = new Response();
 
@@ -228,17 +240,16 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testRegexLoginUrlSuccess()
     {
-        $identifier = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
+        $identifier = $this->getIdentifier();
 
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/de/users/login'],
             [],
-            ['username' => 'mariano', 'password' => 'password']
+            ['username' => 'florian', 'password' => 'florian']
         );
         $response = new Response();
 
-        $urlChecker = (new DefaultUrlChecker())
-            ->useRegex(true);
+        $urlChecker = (new RegexUrlChecker());
 
         $form = (new FormAuthenticator($identifier, $urlChecker))
             ->addLoginUrl('%^/[a-z]{2}/users/login/?$%');
@@ -257,19 +268,19 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testFullRegexLoginUrlFailure()
     {
-        $identifier = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
+        $identifier = $this->getIdentifier();
 
         $request = ServerRequestFactory::fromGlobals(
             [
-                'REQUEST_URI' => '/de/users/login'
+                'REQUEST_URI' => '/de/users/login',
+                'HTTP_HOST' => 'localhost',
             ],
             [],
-            ['username' => 'mariano', 'password' => 'password']
+            ['username' => 'florian', 'password' => 'florian']
         );
         $response = new Response();
 
-        $urlChecker = (new DefaultUrlChecker())
-            ->useRegex(true)
+        $urlChecker = (new RegexUrlChecker())
             ->checkFullUrl(true);
 
         $form = (new FormAuthenticator($identifier, $urlChecker))
@@ -289,7 +300,7 @@ class FormAuthenticatorTest extends TestCase
      */
     public function testFullRegexLoginUrlSuccess()
     {
-        $identifier = new PasswordIdentifier(new OrmResolver(), new DefaultPasswordHasher());
+        $identifier = $this->getIdentifier();
 
         $request = ServerRequestFactory::fromGlobals(
             [
@@ -297,12 +308,11 @@ class FormAuthenticatorTest extends TestCase
                 'SERVER_NAME' => 'auth.localhost'
             ],
             [],
-            ['username' => 'mariano', 'password' => 'password']
+            ['username' => 'florian', 'password' => 'florian']
         );
         $response = new Response();
 
-        $urlChecker = (new DefaultUrlChecker())
-            ->useRegex(true)
+        $urlChecker = (new RegexUrlChecker())
             ->checkFullUrl(true);
 
         $form = (new FormAuthenticator($identifier, $urlChecker))
@@ -327,7 +337,7 @@ class FormAuthenticatorTest extends TestCase
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/users/login'],
             [],
-            ['email' => 'mariano@cakephp.org', 'secret' => 'password']
+            ['email' => 'florian@cakephp.org', 'secret' => 'florian']
         );
         $response = new Response();
 
@@ -338,13 +348,13 @@ class FormAuthenticatorTest extends TestCase
         $identifier->expects($this->once())
             ->method('identify')
             ->with([
-                'username' => 'mariano@cakephp.org',
-                'password' => 'password'
+                'username' => 'florian@cakephp.org',
+                'password' => 'florian'
             ])
-            ->willReturn([
-                'username' => 'mariano@cakephp.org',
-                'password' => 'password'
-            ]);
+            ->willReturn(new ArrayObject([
+                'username' => 'florian@cakephp.org',
+                'password' => 'florian'
+            ]));
 
         $form->authenticate($request, $response);
     }
@@ -361,7 +371,7 @@ class FormAuthenticatorTest extends TestCase
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/users/login'],
             [],
-            ['id' => 1, 'username' => 'mariano', 'password' => 'password']
+            ['id' => 1, 'username' => 'florian', 'password' => 'florian']
         );
         $response = new Response();
 
@@ -371,13 +381,13 @@ class FormAuthenticatorTest extends TestCase
         $identifier->expects($this->once())
             ->method('identify')
             ->with([
-                'username' => 'mariano',
-                'password' => 'password'
+                'username' => 'florian',
+                'password' => 'florian'
             ])
-            ->willReturn([
-                'username' => 'mariano',
-                'password' => 'password'
-            ]);
+            ->willReturn(new ArrayObject([
+                'username' => 'florian',
+                'password' => 'florian'
+            ]));
 
         $form->authenticate($request, $response);
     }

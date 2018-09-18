@@ -17,9 +17,7 @@ namespace Authentication\Test\TestCase\Identity;
 use ArrayObject;
 use Authentication\Identity\Identity;
 use BadMethodCallException;
-use Cake\ORM\Entity;
-use Cake\TestSuite\TestCase;
-use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 
 class IdentityTest extends TestCase
 {
@@ -30,10 +28,10 @@ class IdentityTest extends TestCase
      */
     public function testGetIdentifier()
     {
-        $data = [
+        $data = new ArrayObject([
             'id' => 1,
             'username' => 'florian'
-        ];
+        ]);
 
         $identity = new Identity($data);
 
@@ -50,11 +48,11 @@ class IdentityTest extends TestCase
      */
     public function testFieldMapping()
     {
-        $data = [
+        $data = new ArrayObject([
             'id' => 1,
             'first_name' => 'florian',
             'mail' => 'info@cakephp.org'
-        ];
+        ]);
 
         $identity = new Identity($data, [
             'fieldMap' => [
@@ -84,9 +82,9 @@ class IdentityTest extends TestCase
     public function testOffsetUnsetError()
     {
         $this->expectException(BadMethodCallException::class);
-        $data = [
+        $data = new ArrayObject([
             'id' => 1,
-        ];
+        ]);
         $identity = new Identity($data);
         unset($identity['id']);
 
@@ -101,9 +99,9 @@ class IdentityTest extends TestCase
     public function testOffsetSetError()
     {
         $this->expectException(BadMethodCallException::class);
-        $data = [
+        $data = new ArrayObject([
             'id' => 1,
-        ];
+        ]);
         $identity = new Identity($data);
         $identity['username'] = 'mark';
     }
@@ -113,16 +111,9 @@ class IdentityTest extends TestCase
      */
     public function testBuildArray()
     {
-        $data = ['username' => 'robert'];
+        $data = new ArrayObject(['username' => 'robert']);
         $identity = new Identity($data);
         $this->assertEquals($data['username'], $identity['username']);
-    }
-
-    public function testBuildInvalidArgument()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('data must be an `array` or implement `ArrayAccess` interface, `stdClass` given.');
-        new Identity(new \stdClass);
     }
 
     /**

@@ -16,10 +16,8 @@ namespace Authentication\Test\TestCase\Authenticator;
 
 use Authentication\Authenticator\AuthenticatorCollection;
 use Authentication\Authenticator\AuthenticatorInterface;
-use Authentication\Authenticator\FormAuthenticator;
 use Authentication\Identifier\IdentifierCollection;
-use Cake\TestSuite\TestCase;
-use TestApp\Authentication\Identifier\InvalidIdentifier;
+use PHPUnit\Framework\TestCase;
 
 class AuthenticatorCollectionTest extends TestCase
 {
