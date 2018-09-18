@@ -57,7 +57,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
     /**
      * @var string
      */
-    protected $secret;
+    protected $secret = '';
 
     /**
      * Defaults to 'auth', no other values are supported at this time.

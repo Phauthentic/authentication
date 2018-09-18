@@ -16,12 +16,11 @@ namespace Authentication\Test\TestCase\Authenticator;
 
 use Authentication\Authenticator\Result;
 use Authentication\Authenticator\TokenAuthenticator;
-use Authentication\Identifier\IdentifierCollection;
-use Authentication\Identifier\Resolver\OrmResolver;
 use Authentication\Identifier\TokenIdentifier;
+use Authentication\Test\Resolver\TestResolver;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
-use Cake\Http\Response;
-use Cake\Http\ServerRequestFactory;
+use Zend\Diactoros\Response;
+use Zend\Diactoros\ServerRequestFactory;
 
 class TokenAuthenticatorTest extends TestCase
 {
@@ -43,12 +42,13 @@ class TokenAuthenticatorTest extends TestCase
     {
         parent::setUp();
 
-        $this->identifier = (new TokenIdentifier(new OrmResolver()))->setTokenField('username');
+        $resolver = new TestResolver($this->getConnection()->getConnection());
+        $this->identifier = (new TokenIdentifier($resolver))->setTokenField('username');
 
         $this->request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/testpath'],
             [],
-            ['username' => 'mariano', 'password' => 'password']
+            ['username' => 'florian', 'password' => 'password']
         );
 
         $this->response = new Response();
@@ -70,7 +70,7 @@ class TokenAuthenticatorTest extends TestCase
         $this->assertEquals(Result::FAILURE_CREDENTIALS_MISSING, $result->getStatus());
 
         // Test header token
-        $requestWithHeaders = $this->request->withAddedHeader('Token', 'mariano');
+        $requestWithHeaders = $this->request->withAddedHeader('Token', 'florian');
         $tokenAuth = (new TokenAuthenticator($this->identifier))
             ->setHeaderName('Token');
 
@@ -87,7 +87,7 @@ class TokenAuthenticatorTest extends TestCase
     public function testViaQueryParamToken()
     {
         // Test with query param token
-        $requestWithParams = $this->request->withQueryParams(['token' => 'mariano']);
+        $requestWithParams = $this->request->withQueryParams(['token' => 'florian']);
         $tokenAuth = (new TokenAuthenticator($this->identifier))
             ->setQueryParamn('token');
 
@@ -113,7 +113,7 @@ class TokenAuthenticatorTest extends TestCase
     public function testTokenPrefix()
     {
         //valid prefix
-        $requestWithHeaders = $this->request->withAddedHeader('Token', 'identity mariano');
+        $requestWithHeaders = $this->request->withAddedHeader('Token', 'identity florian');
         $tokenAuth = (new TokenAuthenticator($this->identifier))
             ->setHeaderName('Token')
             ->setTokenPrefix('identity');
@@ -123,7 +123,7 @@ class TokenAuthenticatorTest extends TestCase
         $this->assertEquals(Result::SUCCESS, $result->getStatus());
 
         //invalid prefix
-        $requestWithHeaders = $this->request->withAddedHeader('Token', 'bearer mariano');
+        $requestWithHeaders = $this->request->withAddedHeader('Token', 'bearer florian');
         $tokenAuth = (new TokenAuthenticator($this->identifier))
             ->setHeaderName('Token')
             ->setTokenPrefix('identity');

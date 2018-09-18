@@ -14,9 +14,9 @@
  */
 namespace Authentication\Test\TestCase\UrlChecker;
 
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Authentication\UrlChecker\RegexUrlChecker;
-use Cake\Http\ServerRequestFactory;
+use PHPUnit\Framework\TestCase;
+use Zend\Diactoros\ServerRequestFactory;
 
 /**
  * RegexUrlCheckerTest

@@ -14,9 +14,9 @@
  */
 namespace Authentication\Test\TestCase\UrlChecker;
 
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Authentication\UrlChecker\DefaultUrlChecker;
-use Cake\Http\ServerRequestFactory;
+use PHPUnit\Framework\TestCase;
+use Zend\Diactoros\ServerRequestFactory;
 
 /**
  * DefaultUrlCheckerTest
@@ -66,7 +66,7 @@ class DefaultUrlCheckerTest extends TestCase
         $checker = new DefaultUrlChecker();
         $checker->checkFullUrl(true);
         $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/login']
+            ['REQUEST_URI' => '/users/login', 'HTTP_HOST' => 'localhost']
         );
 
         $result = $checker->check($request, 'http://localhost/users/login');

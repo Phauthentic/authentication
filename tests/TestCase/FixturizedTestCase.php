@@ -1,15 +1,13 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * Copyright (c) Phauthentic (https://github.com/Phauthentic)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
- * @link          https://cakephp.org CakePHP(tm) Project
- * @since         1.0.0
+ * @copyright     Copyright (c) Phauthentic (https://github.com/Phauthentic)
+ * @link          https://github.com/Phauthentic
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Authentication\Test\TestCase;
@@ -43,7 +41,7 @@ abstract class FixturizedTestCase extends TestCase
     private static function getPDO(): PDO
     {
         if (self::$pdo == null) {
-            self::$pdo = new PDO(env('PDO_DB_DSN'));
+            self::$pdo = new PDO(getenv('PDO_DB_DSN'));
         }
 
         return self::$pdo;

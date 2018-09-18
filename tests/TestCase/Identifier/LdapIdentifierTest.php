@@ -15,12 +15,11 @@
 namespace Authentication\Test\TestCase\Identifier;
 
 use ArrayAccess;
-use Authentication\Identifier\LdapIdentifier;
 use Authentication\Identifier\Ldap\AdapterInterface;
 use Authentication\Identifier\Ldap\ExtensionAdapter;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
+use Authentication\Identifier\LdapIdentifier;
 use ErrorException;
-use stdClass;
+use PHPUnit\Framework\TestCase;
 
 class LdapIdentifierTest extends TestCase
 {
@@ -95,8 +94,9 @@ class LdapIdentifierTest extends TestCase
      */
     public function testLdapExtensionAdapter()
     {
-        $this->skipIf(!extension_loaded('ldap'), 'LDAP extension is not loaded.');
-
+        if (!extension_loaded('ldap')) {
+            $this->markTestSkipped('LDAP extension is not loaded.');
+        }
         $identifier = new LdapIdentifier(
             new ExtensionAdapter(),
             'ldap.example.com',

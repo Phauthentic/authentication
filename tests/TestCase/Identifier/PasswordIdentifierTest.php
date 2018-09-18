@@ -17,10 +17,8 @@ namespace Authentication\Test\TestCase\Identifier;
 use ArrayObject;
 use Authentication\Identifier\PasswordIdentifier;
 use Authentication\Identifier\Resolver\ResolverInterface;
-use Phauthentic\PasswordHasher\DefaultPasswordHasher;
-use Phauthentic\PasswordHasher\CakeLegacyPasswordHasher;
 use Phauthentic\PasswordHasher\PasswordHasherInterface;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 
 class PasswordIdentifierTest extends TestCase
 {
