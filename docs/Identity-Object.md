@@ -39,6 +39,7 @@ The default Identity object class can be configured to map fields. This is prett
     ]);
 };
 ```
+
 ## Creating your own Identity Object
 
 If you want to create your own identity object, your object must implement the
@@ -52,7 +53,7 @@ can implement the `Authentication\IdentityInterface`:
 ```php
 namespace App\Model\Entity;
 
-use Authentication\IdentityInterface;
+use Phauthentic\Authentication\IdentityInterface;
 use Cake\ORM\Entity;
 
 class User extends Entity implements IdentityInterface
