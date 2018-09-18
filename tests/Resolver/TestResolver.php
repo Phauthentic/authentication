@@ -1,9 +1,9 @@
 <?php
-namespace Authentication\Test\Resolver;
+namespace Phauthentic\Authentication\Test\Resolver;
 
 use ArrayAccess;
 use ArrayObject;
-use Authentication\Identifier\Resolver\ResolverInterface;
+use Phauthentic\Authentication\Identifier\Resolver\ResolverInterface;
 use PDO;
 
 class TestResolver implements ResolverInterface

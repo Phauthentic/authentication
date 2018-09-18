@@ -12,12 +12,12 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Identifier;
+namespace Phauthentic\Authentication\Test\TestCase\Identifier;
 
 use ArrayAccess;
-use Authentication\Identifier\Ldap\AdapterInterface;
-use Authentication\Identifier\Ldap\ExtensionAdapter;
-use Authentication\Identifier\LdapIdentifier;
+use Phauthentic\Authentication\Identifier\Ldap\AdapterInterface;
+use Phauthentic\Authentication\Identifier\Ldap\ExtensionAdapter;
+use Phauthentic\Authentication\Identifier\LdapIdentifier;
 use ErrorException;
 use PHPUnit\Framework\TestCase;
 

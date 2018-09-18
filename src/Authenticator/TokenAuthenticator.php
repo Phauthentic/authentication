@@ -13,9 +13,9 @@ declare(strict_types=1);
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
-use Authentication\Identifier\IdentifierInterface;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -161,7 +161,7 @@ class TokenAuthenticator extends AbstractAuthenticator implements StatelessInter
      * there is no post data, either username or password is missing, or if the scope conditions have not been met.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @return \Authentication\Authenticator\ResultInterface
+     * @return \Phauthentic\Authentication\Authenticator\ResultInterface
      */
     public function authenticate(ServerRequestInterface $request): ResultInterface
     {

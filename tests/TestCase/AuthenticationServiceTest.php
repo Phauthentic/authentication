@@ -12,28 +12,28 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Authenticator;
+namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
 use ArrayObject;
-use Authentication\AuthenticationService;
-use Authentication\Authenticator\AuthenticatorCollection;
-use Authentication\Authenticator\Exception\UnauthorizedException;
-use Authentication\Authenticator\FailureInterface;
-use Authentication\Authenticator\FormAuthenticator;
-use Authentication\Authenticator\HttpBasicAuthenticator;
-use Authentication\Authenticator\ResultInterface;
-use Authentication\Authenticator\SessionAuthenticator;
-use Authentication\Authenticator\Storage\StorageInterface;
-use Authentication\Identifier\IdentifierInterface;
-use Authentication\Identifier\PasswordIdentifier;
-use Authentication\Identity\DefaultIdentityFactory;
-use Authentication\Identity\Identity;
-use Authentication\Identity\IdentityFactoryInterface;
-use Authentication\PersistenceResultInterface;
-use Authentication\Test\Resolver\TestResolver;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
-use Authentication\UrlChecker\DefaultUrlChecker;
-use Authentication\UrlChecker\UrlCheckerInterface;
+use Phauthentic\Authentication\AuthenticationService;
+use Phauthentic\Authentication\Authenticator\AuthenticatorCollection;
+use Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException;
+use Phauthentic\Authentication\Authenticator\FailureInterface;
+use Phauthentic\Authentication\Authenticator\FormAuthenticator;
+use Phauthentic\Authentication\Authenticator\HttpBasicAuthenticator;
+use Phauthentic\Authentication\Authenticator\ResultInterface;
+use Phauthentic\Authentication\Authenticator\SessionAuthenticator;
+use Phauthentic\Authentication\Authenticator\Storage\StorageInterface;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
+use Phauthentic\Authentication\Identifier\PasswordIdentifier;
+use Phauthentic\Authentication\Identity\DefaultIdentityFactory;
+use Phauthentic\Authentication\Identity\Identity;
+use Phauthentic\Authentication\Identity\IdentityFactoryInterface;
+use Phauthentic\Authentication\PersistenceResultInterface;
+use Phauthentic\Authentication\Test\Resolver\TestResolver;
+use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
+use Phauthentic\Authentication\UrlChecker\DefaultUrlChecker;
+use Phauthentic\Authentication\UrlChecker\UrlCheckerInterface;
 use Phauthentic\PasswordHasher\DefaultPasswordHasher;
 use RuntimeException;
 use Zend\Diactoros\Response;

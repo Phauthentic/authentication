@@ -13,10 +13,10 @@ declare(strict_types=1);
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
 use ArrayObject;
-use Authentication\Identifier\IdentifierInterface;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
 use Exception;
 use Firebase\JWT\JWT;
 use Psr\Http\Message\ServerRequestInterface;
@@ -132,7 +132,7 @@ class JwtAuthenticator extends TokenAuthenticator
      *
      * @link https://jwt.io/
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @return \Authentication\Authenticator\ResultInterface
+     * @return \Phauthentic\Authentication\Authenticator\ResultInterface
      */
     public function authenticate(ServerRequestInterface $request): ResultInterface
     {

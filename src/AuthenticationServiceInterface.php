@@ -1,4 +1,4 @@
-<?php 
+<?php
 declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
@@ -13,11 +13,11 @@ declare(strict_types=1);
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication;
+namespace Phauthentic\Authentication;
 
-use Authentication\Authenticator\AuthenticatorInterface;
-use Authentication\Authenticator\ResultInterface;
-use Authentication\Identity\IdentityInterface;
+use Phauthentic\Authentication\Authenticator\AuthenticatorInterface;
+use Phauthentic\Authentication\Authenticator\ResultInterface;
+use Phauthentic\Authentication\Identity\IdentityInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -34,28 +34,28 @@ interface AuthenticationServiceInterface
     /**
      * Gets an identity object or null if identity has not been resolved.
      *
-     * @return null|\Authentication\Identity\IdentityInterface
+     * @return null|\Phauthentic\Authentication\Identity\IdentityInterface
      */
     public function getIdentity(): ?IdentityInterface;
 
     /**
      * Gets the successful authenticator instance if one was successful after calling authenticate
      *
-     * @return \Authentication\Authenticator\AuthenticatorInterface|null
+     * @return \Phauthentic\Authentication\Authenticator\AuthenticatorInterface|null
      */
     public function getSuccessfulAuthenticator(): ?AuthenticatorInterface;
 
     /**
      * Gets the result of the last authenticate() call.
      *
-     * @return \Authentication\Authenticator\ResultInterface|null Authentication result interface
+     * @return \Phauthentic\Authentication\Authenticator\ResultInterface|null Authentication result interface
      */
     public function getResult(): ?ResultInterface;
 
     /**
      * Returns a list of failed authenticators and their results after an authenticate() call
      *
-     * @return \Authentication\Authenticator\FailureInterface[]
+     * @return \Phauthentic\Authentication\Authenticator\FailureInterface[]
      */
     public function getFailures(): array;
 
@@ -64,7 +64,7 @@ interface AuthenticationServiceInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
      * @param \Psr\Http\Message\ResponseInterface $response The response.
-     * @return \Authentication\PersistenceResultInterface
+     * @return \Phauthentic\Authentication\PersistenceResultInterface
      */
     public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response): PersistenceResultInterface;
 
@@ -74,7 +74,7 @@ interface AuthenticationServiceInterface
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
      * @param \Psr\Http\Message\ResponseInterface $response The response.
      * @param \Authentication\Identity\IdentityInterface|null $identity Identity object.
-     * @return \Authentication\PersistenceResultInterface
+     * @return \Phauthentic\Authentication\PersistenceResultInterface
      */
     public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, IdentityInterface $identity = null): PersistenceResultInterface;
 }

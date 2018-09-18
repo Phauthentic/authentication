@@ -12,10 +12,10 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Identifier\Resolver;
+namespace Phauthentic\Authentication\Test\TestCase\Identifier\Resolver;
 
 use ArrayObject;
-use Authentication\Identifier\Resolver\CallbackResolver;
+use Phauthentic\Authentication\Identifier\Resolver\CallbackResolver;
 use PHPUnit\Framework\TestCase;
 
 /**

@@ -30,14 +30,14 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "Authentication\\": "src/"
+            "Phauthentic\\Authentication\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
             "AuthTest\\": "tests/test_app/Plugin/AuthTest/src/",
-            "Authentication\\Test\\": "tests/",
-            "Authentication\\Test\\App\\": "tests/test_app/App/",
+            "Phauthentic\\Authentication\\Test\\": "tests/",
+            "Phauthentic\\Authentication\\Test\\App\\": "tests/test_app/App/",
             "TestApp\\": "tests/test_app/TestApp/",
             "TestPlugin\\": "tests/test_app/Plugin/TestPlugin/src/"
         }

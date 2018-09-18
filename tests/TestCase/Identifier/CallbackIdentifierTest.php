@@ -12,11 +12,11 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Identifier;
+namespace Phauthentic\Authentication\Test\TestCase\Identifier;
 
 use ArrayAccess;
 use ArrayObject;
-use Authentication\Identifier\CallbackIdentifier;
+use Phauthentic\Authentication\Identifier\CallbackIdentifier;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 

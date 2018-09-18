@@ -12,10 +12,10 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Authenticator;
+namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
 use ArrayObject;
-use Authentication\Authenticator\Result;
+use Phauthentic\Authentication\Authenticator\Result;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 

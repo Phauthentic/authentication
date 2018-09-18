@@ -12,11 +12,11 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Identifier;
+namespace Phauthentic\Authentication\Test\TestCase\Identifier;
 
 use ArrayObject;
-use Authentication\Identifier\Resolver\ResolverInterface;
-use Authentication\Identifier\TokenIdentifier;
+use Phauthentic\Authentication\Identifier\Resolver\ResolverInterface;
+use Phauthentic\Authentication\Identifier\TokenIdentifier;
 use PHPUnit\Framework\TestCase;
 
 class TokenIdentifierTest extends TestCase

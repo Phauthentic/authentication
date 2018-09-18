@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Authentication\Test\Fixture;
+namespace Phauthentic\Authentication\Test\Fixture;
 
 use PDO;
 use PHPUnit\DbUnit\DataSet\IDataSet;
