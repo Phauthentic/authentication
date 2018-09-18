@@ -23,7 +23,7 @@ trait UrlAwareTrait
     /**
      * Url Checker
      *
-     * @var \Authentication\UrlChecker\UrlCheckerInterface
+     * @var \Phauthentic\Authentication\UrlChecker\UrlCheckerInterface
      */
     protected $urlChecker;
 

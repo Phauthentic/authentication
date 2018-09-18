@@ -36,43 +36,43 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * Authenticator collection
      *
-     * @var \Authentication\Authenticator\AuthenticatorCollection
+     * @var \Phauthentic\Authentication\Authenticator\AuthenticatorCollection
      */
     protected $authenticators;
 
     /**
      * Authenticator that successfully authenticated the identity.
      *
-     * @var \Authentication\Authenticator\AuthenticatorInterface|null
+     * @var \Phauthentic\Authentication\Authenticator\AuthenticatorInterface|null
      */
     protected $successfulAuthenticator;
 
     /**
      * A list of failed authenticators after an authentication attempt
      *
-     * @var \Authentication\Authenticator\FailureInterface[]
+     * @var \Phauthentic\Authentication\Authenticator\FailureInterface[]
      */
     protected $failures = [];
 
     /**
      * Result of the last authenticate() call.
      *
-     * @var \Authentication\Authenticator\ResultInterface|null
+     * @var \Phauthentic\Authentication\Authenticator\ResultInterface|null
      */
     protected $result;
 
     /**
      * Identity factory used to instantiate an identity object
      *
-     * @var \Authentication\Identity\IdentityFactoryInterface
+     * @var \Phauthentic\Authentication\Identity\IdentityFactoryInterface
      */
     protected $identityFactory;
 
     /**
      * Constructor
      *
-     * @param \Authentication\Authenticator\AuthenticatorCollection $authenticators Authenticator collection.
-     * @param \Authentication\Identity\IdentityFactoryInterface $factory Identity factory.
+     * @param \Phauthentic\Authentication\Authenticator\AuthenticatorCollection $authenticators Authenticator collection.
+     * @param \Phauthentic\Authentication\Identity\IdentityFactoryInterface $factory Identity factory.
      */
     public function __construct(AuthenticatorCollectionInterface $authenticators, IdentityFactoryInterface $factory)
     {
@@ -172,7 +172,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
      * @param \Psr\Http\Message\ResponseInterface $response The response.
-     * @param \Authentication\Identity\IdentityInterface|null $identity Identity.
+     * @param \Phauthentic\Authentication\Identity\IdentityInterface|null $identity Identity.
      * @return \Phauthentic\Authentication\PersistenceResultInterface
      */
     public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, IdentityInterface $identity = null): PersistenceResultInterface

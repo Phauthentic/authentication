@@ -36,7 +36,7 @@ class AuthenticationMiddleware implements MiddlewareInterface
     protected $responseFactory;
 
     /**
-     * @var \Authentication\AuthenticationServiceProviderInterface
+     * @var \Phauthentic\Authentication\AuthenticationServiceProviderInterface
      */
     protected $provider;
 
@@ -55,7 +55,7 @@ class AuthenticationMiddleware implements MiddlewareInterface
     /**
      * Constructor.
      *
-     * @param \Authentication\AuthenticationServiceProviderInterface $provider Provider.
+     * @param \Phauthentic\Authentication\AuthenticationServiceProviderInterface $provider Provider.
      * @param \Psr\Http\Message\ResponseFactoryInterface $responseFactory Factory.
      */
     public function __construct(

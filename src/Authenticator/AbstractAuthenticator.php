@@ -30,14 +30,14 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
     /**
      * Identifier or identifiers collection.
      *
-     * @var \Authentication\Identifier\IdentifierInterface
+     * @var \Phauthentic\Authentication\Identifier\IdentifierInterface
      */
     protected $identifier;
 
     /**
      * Constructor
      *
-     * @param \Authentication\Identifier\IdentifierInterface $identifier Identifier or identifiers collection.
+     * @param \Phauthentic\Authentication\Identifier\IdentifierInterface $identifier Identifier or identifiers collection.
      */
     public function __construct(IdentifierInterface $identifier)
     {

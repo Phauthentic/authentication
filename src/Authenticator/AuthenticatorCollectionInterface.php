@@ -26,7 +26,7 @@ interface AuthenticatorCollectionInterface extends IteratorAggregate
     /**
      * Adds a authenticator to the collection
      *
-     * @param \Authentication\Authenticator\AuthenticatorInterface $authenticator Authenticator instance.
+     * @param \Phauthentic\Authentication\Authenticator\AuthenticatorInterface $authenticator Authenticator instance.
      * @return void
      */
     public function add(AuthenticatorInterface $authenticator): void;

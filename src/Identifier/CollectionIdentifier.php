@@ -64,7 +64,7 @@ class CollectionIdentifier implements IdentifierInterface
      */
     public function identify(array $credentials): ?ArrayAccess
     {
-        /** @var \Authentication\Identifier\IdentifierInterface $identifier */
+        /** @var \Phauthentic\Authentication\Identifier\IdentifierInterface $identifier */
         foreach ($this->collection as $identifier) {
             $result = $identifier->identify($credentials);
             if ($result) {
