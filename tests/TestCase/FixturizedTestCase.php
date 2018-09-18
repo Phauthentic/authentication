@@ -43,7 +43,7 @@ abstract class FixturizedTestCase extends TestCase
     private static function getPDO(): PDO
     {
         if (self::$pdo == null) {
-            self::$pdo = new PDO(env('PDO_DB_DSN'));
+            self::$pdo = new PDO(getenv('PDO_DB_DSN'));
         }
 
         return self::$pdo;
