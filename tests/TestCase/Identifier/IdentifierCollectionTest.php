@@ -12,10 +12,10 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Identifier;
+namespace Phauthentic\Authentication\Test\TestCase\Identifier;
 
-use Authentication\Identifier\IdentifierCollection;
-use Authentication\Identifier\IdentifierInterface;
+use Phauthentic\Authentication\Identifier\IdentifierCollection;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
 use PHPUnit\Framework\TestCase;
 
 class IdentifierCollectionTest extends TestCase

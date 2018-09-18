@@ -1,44 +1,25 @@
-# CakePHP Authentication
+# Authentication
 
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.txt)
-[![Build Status](https://img.shields.io/travis/cakephp/authentication/master.svg?style=flat-square)](https://travis-ci.org/cakephp/authentication)
-[![Coverage Status](https://img.shields.io/codecov/c/github/cakephp/authentication.svg?style=flat-square)](https://codecov.io/github/cakephp/authentication)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
+[![Scrutinizer Coverage](https://img.shields.io/scrutinizer/coverage/g/Phauthentic/authentication/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/Phauthentic/authentication/)
+[![Code Quality](https://img.shields.io/scrutinizer/g/Phauthentic/authentication/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/Phauthentic/authentication/)
 
-[PSR7](http://www.php-fig.org/psr/psr-7/) Middleware authentication stack for the CakePHP framework.
-
-Don't know what middleware is? [Check the CakePHP documentation](http://book.cakephp.org/3.0/en/controllers/middleware.html) and additionally [read this.](https://philsturgeon.uk/php/2016/05/31/why-care-about-php-middleware/)
-
-This plugin is for CakePHP 3.5+. Please make sure your application has been adjusted to leverage middleware as described in the [docs](http://book.cakephp.org/3.0/en/controllers/middleware.html#adding-the-new-http-stack-to-an-existing-application).
-
-## Authentication, not Authorization
-
-This plugin intends to provide a framework around authentication and user
-identification. Authorization is a [separate 
-concern](https://en.wikipedia.org/wiki/Separation_of_concerns) that has been
-packaged into a separate [authorization plugin](https://github.com/cakephp/authorization).
+This library intends to provide a framework around authentication and user identification. Authorization is a [separate concern](https://en.wikipedia.org/wiki/Separation_of_concerns).
 
 ## Installation
 
-You can install this plugin into your CakePHP application using 
-[composer](http://getcomposer.org):
+You can install this library using [composer](http://getcomposer.org):
 
 ```
-php composer.phar require cakephp/authentication
+composer require Phauthentic/authentication
 ```
 
-Load the plugin by adding the following statement in your project's
-`src/Application.php`:
-```php
-public function bootstrap()
-{
-    parent::bootstrap();
-    $this->addPlugin('Authentication');
-}
-```
-Prior to 3.6.0
-```php
-Plugin::load('Authentication');
-```
+## Framework integrations
+
+ * [Laravel](https://github.com/Phauthentic/authentication-laravel)
+ * [Doctrine](https://github.com/Phauthentic/authentication-doctrine)
+ * [CakePHP](https://github.com/Phauthentic/authentication-cakephp)
+ * [Yii](https://github.com/Phauthentic/authentication-yii)
 
 ## Documentation
 
@@ -46,6 +27,11 @@ Plugin::load('Authentication');
  * [Authenticators](docs/Authenticators.md)
  * [Identifiers](docs/Identifiers.md)
  * [Identity Objects](docs/Identity-Object.md)
- * [Helper for the View Layer](docs/View-Helper.md)
  * [URL Checkers](docs/URL-Checkers.md)
- * [Migration from the AuthComponent](docs/Migration-from-the-AuthComponent.md)
+
+## Copyright & License
+
+Licensed under the [MIT license](LICENSE.txt).
+
+* Copyright (c) [Phauthentic](https://github.com/Phauthentic)
+* Copyright (c) [Cake Software Foundation, Inc.](https://cakefoundation.org)

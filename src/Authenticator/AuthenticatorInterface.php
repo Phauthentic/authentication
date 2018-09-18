@@ -13,7 +13,7 @@ declare(strict_types=1);
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -23,7 +23,7 @@ interface AuthenticatorInterface
      * Authenticate user.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
-     * @return \Authentication\Authenticator\ResultInterface
+     * @return \Phauthentic\Authentication\Authenticator\ResultInterface
      */
     public function authenticate(ServerRequestInterface $request): ResultInterface;
 }

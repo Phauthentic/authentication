@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Authentication\Test\Fixture;
+namespace Phauthentic\Authentication\Test\Fixture;
 
-use Authentication\Test\Schema\UsersSchema;
+use Phauthentic\Authentication\Test\Schema\UsersSchema;
 use PDO;
 use PHPUnit\DbUnit\DataSet\IDataSet;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;

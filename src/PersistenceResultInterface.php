@@ -11,7 +11,7 @@ declare(strict_types=1);
  * @link          https://github.com/Phauthentic
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication;
+namespace Phauthentic\Authentication;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

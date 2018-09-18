@@ -12,15 +12,15 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Authenticator;
+namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
 use ArrayAccess;
 use ArrayObject;
-use Authentication\Authenticator\JwtAuthenticator;
-use Authentication\Authenticator\Result;
-use Authentication\Identifier\JwtSubjectIdentifier;
-use Authentication\Test\Resolver\TestResolver;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
+use Phauthentic\Authentication\Authenticator\JwtAuthenticator;
+use Phauthentic\Authentication\Authenticator\Result;
+use Phauthentic\Authentication\Identifier\JwtSubjectIdentifier;
+use Phauthentic\Authentication\Test\Resolver\TestResolver;
+use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Exception;
 use Firebase\JWT\JWT;
 use stdClass;

@@ -13,9 +13,9 @@ declare(strict_types=1);
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
-use Authentication\Identifier\IdentifierInterface;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
 
 abstract class AbstractAuthenticator implements AuthenticatorInterface
 {
@@ -30,14 +30,14 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
     /**
      * Identifier or identifiers collection.
      *
-     * @var \Authentication\Identifier\IdentifierInterface
+     * @var \Phauthentic\Authentication\Identifier\IdentifierInterface
      */
     protected $identifier;
 
     /**
      * Constructor
      *
-     * @param \Authentication\Identifier\IdentifierInterface $identifier Identifier or identifiers collection.
+     * @param \Phauthentic\Authentication\Identifier\IdentifierInterface $identifier Identifier or identifiers collection.
      */
     public function __construct(IdentifierInterface $identifier)
     {
@@ -47,7 +47,7 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
     /**
      * Gets the identifier.
      *
-     * @return \Authentication\Identifier\IdentifierInterface
+     * @return \Phauthentic\Authentication\Identifier\IdentifierInterface
      */
     public function getIdentifier(): IdentifierInterface
     {
