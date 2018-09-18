@@ -16,35 +16,76 @@ namespace Authentication\Test\TestCase\Authenticator;
 
 use ArrayObject;
 use Authentication\AuthenticationService;
-use Authentication\Authenticator\AuthenticatorInterface;
+use Authentication\Authenticator\AuthenticatorCollection;
+use Authentication\Authenticator\Exception\UnauthorizedException;
+use Authentication\Authenticator\FailureInterface;
 use Authentication\Authenticator\FormAuthenticator;
-use Authentication\Authenticator\Result;
-use Authentication\Authenticator\UnauthorizedException;
-use Authentication\Identifier\IdentifierCollection;
+use Authentication\Authenticator\HttpBasicAuthenticator;
+use Authentication\Authenticator\ResultInterface;
+use Authentication\Authenticator\SessionAuthenticator;
+use Authentication\Authenticator\Storage\StorageInterface;
+use Authentication\Identifier\IdentifierInterface;
 use Authentication\Identifier\PasswordIdentifier;
+use Authentication\Identity\DefaultIdentityFactory;
 use Authentication\Identity\Identity;
-use Authentication\Identity\IdentityInterface;
+use Authentication\Identity\IdentityFactoryInterface;
+use Authentication\PersistenceResultInterface;
+use Authentication\Test\Resolver\TestResolver;
 use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
-use Cake\Http\Response;
-use Cake\Http\ServerRequest;
-use Cake\Http\ServerRequestFactory;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use TestApp\Authentication\Authenticator\InvalidAuthenticator;
+use Authentication\UrlChecker\DefaultUrlChecker;
+use Authentication\UrlChecker\UrlCheckerInterface;
+use Phauthentic\PasswordHasher\DefaultPasswordHasher;
+use RuntimeException;
+use Zend\Diactoros\Response;
+use Zend\Diactoros\ServerRequestFactory;
 
 class AuthenticationServiceTest extends TestCase
 {
+    protected function createPasswordIdentifier()
+    {
+        $resolver = new TestResolver($this->getConnection()->getConnection());
+        $passwordHasher = new DefaultPasswordHasher();
 
-    /**
-     * Fixtures
-     *
-     * @var array
-     */
-    public $fixtures = [
-        'core.auth_users',
-        'core.users'
-    ];
+        return new PasswordIdentifier($resolver, $passwordHasher);
+    }
+
+    protected function createSessionAuthenticator(IdentifierInterface $identifier = null, StorageInterface $storage = null)
+    {
+        if (!$identifier) {
+            $identifier = $this->createPasswordIdentifier();
+        }
+        if (!$storage) {
+            $storage = $this->createMock(StorageInterface::class);
+        }
+
+        return new SessionAuthenticator($identifier, $storage);
+    }
+
+    protected function createFormAuthenticator(IdentifierInterface $identifier = null, UrlCheckerInterface $urlChecker = null)
+    {
+        if (!$identifier) {
+            $identifier = $this->createPasswordIdentifier();
+        }
+
+        if (!$urlChecker) {
+            $urlChecker = new DefaultUrlChecker();
+        }
+
+        return new FormAuthenticator($identifier, $urlChecker);
+    }
+
+    protected function createAuthenticators(IdentifierInterface $identifier = null, StorageInterface $storage = null)
+    {
+        $authenticators = new AuthenticatorCollection();
+
+        if (!$identifier) {
+            $identifier = $this->createPasswordIdentifier();
+        }
+        $authenticators->add($this->createSessionAuthenticator($identifier, $storage));
+        $authenticators->add($this->createFormAuthenticator($identifier));
+
+        return $authenticators;
+    }
 
     /**
      * testAuthenticate
@@ -56,33 +97,123 @@ class AuthenticationServiceTest extends TestCase
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/testpath'],
             [],
-            ['username' => 'mariano', 'password' => 'password']
+            ['username' => 'robert', 'password' => 'robert']
         );
-        $response = new Response();
 
-        $service = new AuthenticationService([
-            'identifiers' => [
-                'Authentication.Password'
-            ],
-            'authenticators' => [
-                'Authentication.Session',
-                'Authentication.Form'
-            ]
+        $authenticators = $this->createAuthenticators();
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
+
+        $success = $service->authenticate($request);
+        $this->assertTrue($success);
+
+        $result = $service->getResult();
+        $this->assertTrue($result->isValid());
+
+        $auth = $service->getSuccessfulAuthenticator();
+        $this->assertInstanceOf(FormAuthenticator::class, $auth);
+
+        $identity = $service->getIdentity();
+        $this->assertEquals('robert', $identity['username']);
+
+        $failures = $service->getFailures();
+        $this->assertCount(1, $failures);
+
+        $this->assertArrayHasKey(0, $failures);
+        $this->assertInstanceOf(FailureInterface::class, $failures[0]);
+        $this->assertInstanceOf(SessionAuthenticator::class, $failures[0]->getAuthenticator());
+        $this->assertInstanceOf(ResultInterface::class, $failures[0]->getResult());
+        $this->assertFalse($failures[0]->getResult()->isValid());
+    }
+
+    /**
+     * testAuthenticateFailure
+     *
+     * @return void
+     */
+    public function testAuthenticateFailure()
+    {
+        $request = ServerRequestFactory::fromGlobals(
+            ['REQUEST_URI' => '/testpath'],
+            [],
+            ['username' => 'robert', 'password' => 'invalid']
+        );
+
+        $authenticators = $this->createAuthenticators();
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
+
+        $success = $service->authenticate($request);
+        $this->assertFalse($success);
+
+        $result = $service->getResult();
+        $this->assertFalse($result->isValid());
+
+        $auth = $service->getSuccessfulAuthenticator();
+        $this->assertNull($auth);
+
+        $identity = $service->getIdentity();
+        $this->assertNull($identity);
+
+        $failures = $service->getFailures();
+        $this->assertCount(2, $failures);
+
+        $this->assertArrayHasKey(0, $failures);
+        $this->assertInstanceOf(FailureInterface::class, $failures[0]);
+        $this->assertInstanceOf(SessionAuthenticator::class, $failures[0]->getAuthenticator());
+        $this->assertInstanceOf(ResultInterface::class, $failures[0]->getResult());
+        $this->assertFalse($failures[0]->getResult()->isValid());
+
+        $this->assertArrayHasKey(1, $failures);
+        $this->assertInstanceOf(FailureInterface::class, $failures[1]);
+        $this->assertInstanceOf(FormAuthenticator::class, $failures[1]->getAuthenticator());
+        $this->assertInstanceOf(ResultInterface::class, $failures[1]->getResult());
+        $this->assertFalse($failures[1]->getResult()->isValid());
+    }
+
+    /**
+     * testAuthenticateStorage
+     *
+     * @return void
+     */
+    public function testAuthenticateStorage()
+    {
+        $request = ServerRequestFactory::fromGlobals(
+            ['REQUEST_URI' => '/testpath']
+        );
+
+        $storage = $this->createMock(StorageInterface::class);
+        $identity = new Identity(new ArrayObject(['username' => 'robert']));
+        $storage
+            ->expects($this->once())
+            ->method('read')
+            ->with($request)
+            ->willReturn($identity);
+
+        $authenticators = new AuthenticatorCollection([
+            $this->createFormAuthenticator(),
+            $this->createSessionAuthenticator(null, $storage),
         ]);
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
 
-        $result = $service->authenticate($request, $response);
-        $this->assertInstanceOf(Result::class, $result['result']);
-        $this->assertInstanceOf(ServerRequestInterface::class, $result['request']);
-        $this->assertInstanceOf(ResponseInterface::class, $result['response']);
-        $this->assertTrue($result['result']->isValid());
+        $success = $service->authenticate($request);
+        $this->assertTrue($success);
 
-        $result = $service->getSuccessfulAuthenticator();
-        $this->assertInstanceOf(FormAuthenticator::class, $result);
+        $result = $service->getResult();
+        $this->assertTrue($result->isValid());
 
-        $this->assertEquals(
-            'mariano',
-            $request->getAttribute('session')->read('Auth.username')
-        );
+        $auth = $service->getSuccessfulAuthenticator();
+        $this->assertInstanceOf(SessionAuthenticator::class, $auth);
+
+        $identity = $service->getIdentity();
+        $this->assertEquals('robert', $identity['username']);
+
+        $failures = $service->getFailures();
+        $this->assertCount(1, $failures);
+
+        $this->assertArrayHasKey(0, $failures);
+        $this->assertInstanceOf(FailureInterface::class, $failures[0]);
+        $this->assertInstanceOf(FormAuthenticator::class, $failures[0]->getAuthenticator());
+        $this->assertInstanceOf(ResultInterface::class, $failures[0]->getResult());
+        $this->assertFalse($failures[0]->getResult()->isValid());
     }
 
     /**
@@ -95,76 +226,91 @@ class AuthenticationServiceTest extends TestCase
         $request = ServerRequestFactory::fromGlobals([
             'SERVER_NAME' => 'example.com',
             'REQUEST_URI' => '/testpath',
-            'PHP_AUTH_USER' => 'mariano',
+            'PHP_AUTH_USER' => 'robert',
             'PHP_AUTH_PW' => 'WRONG'
         ]);
+
+        $identifier = $this->createPasswordIdentifier();
+        $authenticators = new AuthenticatorCollection([
+            new HttpBasicAuthenticator($identifier),
+        ]);
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
+
+        $this->expectException(UnauthorizedException::class);
+        $this->expectExceptionCode(401);
+
+        $service->authenticate($request);
+    }
+
+    /**
+     * testPersistAuthenticatedIdentity
+     *
+     * @return void
+     */
+    public function testPersistAuthenticatedIdentity()
+    {
+        $request = ServerRequestFactory::fromGlobals(
+            ['REQUEST_URI' => '/testpath'],
+            [],
+            ['username' => 'robert', 'password' => 'robert']
+        );
         $response = new Response();
 
-        $service = new AuthenticationService([
-            'identifiers' => [
-                'Authentication.Password'
-            ],
-            'authenticators' => [
-                'Authentication.HttpBasic'
-            ]
-        ]);
+        $storage = $this->createMock(StorageInterface::class);
 
-        try {
-            $service->authenticate($request, $response);
-            $this->fail('Challenge exception should have been raised');
-        } catch (UnauthorizedException $e) {
-            $expected = [
-                'WWW-Authenticate' => 'Basic realm="example.com"'
-            ];
-            $this->assertEquals($expected, $e->getHeaders());
-        }
+        $authenticators = $this->createAuthenticators(null, $storage);
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
+
+        $success = $service->authenticate($request);
+        $this->assertTrue($success);
+
+        $result = $service->getResult();
+        $this->assertTrue($result->isValid());
+
+        $auth = $service->getSuccessfulAuthenticator();
+        $this->assertInstanceOf(FormAuthenticator::class, $auth);
+
+        $storage
+            ->expects($this->once())
+            ->method('write')
+            ->with($request, $response, $service->getIdentity()->getOriginalData())
+            ->willReturn($response->withHeader('Identity', 'Stored'));
+
+        $result = $service->persistIdentity($request, $response);
+        $this->assertInstanceOf(PersistenceResultInterface::class, $result);
+        $this->assertEquals('Stored', $result->getResponse()->getHeaderLine('Identity'));
     }
 
     /**
-     * testLoadAuthenticatorException
-     *
-     * @expectedException \RuntimeException
-     */
-    public function testLoadAuthenticatorException()
-    {
-        $service = new AuthenticationService();
-        $service->loadAuthenticator('does-not-exist');
-    }
-
-    /**
-     * testLoadInvalidAuthenticatorObject
-     *
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Authenticator class `TestApp\Authentication\Authenticator\InvalidAuthenticator` must implement \Auth\Authentication\AuthenticatorInterface
-     */
-    public function testLoadInvalidAuthenticatorObject()
-    {
-        $service = new AuthenticationService();
-        $service->loadAuthenticator(InvalidAuthenticator::class);
-    }
-
-    /**
-     * testLoadIdentifier
+     * testPersistCustomIdentity
      *
      * @return void
      */
-    public function testLoadIdentifier()
+    public function testPersistCustomIdentity()
     {
-        $service = new AuthenticationService();
-        $result = $service->loadIdentifier('Authentication.Password');
-        $this->assertInstanceOf(PasswordIdentifier::class, $result);
-    }
+        $request = ServerRequestFactory::fromGlobals(
+            ['REQUEST_URI' => '/testpath'],
+            [],
+            ['username' => 'robert', 'password' => 'robert']
+        );
+        $response = new Response();
 
-    /**
-     * testIdentifiers
-     *
-     * @return void
-     */
-    public function testIdentifiers()
-    {
-        $service = new AuthenticationService();
-        $result = $service->identifiers();
-        $this->assertInstanceOf(IdentifierCollection::class, $result);
+        $storage = $this->createMock(StorageInterface::class);
+
+        $authenticators = $this->createAuthenticators(null, $storage);
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
+
+        $identity = new Identity(new ArrayObject(['username' => 'robert']));
+
+        $storage
+            ->expects($this->once())
+            ->method('write')
+            ->with($request, $response, $identity->getOriginalData())
+            ->willReturn($response->withHeader('Identity', 'Stored'));
+
+        $result = $service->persistIdentity($request, $response, $identity);
+        $this->assertInstanceOf(PersistenceResultInterface::class, $result);
+        $this->assertEquals('Stored', $result->getResponse()->getHeaderLine('Identity'));
     }
 
     /**
@@ -174,311 +320,32 @@ class AuthenticationServiceTest extends TestCase
      */
     public function testClearIdentity()
     {
-        $service = new AuthenticationService([
-            'identifiers' => [
-                'Authentication.Password'
-            ],
-            'authenticators' => [
-                'Authentication.Form'
-            ]
-        ]);
-
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/']
-        );
-        $response = new Response();
-
-        $request = $request->withAttribute('identity', ['username' => 'florian']);
-        $this->assertNotEmpty($request->getAttribute('identity'));
-        $result = $service->clearIdentity($request, $response);
-        $this->assertInternalType('array', $result);
-        $this->assertInstanceOf(ServerRequestInterface::class, $result['request']);
-        $this->assertInstanceOf(ResponseInterface::class, $result['response']);
-        $this->assertNull($result['request']->getAttribute('identity'));
-    }
-
-    /**
-     * testClearIdentity, with custom identity attribute
-     *
-     * @return void
-     */
-    public function testClearIdentityWithCustomIdentityAttribute()
-    {
-        $service = new AuthenticationService([
-            'identifiers' => [
-                'Authentication.Password'
-            ],
-            'authenticators' => [
-                'Authentication.Form'
-            ],
-            'identityAttribute' => 'customIdentity'
-        ]);
-
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/']
-        );
-        $response = new Response();
-
-        $request = $request->withAttribute('customIdentity', ['username' => 'florian']);
-        $this->assertNotEmpty($request->getAttribute('customIdentity'));
-        $result = $service->clearIdentity($request, $response);
-        $this->assertInternalType('array', $result);
-        $this->assertInstanceOf(ServerRequestInterface::class, $result['request']);
-        $this->assertInstanceOf(ResponseInterface::class, $result['response']);
-        $this->assertNull($result['request']->getAttribute('customIdentity'));
-    }
-
-    /**
-     * testClearIdentity, with custom identity attribute
-     *
-     * @return void
-     */
-    public function testClearIdentityWithCustomIdentityAttributeShouldPreserveDefault()
-    {
-        $service = new AuthenticationService([
-            'identifiers' => [
-                'Authentication.Password'
-            ],
-            'authenticators' => [
-                'Authentication.Form'
-            ],
-            'identityAttribute' => 'customIdentity'
-        ]);
-
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/']
-        );
-        $response = new Response();
-
-        $request = $request->withAttribute('identity', ['username' => 'johndoe']);
-        $this->assertNotEmpty($request->getAttribute('identity'));
-        $request = $request->withAttribute('customIdentity', ['username' => 'florian']);
-        $this->assertNotEmpty($request->getAttribute('customIdentity'));
-        $result = $service->clearIdentity($request, $response);
-        $this->assertInternalType('array', $result);
-        $this->assertInstanceOf(ServerRequestInterface::class, $result['request']);
-        $this->assertInstanceOf(ResponseInterface::class, $result['response']);
-        $this->assertNull($result['request']->getAttribute('customIdentity'));
-
-        $data = ['username' => 'johndoe'];
-        $this->assertEquals($data, $result['request']->getAttribute('identity'));
-    }
-
-    /**
-     * testPersistIdentity
-     *
-     * @return void
-     */
-    public function testPersistIdentity()
-    {
-        $service = new AuthenticationService([
-            'identifiers' => [
-                'Authentication.Password'
-            ],
-            'authenticators' => [
-                'Authentication.Session',
-                'Authentication.Form'
-            ]
-        ]);
-
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/']
-        );
-
-        $response = new Response();
-
-        $this->assertEmpty($request->getAttribute('identity'));
-
-        $data = new ArrayObject(['username' => 'florian']);
-        $result = $service->persistIdentity($request, $response, $data);
-
-        $this->assertInternalType('array', $result);
-        $this->assertArrayHasKey('request', $result);
-        $this->assertArrayHasKey('response', $result);
-        $this->assertInstanceOf(RequestInterface::class, $result['request']);
-        $this->assertInstanceOf(ResponseInterface::class, $result['response']);
-
-        $this->assertEquals(
-            'florian',
-            $result['request']->getAttribute('session')->read('Auth.username')
-        );
-
-        $identity = $result['request']->getAttribute('identity');
-        $this->assertInstanceOf(IdentityInterface::class, $identity);
-        $this->assertEquals($data, $identity->getOriginalData());
-    }
-
-    /**
-     * testPersistIdentity, with custom identity attribute
-     *
-     * @return void
-     */
-    public function testPersistIdentityWithCustomIdentityAttribute()
-    {
-        $service = new AuthenticationService([
-            'identifiers' => [
-                'Authentication.Password'
-            ],
-            'authenticators' => [
-                'Authentication.Session',
-                'Authentication.Form'
-            ],
-            'identityAttribute' => 'customIdentity'
-        ]);
-
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/']
-        );
-
-        $response = new Response();
-
-        $this->assertEmpty($request->getAttribute('identity'));
-        $this->assertEmpty($request->getAttribute('customIdentity'));
-
-        $data = new ArrayObject(['username' => 'florian']);
-        $result = $service->persistIdentity($request, $response, $data);
-
-        $this->assertInternalType('array', $result);
-        $this->assertArrayHasKey('request', $result);
-        $this->assertArrayHasKey('response', $result);
-        $this->assertInstanceOf(RequestInterface::class, $result['request']);
-        $this->assertInstanceOf(ResponseInterface::class, $result['response']);
-
-        $this->assertEquals(
-            'florian',
-            $result['request']->getAttribute('session')->read('Auth.username')
-        );
-
-        $identity = $result['request']->getAttribute('customIdentity');
-        $this->assertInstanceOf(IdentityInterface::class, $identity);
-        $this->assertEquals($data, $identity->getOriginalData());
-        $this->assertEmpty($result['request']->getAttribute('identity'));
-    }
-
-    /**
-     * testPersistIdentity, with custom identity attribute
-     *
-     * @return void
-     */
-    public function testPersistIdentityWithCustomIdentityAttributeShouldPreserveDefault()
-    {
-        $service = new AuthenticationService([
-            'identifiers' => [
-                'Authentication.Password'
-            ],
-            'authenticators' => [
-                'Authentication.Session',
-                'Authentication.Form'
-            ],
-            'identityAttribute' => 'customIdentity'
-        ]);
-
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/']
-        );
-
-        $response = new Response();
-        $request = $request->withAttribute('identity', ['username' => 'johndoe']);
-        $this->assertNotEmpty($request->getAttribute('identity'));
-
-        $this->assertEmpty($request->getAttribute('customIdentity'));
-
-        $data = new ArrayObject(['username' => 'florian']);
-        $result = $service->persistIdentity($request, $response, $data);
-
-        $this->assertInternalType('array', $result);
-        $this->assertArrayHasKey('request', $result);
-        $this->assertArrayHasKey('response', $result);
-        $this->assertInstanceOf(RequestInterface::class, $result['request']);
-        $this->assertInstanceOf(ResponseInterface::class, $result['response']);
-
-        $this->assertEquals(
-            'florian',
-            $result['request']->getAttribute('session')->read('Auth.username')
-        );
-
-        $identity = $result['request']->getAttribute('customIdentity');
-        $this->assertInstanceOf(IdentityInterface::class, $identity);
-        $this->assertEquals($data, $identity->getOriginalData());
-
-        $data = ['username' => 'johndoe'];
-        $this->assertEquals($data, $result['request']->getAttribute('identity'));
-    }
-
-    /**
-     * testPersistIdentityInterface
-     *
-     * @return void
-     */
-    public function testPersistIdentityInterface()
-    {
-        $request = new ServerRequest();
-        $response = new Response();
-        $identity = $this->createMock(IdentityInterface::class);
-
-        $service = new AuthenticationService();
-
-        $result = $service->persistIdentity($request, $response, $identity);
-
-        $this->assertSame($identity, $result['request']->getAttribute('identity'));
-    }
-
-    /**
-     * testPersistIdentityInterface
-     *
-     * @return void
-     */
-    public function testPersistIdentityArray()
-    {
-        $request = new ServerRequest();
-        $response = new Response();
-        $data = [
-            'username' => 'robert'
-        ];
-
-        $service = new AuthenticationService();
-
-        $result = $service->persistIdentity($request, $response, $data);
-        $this->assertInstanceOf(IdentityInterface::class, $result['request']->getAttribute('identity'));
-    }
-
-    /**
-     * testGetResult
-     *
-     * @return void
-     */
-    public function testGetResult()
-    {
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/testpath'],
             [],
-            ['username' => 'mariano', 'password' => 'password']
+            ['username' => 'robert', 'password' => 'robert']
         );
         $response = new Response();
 
-        $service = new AuthenticationService([
-            'identifiers' => [
-                'Authentication.Password'
-            ],
-            'authenticators' => [
-                'Authentication.Session',
-                'Authentication.Form'
-            ]
-        ]);
+        $storage = $this->createMock(StorageInterface::class);
 
-        $result = $service->getResult();
-        $this->assertNull($result);
+        $authenticators = $this->createAuthenticators(null, $storage);
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
 
-        $service->authenticate($request, $response);
-        $result = $service->getResult();
-        $this->assertInstanceOf(Result::class, $result);
+        $storage
+            ->expects($this->once())
+            ->method('clear')
+            ->with($request, $response)
+            ->willReturn($response->withHeader('Identity', 'Cleared'));
+
+        $result = $service->clearIdentity($request, $response);
+        $this->assertInstanceOf(PersistenceResultInterface::class, $result);
+        $this->assertEquals('Cleared', $result->getResponse()->getHeaderLine('Identity'));
     }
 
     /**
      * testNoAuthenticatorsLoadedException
      *
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage No authenticators loaded. You need to load at least one authenticator.
      * @return void
      */
     public function testNoAuthenticatorsLoadedException()
@@ -486,17 +353,15 @@ class AuthenticationServiceTest extends TestCase
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/testpath'],
             [],
-            ['username' => 'mariano', 'password' => 'password']
+            ['username' => 'robert', 'password' => 'robert']
         );
-        $response = new Response();
 
-        $service = new AuthenticationService([
-            'identifiers' => [
-                'Authentication.Password'
-            ]
-        ]);
+        $service = new AuthenticationService(new AuthenticatorCollection(), new DefaultIdentityFactory);
 
-        $service->authenticate($request, $response);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('No authenticators loaded. You need to load at least one authenticator.');
+
+        $service->authenticate($request);
     }
 
     /**
@@ -506,125 +371,18 @@ class AuthenticationServiceTest extends TestCase
      */
     public function testBuildIdentity()
     {
-        $service = new AuthenticationService([
-            'identifiers' => [
-                'Authentication.Password'
-            ]
-        ]);
+        $data = new ArrayObject(['username' => 'robert']);
+        $identity = new Identity($data);
+        $factory = $this->createMock(IdentityFactoryInterface::class);
+        $factory
+            ->expects($this->once())
+            ->method('create')
+            ->with($data)
+            ->willReturn($identity);
 
-        $this->assertInstanceOf(Identity::class, $service->buildIdentity(new ArrayObject([])));
-    }
+        $service = new AuthenticationService($this->createAuthenticators(), $factory);
 
-    /**
-     * testBuildIdentityRuntimeException
-     *
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Object `stdClass` does not implement `Authentication\Identity\IdentityInterface`
-     * @return void
-     */
-    public function testBuildIdentityRuntimeException()
-    {
-        $service = new AuthenticationService([
-            'identityClass' => \stdClass::class,
-            'identifiers' => [
-                'Authentication.Password'
-            ]
-        ]);
-
-        $service->buildIdentity(new ArrayObject([]));
-    }
-
-    /**
-     * testCallableIdentityProvider
-     *
-     * @return void
-     */
-    public function testCallableIdentityProvider()
-    {
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath'],
-            [],
-            ['username' => 'mariano', 'password' => 'password']
-        );
-        $response = new Response();
-
-        $callable = function () {
-            return new Identity(new ArrayObject([
-                'id' => 'by-callable'
-            ]));
-        };
-
-        $service = new AuthenticationService([
-            'identityClass' => $callable,
-            'identifiers' => [
-                'Authentication.Password'
-            ],
-            'authenticators' => [
-                'Authentication.Form'
-            ]
-        ]);
-
-        // Authenticate an identity
-        $service->authenticate($request, $response);
-        $this->assertInstanceOf(Identity::class, $service->getIdentity());
-        $this->assertEquals('by-callable', $service->getIdentity()->getIdentifier());
-    }
-
-    /**
-     * testGetIdentity
-     *
-     * @return void
-     */
-    public function testGetIdentity()
-    {
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath'],
-            [],
-            ['username' => 'mariano', 'password' => 'password']
-        );
-        $response = new Response();
-
-        $service = new AuthenticationService([
-            'identifiers' => [
-                'Authentication.Password'
-            ],
-            'authenticators' => [
-                'Authentication.Form'
-            ]
-        ]);
-
-        // No identity present before login
-        $this->assertNull($service->getIdentity());
-
-        // Authenticate an identity
-        $service->authenticate($request, $response);
-
-        // Now we can get the identity
-        $this->assertInstanceOf(Identity::class, $service->getIdentity());
-    }
-
-    /**
-     * testGetIdentityInterface
-     *
-     * @return void
-     */
-    public function testGetIdentityInterface()
-    {
-        $request = new ServerRequest();
-        $response = new Response();
-
-        $identity = $this->createMock(IdentityInterface::class);
-        $result = new Result($identity, Result::SUCCESS);
-
-        $authenticator = $this->createMock(AuthenticatorInterface::class);
-        $authenticator->method('authenticate')
-            ->willReturn($result);
-
-        $service = new AuthenticationService();
-        $service->authenticators()->set('Test', $authenticator);
-
-        $service->authenticate($request, $response);
-
-        $this->assertSame($identity, $service->getIdentity());
+        $result = $service->buildIdentity($data);
+        $this->assertSame($identity, $result);
     }
 }
