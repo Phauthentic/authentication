@@ -20,7 +20,8 @@
         "firebase/php-jwt": "~4.0",
         "phpunit/dbunit": "^4.0",
         "phpstan/phpstan": "^0.10.3",
-        "phpunit/phpunit": "^7.0"
+        "phpunit/phpunit": "^7.0",
+        "squizlabs/php_codesniffer": "^3.3"
     },
     "suggest": {
         "firebase/php-jwt": "If you want to use the JWT adapter add this dependency",
