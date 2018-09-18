@@ -14,6 +14,10 @@ You can install this library using [composer](http://getcomposer.org):
 composer require Phauthentic/authentication
 ```
 
+## Requirements
+
+Your application **must** use PSR HTTP Message interfaces for your request and response objects. The whole library is build to be framework agnostic but uses these interfaces as the common API. Every modern framework and application should fulfill this requirement.
+
 ## Framework integrations
 
  * [Laravel](https://github.com/Phauthentic/authentication-laravel)
