@@ -12,17 +12,17 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Authenticator;
+namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
 use ArrayObject;
-use Authentication\Authenticator\FormAuthenticator;
-use Authentication\Authenticator\Result;
-use Authentication\Identifier\IdentifierInterface;
-use Authentication\Identifier\PasswordIdentifier;
-use Authentication\Test\Resolver\TestResolver;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
-use Authentication\UrlChecker\DefaultUrlChecker;
-use Authentication\UrlChecker\RegexUrlChecker;
+use Phauthentic\Authentication\Authenticator\FormAuthenticator;
+use Phauthentic\Authentication\Authenticator\Result;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
+use Phauthentic\Authentication\Identifier\PasswordIdentifier;
+use Phauthentic\Authentication\Test\Resolver\TestResolver;
+use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
+use Phauthentic\Authentication\UrlChecker\DefaultUrlChecker;
+use Phauthentic\Authentication\UrlChecker\RegexUrlChecker;
 use Phauthentic\PasswordHasher\DefaultPasswordHasher;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequestFactory;

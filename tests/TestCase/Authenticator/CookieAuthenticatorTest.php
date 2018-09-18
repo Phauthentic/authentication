@@ -11,16 +11,16 @@
  * @since         4.0.0
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Authenticator;
+namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
 use ArrayObject;
-use Authentication\Authenticator\CookieAuthenticator;
-use Authentication\Authenticator\Result;
-use Authentication\Authenticator\Storage\StorageInterface;
-use Authentication\Identifier\PasswordIdentifier;
-use Authentication\Test\Resolver\TestResolver;
-use Authentication\Test\TestCase\AuthenticationTestCase;
-use Authentication\UrlChecker\DefaultUrlChecker;
+use Phauthentic\Authentication\Authenticator\CookieAuthenticator;
+use Phauthentic\Authentication\Authenticator\Result;
+use Phauthentic\Authentication\Authenticator\Storage\StorageInterface;
+use Phauthentic\Authentication\Identifier\PasswordIdentifier;
+use Phauthentic\Authentication\Test\Resolver\TestResolver;
+use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase;
+use Phauthentic\Authentication\UrlChecker\DefaultUrlChecker;
 use Phauthentic\PasswordHasher\DefaultPasswordHasher;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\Response;

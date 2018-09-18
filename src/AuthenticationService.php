@@ -1,4 +1,4 @@
-<?php 
+<?php
 declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
@@ -13,17 +13,17 @@ declare(strict_types=1);
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication;
+namespace Phauthentic\Authentication;
 
 use ArrayAccess;
-use Authentication\Authenticator\AuthenticatorCollectionInterface;
-use Authentication\Authenticator\AuthenticatorInterface;
-use Authentication\Authenticator\Failure;
-use Authentication\Authenticator\PersistenceInterface;
-use Authentication\Authenticator\ResultInterface;
-use Authentication\Authenticator\StatelessInterface;
-use Authentication\Identity\IdentityFactoryInterface;
-use Authentication\Identity\IdentityInterface;
+use Phauthentic\Authentication\Authenticator\AuthenticatorCollectionInterface;
+use Phauthentic\Authentication\Authenticator\AuthenticatorInterface;
+use Phauthentic\Authentication\Authenticator\Failure;
+use Phauthentic\Authentication\Authenticator\PersistenceInterface;
+use Phauthentic\Authentication\Authenticator\ResultInterface;
+use Phauthentic\Authentication\Authenticator\StatelessInterface;
+use Phauthentic\Authentication\Identity\IdentityFactoryInterface;
+use Phauthentic\Authentication\Identity\IdentityInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -36,43 +36,43 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * Authenticator collection
      *
-     * @var \Authentication\Authenticator\AuthenticatorCollection
+     * @var \Phauthentic\Authentication\Authenticator\AuthenticatorCollection
      */
     protected $authenticators;
 
     /**
      * Authenticator that successfully authenticated the identity.
      *
-     * @var \Authentication\Authenticator\AuthenticatorInterface|null
+     * @var \Phauthentic\Authentication\Authenticator\AuthenticatorInterface|null
      */
     protected $successfulAuthenticator;
 
     /**
      * A list of failed authenticators after an authentication attempt
      *
-     * @var \Authentication\Authenticator\FailureInterface[]
+     * @var \Phauthentic\Authentication\Authenticator\FailureInterface[]
      */
     protected $failures = [];
 
     /**
      * Result of the last authenticate() call.
      *
-     * @var \Authentication\Authenticator\ResultInterface|null
+     * @var \Phauthentic\Authentication\Authenticator\ResultInterface|null
      */
     protected $result;
 
     /**
      * Identity factory used to instantiate an identity object
      *
-     * @var \Authentication\Identity\IdentityFactoryInterface
+     * @var \Phauthentic\Authentication\Identity\IdentityFactoryInterface
      */
     protected $identityFactory;
 
     /**
      * Constructor
      *
-     * @param \Authentication\Authenticator\AuthenticatorCollection $authenticators Authenticator collection.
-     * @param \Authentication\Identity\IdentityFactoryInterface $factory Identity factory.
+     * @param \Phauthentic\Authentication\Authenticator\AuthenticatorCollection $authenticators Authenticator collection.
+     * @param \Phauthentic\Authentication\Identity\IdentityFactoryInterface $factory Identity factory.
      */
     public function __construct(AuthenticatorCollectionInterface $authenticators, IdentityFactoryInterface $factory)
     {
@@ -83,7 +83,7 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * Access the authenticator collection
      *
-     * @return \Authentication\Authenticator\AuthenticatorCollection
+     * @return \Phauthentic\Authentication\Authenticator\AuthenticatorCollection
      */
     public function authenticators(): AuthenticatorCollectionInterface
     {
@@ -154,7 +154,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
      * @param \Psr\Http\Message\ResponseInterface $response The response.
-     * @return \Authentication\PersistenceResultInterface Return an array containing the request and response objects.
+     * @return \Phauthentic\Authentication\PersistenceResultInterface Return an array containing the request and response objects.
      */
     public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response): PersistenceResultInterface
     {
@@ -172,8 +172,8 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
      * @param \Psr\Http\Message\ResponseInterface $response The response.
-     * @param \Authentication\Identity\IdentityInterface|null $identity Identity.
-     * @return \Authentication\PersistenceResultInterface
+     * @param \Phauthentic\Authentication\Identity\IdentityInterface|null $identity Identity.
+     * @return \Phauthentic\Authentication\PersistenceResultInterface
      */
     public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, IdentityInterface $identity = null): PersistenceResultInterface
     {
@@ -195,7 +195,7 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * Gets the successful authenticator instance if one was successful after calling authenticate
      *
-     * @return \Authentication\Authenticator\AuthenticatorInterface|null
+     * @return \Phauthentic\Authentication\Authenticator\AuthenticatorInterface|null
      */
     public function getSuccessfulAuthenticator(): ?AuthenticatorInterface
     {
@@ -205,7 +205,7 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * Gets the result of the last authenticate() call.
      *
-     * @return \Authentication\Authenticator\ResultInterface|null Authentication result interface
+     * @return \Phauthentic\Authentication\Authenticator\ResultInterface|null Authentication result interface
      */
     public function getResult(): ?ResultInterface
     {
@@ -215,7 +215,7 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * Gets an identity object
      *
-     * @return null|\Authentication\Identity\IdentityInterface
+     * @return null|\Phauthentic\Authentication\Identity\IdentityInterface
      */
     public function getIdentity(): ?IdentityInterface
     {
@@ -235,7 +235,7 @@ class AuthenticationService implements AuthenticationServiceInterface
      * Builds the identity object
      *
      * @param \ArrayAccess $data Identity data
-     * @return \Authentication\Identity\IdentityInterface
+     * @return \Phauthentic\Authentication\Identity\IdentityInterface
      */
     public function buildIdentity(ArrayAccess $data): IdentityInterface
     {

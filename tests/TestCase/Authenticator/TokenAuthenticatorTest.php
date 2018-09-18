@@ -12,13 +12,13 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Authenticator;
+namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
-use Authentication\Authenticator\Result;
-use Authentication\Authenticator\TokenAuthenticator;
-use Authentication\Identifier\TokenIdentifier;
-use Authentication\Test\Resolver\TestResolver;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
+use Phauthentic\Authentication\Authenticator\Result;
+use Phauthentic\Authentication\Authenticator\TokenAuthenticator;
+use Phauthentic\Authentication\Identifier\TokenIdentifier;
+use Phauthentic\Authentication\Test\Resolver\TestResolver;
+use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequestFactory;
 

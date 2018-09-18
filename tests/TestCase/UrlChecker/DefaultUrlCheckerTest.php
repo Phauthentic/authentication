@@ -12,9 +12,9 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\UrlChecker;
+namespace Phauthentic\Authentication\Test\TestCase\UrlChecker;
 
-use Authentication\UrlChecker\DefaultUrlChecker;
+use Phauthentic\Authentication\UrlChecker\DefaultUrlChecker;
 use PHPUnit\Framework\TestCase;
 use Zend\Diactoros\ServerRequestFactory;
 

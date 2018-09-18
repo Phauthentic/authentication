@@ -13,15 +13,15 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Authentication;
+namespace Phauthentic\Authentication\Test\TestCase\Authentication;
 
-use Authentication\Authenticator\Exception\UnauthorizedException;
-use Authentication\Authenticator\HttpDigestAuthenticator;
-use Authentication\Authenticator\Result;
-use Authentication\Authenticator\StatelessInterface;
-use Authentication\Identifier\PasswordIdentifier;
-use Authentication\Test\Resolver\TestResolver;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
+use Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException;
+use Phauthentic\Authentication\Authenticator\HttpDigestAuthenticator;
+use Phauthentic\Authentication\Authenticator\Result;
+use Phauthentic\Authentication\Authenticator\StatelessInterface;
+use Phauthentic\Authentication\Identifier\PasswordIdentifier;
+use Phauthentic\Authentication\Test\Resolver\TestResolver;
+use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Phauthentic\PasswordHasher\DefaultPasswordHasher;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequestFactory;

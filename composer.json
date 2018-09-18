@@ -1,43 +1,48 @@
 {
     "name": "phauthentic/authentication",
-    "description": "Authentication lib for PHP",
+    "description": "A Framework agnostic Authentication library for PHP",
     "keywords": [
         "auth",
         "authentication",
-        "middleware"
+        "middleware",
+        "library"
     ],
     "require": {
         "psr/http-message": "~1.0",
         "psr/http-server-handler": "~1.0",
-        "zendframework/zend-diactoros": "^1.4.0",
         "psr/http-factory": "^1.0",
         "psr/http-server-middleware": "^1.0",
-        "phauthentic/password-hashers": "dev-master"
+        "phauthentic/password-hashers": "dev-master",
+        "zendframework/zend-diactoros": "^1.4.0"
     },
     "require-dev": {
         "cakephp/cakephp-codesniffer": "^3.0",
-        "phpunit/phpunit": "^7.0",
         "firebase/php-jwt": "~4.0",
         "phpunit/dbunit": "^4.0",
-        "phpstan/phpstan": "^0.10.3"
+        "phpstan/phpstan": "^0.10.3",
+        "phpunit/phpunit": "^7.0"
     },
     "suggest": {
         "firebase/php-jwt": "If you want to use the JWT adapter add this dependency",
-        "ext-ldap": "Make sure this php extension is installed and enabled on your system if you want to use the built-in LDAP adapter for \"LdapIdentifier\"."
+        "ext-ldap": "Make sure this php extension is installed and enabled on your system if you want to use the built-in LDAP adapter for \"LdapIdentifier\".",
+        "phauthentic/authentication-laravel": "Laravel integration for this library",
+        "phauthentic/authentication-cakephp": "CakePHP integration for this library",
+        "phauthentic/authentication-yii": "Yii integration for this library",
+        "phauthentic/authentication-doctrine": "Doctrine integration for this library"
     },
     "license": "MIT",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "Authentication\\": "src/"
+            "Phauthentic\\Authentication\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
             "AuthTest\\": "tests/test_app/Plugin/AuthTest/src/",
-            "Authentication\\Test\\": "tests/",
-            "Authentication\\Test\\App\\": "tests/test_app/App/",
+            "Phauthentic\\Authentication\\Test\\": "tests/",
+            "Phauthentic\\Authentication\\Test\\App\\": "tests/test_app/App/",
             "TestApp\\": "tests/test_app/TestApp/",
             "TestPlugin\\": "tests/test_app/Plugin/TestPlugin/src/"
         }

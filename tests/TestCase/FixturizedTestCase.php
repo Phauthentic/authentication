@@ -10,9 +10,9 @@
  * @link          https://github.com/Phauthentic
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase;
+namespace Phauthentic\Authentication\Test\TestCase;
 
-use Authentication\Test\Fixture\FixtureInterface;
+use Phauthentic\Authentication\Test\Fixture\FixtureInterface;
 use PDO;
 use PHPUnit\DbUnit\Database\DefaultConnection;
 use PHPUnit\DbUnit\DataSet\IDataSet;

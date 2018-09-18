@@ -12,10 +12,10 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase;
+namespace Phauthentic\Authentication\Test\TestCase;
 
-use Authentication\Test\Fixture\FixtureInterface;
-use Authentication\Test\Fixture\UsersFixture;
+use Phauthentic\Authentication\Test\Fixture\FixtureInterface;
+use Phauthentic\Authentication\Test\Fixture\UsersFixture;
 
 /**
  * @author Robert Pustułka <robert.pustulka@gmail.com>

@@ -1,4 +1,4 @@
-<?php 
+<?php
 declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
@@ -13,10 +13,10 @@ declare(strict_types=1);
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Identifier;
+namespace Phauthentic\Authentication\Identifier;
 
 use ArrayAccess;
-use Authentication\Identifier\Resolver\ResolverInterface;
+use Phauthentic\Authentication\Identifier\Resolver\ResolverInterface;
 
 /**
  * Token Identifier
@@ -27,7 +27,7 @@ class TokenIdentifier extends AbstractIdentifier
     /**
      * Resolver
      *
-     * @var \Authentication\Identifier\Resolver\ResolverInterface
+     * @var \Phauthentic\Authentication\Identifier\Resolver\ResolverInterface
      */
     protected $resolver;
 

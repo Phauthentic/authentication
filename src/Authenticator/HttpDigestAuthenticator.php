@@ -12,9 +12,9 @@ declare(strict_types=1);
  * @link          http://cakephp.org CakePHP(tm) Project
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
-use Authentication\Identifier\IdentifierInterface;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -135,7 +135,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * Get a user based on information in the request. Used by cookie-less auth for stateless clients.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @return \Authentication\Authenticator\ResultInterface
+     * @return \Phauthentic\Authentication\Authenticator\ResultInterface
      */
     public function authenticate(ServerRequestInterface $request): ResultInterface
     {

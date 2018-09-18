@@ -13,7 +13,7 @@ declare(strict_types=1);
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
 use IteratorAggregate;
 
@@ -26,7 +26,7 @@ interface AuthenticatorCollectionInterface extends IteratorAggregate
     /**
      * Adds a authenticator to the collection
      *
-     * @param \Authentication\Authenticator\AuthenticatorInterface $authenticator Authenticator instance.
+     * @param \Phauthentic\Authentication\Authenticator\AuthenticatorInterface $authenticator Authenticator instance.
      * @return void
      */
     public function add(AuthenticatorInterface $authenticator): void;

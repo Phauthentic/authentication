@@ -11,25 +11,25 @@ declare(strict_types=1);
  * @link          https://github.com/Phauthentic
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
 class Failure implements FailureInterface
 {
     /**
-     * @var \Authentication\Authenticator\AuthenticatorInterface
+     * @var \Phauthentic\Authentication\Authenticator\AuthenticatorInterface
      */
     protected $authenticator;
 
     /**
-     * @var \Authentication\Authenticator\ResultInterface
+     * @var \Phauthentic\Authentication\Authenticator\ResultInterface
      */
     protected $result;
 
     /**
      * Constructor.
      *
-     * @param \Authentication\Authenticator\AuthenticatorInterface $authenticator Authenticator.
-     * @param \Authentication\Authenticator\ResultInterface $result Result.
+     * @param \Phauthentic\Authentication\Authenticator\AuthenticatorInterface $authenticator Authenticator.
+     * @param \Phauthentic\Authentication\Authenticator\ResultInterface $result Result.
      */
     public function __construct(AuthenticatorInterface $authenticator, ResultInterface $result)
     {

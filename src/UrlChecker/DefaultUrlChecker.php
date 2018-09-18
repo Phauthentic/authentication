@@ -13,7 +13,7 @@ declare(strict_types=1);
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\UrlChecker;
+namespace Phauthentic\Authentication\UrlChecker;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;

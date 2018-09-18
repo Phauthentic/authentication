@@ -12,12 +12,12 @@ declare(strict_types=1);
  * @link          http://cakephp.org CakePHP(tm) Project
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
 use ArrayAccess;
 use ArrayObject;
-use Authentication\Authenticator\Storage\StorageInterface;
-use Authentication\Identifier\IdentifierInterface;
+use Phauthentic\Authentication\Authenticator\Storage\StorageInterface;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -40,7 +40,7 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
     protected $verify = false;
 
     /**
-     * @var \Authentication\Authenticator\Storage\StorageInterface
+     * @var \Phauthentic\Authentication\Authenticator\Storage\StorageInterface
      */
     protected $storage;
 
@@ -97,7 +97,7 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
      * Authenticate a user using session data.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request to authenticate with.
-     * @return \Authentication\Authenticator\ResultInterface
+     * @return \Phauthentic\Authentication\Authenticator\ResultInterface
      */
     public function authenticate(ServerRequestInterface $request): ResultInterface
     {

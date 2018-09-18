@@ -11,7 +11,7 @@ declare(strict_types=1);
  * @link          https://github.com/Phauthentic
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
 interface FailureInterface
 {

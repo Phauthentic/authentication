@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Authentication\Test\Schema;
+namespace Phauthentic\Authentication\Test\Schema;
 
 use PDO;
 
