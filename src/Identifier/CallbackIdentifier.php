@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,10 +13,9 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Identifier;
+namespace Phauthentic\Authentication\Identifier;
 
 use ArrayAccess;
-use InvalidArgumentException;
 use RuntimeException;
 
 /**
@@ -23,49 +23,26 @@ use RuntimeException;
  */
 class CallbackIdentifier extends AbstractIdentifier
 {
+
     /**
-     * Default configuration
-     *
-     * @var array
+     * @var callable
      */
-    protected $_defaultConfig = [
-        'callback' => null
-    ];
+    protected $callable;
 
     /**
      * {@inheritDoc}
      */
-    public function __construct(array $config)
+    public function __construct(callable $callable)
     {
-        parent::__construct($config);
-
-        $this->checkCallable();
-    }
-
-    /**
-     * Check the callable option
-     *
-     * @throws \InvalidArgumentException
-     * @return void
-     */
-    protected function checkCallable()
-    {
-        $callback = $this->getConfig('callback');
-
-        if (!is_callable($callback)) {
-            throw new InvalidArgumentException(sprintf(
-                'The `callback` option is not a callable. Got `%s` instead.',
-                gettype($callback)
-            ));
-        }
+        $this->callable = $callable;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function identify(array $data)
+    public function identify(array $data): ?ArrayAccess
     {
-        $callback = $this->getConfig('callback');
+        $callback = $this->callable;
 
         $result = $callback($data);
         if ($result === null || $result instanceof ArrayAccess) {

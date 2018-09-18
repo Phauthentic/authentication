@@ -1,4 +1,5 @@
-<?php
+<?php 
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,7 +13,7 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\UrlChecker;
+namespace Phauthentic\Authentication\UrlChecker;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
@@ -22,87 +23,44 @@ use Psr\Http\Message\UriInterface;
  */
 class DefaultUrlChecker implements UrlCheckerInterface
 {
+
     /**
-     * Default Options
-     *
-     * - `urlChecker` Whether or not to use `loginUrl` as regular expression(s).
-     * - `checkFullUrl` Whether or not to check the full request URI.
-     *
-     * @var array
+     * @var bool
      */
-    protected $_defaultOptions = [
-        'useRegex' => false,
-        'checkFullUrl' => false
-    ];
+    protected $checkFullUrl = false;
+
+    /**
+     * Check the full URL
+     *
+     * @param bool $fullUrl Full URL to check or not
+     * @return $this
+     */
+    public function checkFullUrl(bool $fullUrl): self
+    {
+        $this->checkFullUrl = $fullUrl;
+
+        return $this;
+    }
 
     /**
      * {@inheritdoc}
      */
-    public function check(ServerRequestInterface $request, $urls, array $options = [])
+    public function check(ServerRequestInterface $request, string $loginUrl): bool
     {
-        $options = $this->_mergeDefaultOptions($options);
+        $requestUrl = $this->_getUrlFromRequest($request->getUri());
 
-        $urls = (array)$urls;
-
-        if (empty($urls)) {
-            return true;
-        }
-
-        $checker = $this->_getChecker($options);
-
-        $url = $this->_getUrlFromRequest($request->getUri(), $options['checkFullUrl']);
-
-        foreach ($urls as $validUrl) {
-            if ($checker($validUrl, $url)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Merges given options with the defaults.
-     *
-     * The reason this method exists is that it makes it easy to override the
-     * method and inject additional options without the need to use the
-     * MergeVarsTrait.
-     *
-     * @param array $options Options to merge in
-     * @return array
-     */
-    protected function _mergeDefaultOptions(array $options)
-    {
-        return $options += $this->_defaultOptions;
-    }
-
-    /**
-     * Gets the checker function name or a callback
-     *
-     * @param array $options Array of options
-     * @return string|callable
-     */
-    protected function _getChecker(array $options = [])
-    {
-        if (isset($options['useRegex']) && $options['useRegex']) {
-            return 'preg_match';
-        }
-
-        return function ($validUrl, $url) {
-            return $validUrl === $url;
-        };
+        return $requestUrl === $loginUrl;
     }
 
     /**
      * Returns current url.
      *
      * @param \Psr\Http\Message\UriInterface $uri Server Request
-     * @param bool $getFullUrl Get the full URL or just the path
      * @return string
      */
-    protected function _getUrlFromRequest(UriInterface $uri, $getFullUrl = false)
+    protected function _getUrlFromRequest(UriInterface $uri): string
     {
-        if ($getFullUrl) {
+        if ($this->checkFullUrl) {
             return (string)$uri;
         }
 

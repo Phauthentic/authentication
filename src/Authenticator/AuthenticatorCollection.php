@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,80 +13,62 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
-use Authentication\AbstractCollection;
-use Authentication\Identifier\IdentifierCollection;
-use Cake\Core\App;
-use RuntimeException;
+use ArrayIterator;
+use Traversable;
 
-class AuthenticatorCollection extends AbstractCollection
+/**
+ * Authenticator Collection
+ */
+class AuthenticatorCollection implements AuthenticatorCollectionInterface
 {
     /**
-     * Identifier collection.
+     * List of authenticators
      *
-     * @var \Authentication\Identifier\IdentifierCollection
+     * @var array
      */
-    protected $_identifiers;
+    protected $authenticators = [];
 
     /**
-     * Constructor.
+     * Constructor
      *
-     * @param \Authentication\Identifier\IdentifierCollection $identifiers Identifiers collection.
-     * @param array $config Config array.
+     * @param iterable $autheticators Authenticators
      */
-    public function __construct(IdentifierCollection $identifiers, array $config = [])
+    public function __construct(iterable $autheticators = [])
     {
-        $this->_identifiers = $identifiers;
-
-        parent::__construct($config);
-    }
-
-    /**
-     * Creates authenticator instance.
-     *
-     * @param string $className Authenticator class.
-     * @param string $alias Authenticator alias.
-     * @param array $config Config array.
-     * @return \Authentication\Authenticator\AuthenticatorInterface
-     * @throws \RuntimeException
-     */
-    protected function _create($className, $alias, $config)
-    {
-        $authenticator = new $className($this->_identifiers, $config);
-        if (!($authenticator instanceof AuthenticatorInterface)) {
-            throw new RuntimeException(sprintf(
-                'Authenticator class `%s` must implement \Auth\Authentication\AuthenticatorInterface',
-                $className
-            ));
+        foreach ($autheticators as $autheticator) {
+            $this->add($autheticator);
         }
-
-        return $authenticator;
     }
 
     /**
-     * Resolves authenticator class name.
+     * Returns true if a collection is empty.
      *
-     * @param string $class Class name to be resolved.
-     * @return string|null
+     * @return bool
      */
-    protected function _resolveClassName($class)
+    public function isEmpty(): bool
     {
-        $className = App::className($class, 'Authenticator', 'Authenticator');
-
-        return is_string($className) ? $className : null;
+        return empty($this->authenticators);
     }
 
     /**
-     *
-     * @param string $class Missing class.
-     * @param string $plugin Class plugin.
-     * @return void
-     * @throws \RuntimeException
+     * {@inheritDoc}
      */
-    protected function _throwMissingClassError($class, $plugin)
+    public function add(AuthenticatorInterface $authenticator): void
     {
-        $message = sprintf('Authenticator class `%s` was not found.', $class);
-        throw new RuntimeException($message);
+        $this->authenticators[] = $authenticator;
+    }
+
+    /**
+     * Retrieve an external iterator
+     *
+     * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
+     * @return Traversable An instance of an object implementing <b>Iterator</b> or
+     * <b>Traversable</b>
+     */
+    public function getIterator(): Traversable
+    {
+        return new ArrayIterator($this->authenticators);
     }
 }

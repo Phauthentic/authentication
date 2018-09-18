@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,61 +13,68 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication;
+namespace Phauthentic\Authentication;
 
-use Authentication\Authenticator\PersistenceInterface;
+use Phauthentic\Authentication\Authenticator\AuthenticatorInterface;
+use Phauthentic\Authentication\Authenticator\ResultInterface;
+use Phauthentic\Authentication\Identity\IdentityInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-interface AuthenticationServiceInterface extends PersistenceInterface
+interface AuthenticationServiceInterface
 {
-
-    /**
-     * Loads an authenticator.
-     *
-     * @param string $name Name or class name.
-     * @param array $config Authenticator configuration.
-     * @return \Authentication\Authenticator\AuthenticatorInterface
-     */
-    public function loadAuthenticator($name, array $config = []);
-
-    /**
-     * Loads an identifier.
-     *
-     * @param string $name Name or class name.
-     * @param array $config Identifier configuration.
-     * @return \Authentication\Identifier\IdentifierInterface
-     */
-    public function loadIdentifier($name, array $config = []);
-
     /**
      * Authenticate the request against the configured authentication adapters.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
-     * @param \Psr\Http\Message\ResponseInterface $response The response.
-     * @return array An array consisting of a result object, a modified request and response. If none of
-     * the adapters was a success the last failed result is returned.
+     * @return bool
      */
-    public function authenticate(ServerRequestInterface $request, ResponseInterface $response);
+    public function authenticate(ServerRequestInterface $request): bool;
 
     /**
      * Gets an identity object or null if identity has not been resolved.
      *
-     * @return null|\Authentication\IdentityInterface
+     * @return null|\Phauthentic\Authentication\Identity\IdentityInterface
      */
-    public function getIdentity();
+    public function getIdentity(): ?IdentityInterface;
 
     /**
      * Gets the successful authenticator instance if one was successful after calling authenticate
      *
-     * @return \Authentication\Authenticator\AuthenticatorInterface|null
+     * @return \Phauthentic\Authentication\Authenticator\AuthenticatorInterface|null
      */
-    public function getAuthenticationProvider();
+    public function getSuccessfulAuthenticator(): ?AuthenticatorInterface;
 
     /**
      * Gets the result of the last authenticate() call.
      *
-     * @return \Authentication\Authenticator\ResultInterface|null Authentication result interface
+     * @return \Phauthentic\Authentication\Authenticator\ResultInterface|null Authentication result interface
      */
-    public function getResult();
+    public function getResult(): ?ResultInterface;
+
+    /**
+     * Returns a list of failed authenticators and their results after an authenticate() call
+     *
+     * @return \Phauthentic\Authentication\Authenticator\FailureInterface[]
+     */
+    public function getFailures(): array;
+
+    /**
+     * Clears the identity from authenticators that store them and the request
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request The request.
+     * @param \Psr\Http\Message\ResponseInterface $response The response.
+     * @return \Phauthentic\Authentication\PersistenceResultInterface
+     */
+    public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response): PersistenceResultInterface;
+
+    /**
+     * Sets identity data and persists it in the authenticators that support it.
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request The request.
+     * @param \Psr\Http\Message\ResponseInterface $response The response.
+     * @param \Phauthentic\Authentication\Identity\IdentityInterface|null $identity Identity object.
+     * @return \Phauthentic\Authentication\PersistenceResultInterface
+     */
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, IdentityInterface $identity = null): PersistenceResultInterface;
 }

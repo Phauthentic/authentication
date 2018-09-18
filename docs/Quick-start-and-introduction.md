@@ -2,34 +2,20 @@
 
 ## Installation
 
-Install the plugin with [composer](https://getcomposer.org/) from your CakePHP Project's ROOT directory (where the **composer.json** file is located)
-```sh
-php composer.phar require cakephp/authentication
-```
+Install the library with [composer](https://getcomposer.org/).
 
-Load the plugin by adding the following statement in your project's `src/Application.php`
-```php
-public function bootstrap()
-{
-    parent::bootstrap();
-    $this->addPlugin('Authentication');
-}
-```
-Prior to 3.6.0
-```php
-Plugin::load('Authentication');
+```sh
+composer require phauthentic/authentication
 ```
 
 ## Configuration
 
-Add the authentication to the middleware. See the CakePHP [documentation](http://book.cakephp.org/3.0/en/controllers/middleware.html#) on how to use middleware if you don't know what it is or how to work with it.
-
 Example of configuring the authentication middleware using `authentication` application hook.
 
 ```php
-use Authentication\AuthenticationService;
-use Authentication\AuthenticationServiceProviderInterface;
-use Authentication\Middleware\AuthenticationMiddleware;
+use Phauthentic\Authentication\AuthenticationService;
+use Phauthentic\Authentication\AuthenticationServiceProviderInterface;
+use Phauthentic\Authentication\Middleware\AuthenticationMiddleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -95,7 +81,7 @@ must send specific challenge headers in the response. If you want to combine
 these authenticators as the *last* authenticators:
 
 ```php
-use Authentication\AuthenticationService;
+use Phauthentic\Authentication\AuthenticationService;
 
 // Instantiate the service
 $service = new AuthenticationService();

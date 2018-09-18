@@ -1,4 +1,5 @@
-<?php
+<?php 
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,7 +13,7 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\UrlChecker;
+namespace Phauthentic\Authentication\UrlChecker;
 
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -25,9 +26,8 @@ interface UrlCheckerInterface
      * Checks the requests if it is the configured login action
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request Server Request
-     * @param string|array $loginUrls Login URL string or array of URLs
-     * @param array $options Array of options
+     * @param string $loginUrl Login URL string.
      * @return bool
      */
-    public function check(ServerRequestInterface $request, $loginUrls, array $options = []);
+    public function check(ServerRequestInterface $request, string $loginUrl): bool;
 }

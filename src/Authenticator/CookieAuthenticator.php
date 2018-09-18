@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,16 +13,15 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
-use Authentication\Identifier\IdentifierCollection;
-use Authentication\Identifier\IdentifierInterface;
-use Authentication\PasswordHasher\PasswordHasherTrait;
-use Authentication\UrlChecker\UrlCheckerTrait;
-use Cake\Http\Cookie\Cookie;
+use ArrayAccess;
+use Phauthentic\Authentication\Authenticator\Storage\StorageInterface;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
+use Phauthentic\PasswordHasher\PasswordHasherInterface;
+use Phauthentic\Authentication\UrlChecker\UrlCheckerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 
 /**
  * Cookie Authenticator
@@ -31,73 +31,73 @@ use RuntimeException;
 class CookieAuthenticator extends AbstractAuthenticator implements PersistenceInterface
 {
 
-    use PasswordHasherTrait;
-    use UrlCheckerTrait;
+    use CredentialFieldsTrait;
+    use UrlAwareTrait;
 
     /**
-     * {@inheritDoc}
-     */
-    protected $_defaultConfig = [
-        'loginUrl' => null,
-        'urlChecker' => 'Authentication.Default',
-        'rememberMeField' => 'remember_me',
-        'fields' => [
-            IdentifierInterface::CREDENTIAL_USERNAME => 'username',
-            IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
-        ],
-        'cookie' => [
-            'name' => 'CookieAuth',
-            'expire' => null,
-            'path' => '/',
-            'domain' => '',
-            'secure' => false,
-            'httpOnly' => false
-        ],
-        'passwordHasher' => 'Authentication.Default'
-    ];
-
-    /**
-     * {@inheritDoc}
-     */
-    public function __construct(IdentifierCollection $identifiers, array $config = [])
-    {
-        $this->_checkCakeVersion();
-
-        parent::__construct($identifiers, $config);
-    }
-
-    /**
-     * Checks the CakePHP Version by looking for the cookie implementation
+     * Password hasher
      *
-     * @return void
+     * @var \Phauthentic\PasswordHasher\PasswordHasherInterface
      */
-    protected function _checkCakeVersion()
+    protected $passwordHasher;
+
+    /**
+     * Storage Implementation
+     *
+     * @var \Phauthentic\Authentication\Authenticator\Storage\StorageInterface
+     */
+    protected $storage;
+
+    /**
+     * "Remember me" field
+     *
+     * @var string
+     */
+    protected $rememberMeField = 'remember_me';
+
+    /**
+     * {@inheritDoc}
+     */
+    public function __construct(
+        IdentifierInterface $identifier,
+        StorageInterface $storage,
+        PasswordHasherInterface $passwordHasher,
+        UrlCheckerInterface $urlChecker
+    ) {
+        parent::__construct($identifier);
+
+        $this->storage = $storage;
+        $this->passwordHasher = $passwordHasher;
+        $this->urlChecker = $urlChecker;
+    }
+
+    /**
+     * Sets "remember me" form field name.
+     *
+     * @param string $field Field name.
+     * @return $this
+     */
+    public function setRememberMeField(string $field): self
     {
-        if (!class_exists(Cookie::class)) {
-            throw new RuntimeException('Install CakePHP version >=3.5.0 to use the `CookieAuthenticator`.');
-        }
+        $this->rememberMeField = $field;
+
+        return $this;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function authenticate(ServerRequestInterface $request, ResponseInterface $response)
+    public function authenticate(ServerRequestInterface $request): ResultInterface
     {
-        $cookies = $request->getCookieParams();
-        $cookieName = $this->getConfig('cookie.name');
-        if (!isset($cookies[$cookieName])) {
+        $token = $this->storage->read($request);
+
+        if ($token === null) {
             return new Result(null, Result::FAILURE_CREDENTIALS_MISSING, [
                 'Login credentials not found'
             ]);
         }
 
-        if (is_array($cookies[$cookieName])) {
-            $token = $cookies[$cookieName];
-        } else {
-            $token = json_decode($cookies[$cookieName], true);
-        }
-
-        if ($token === null || count($token) !== 2) {
+        if (!is_array($token) || count($token) !== 2) {
             return new Result(null, Result::FAILURE_CREDENTIALS_INVALID, [
                 'Cookie token is invalid.'
             ]);
@@ -105,43 +105,46 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
 
         list($username, $tokenHash) = $token;
 
-        $identity = $this->_identifier->identify(compact('username'));
+        $data = $this->identifier->identify([
+            IdentifierInterface::CREDENTIAL_USERNAME => $username,
+        ]);
 
-        if (empty($identity)) {
-            return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND, $this->_identifier->getErrors());
+        if (empty($data)) {
+            return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND, $this->identifier->getErrors());
         }
 
-        if (!$this->_checkToken($identity, $tokenHash)) {
+        if (!$this->checkToken($data, $tokenHash)) {
             return new Result(null, Result::FAILURE_CREDENTIALS_INVALID, [
                 'Cookie token does not match'
             ]);
         }
 
-        return new Result($identity, Result::SUCCESS);
+        return new Result($data, Result::SUCCESS);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $identity)
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, ArrayAccess $data): ResponseInterface
     {
-        $field = $this->getConfig('rememberMeField');
+        $field = $this->rememberMeField;
         $bodyData = $request->getParsedBody();
 
-        if (!$this->_checkUrl($request) || !is_array($bodyData) || empty($bodyData[$field])) {
-            return [
-                'request' => $request,
-                'response' => $response
-            ];
+        if (!$this->checkUrl($request) || !is_array($bodyData) || empty($bodyData[$field])) {
+            return $response;
         }
 
-        $value = $this->_createToken($identity);
-        $cookie = $this->_createCookie($value);
+        $token = $this->createToken($data);
 
-        return [
-            'request' => $request,
-            'response' => $response->withAddedHeader('Set-Cookie', $cookie->toHeaderValue())
-        ];
+        return $this->storage->write($request, $response, $token);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        return $this->storage->clear($request, $response);
     }
 
     /**
@@ -149,15 +152,15 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      *
      * Returns concatenated username and password hash.
      *
-     * @param array|\ArrayAccess $identity Identity data.
+     * @param \ArrayAccess $data Identity data.
      * @return string
      */
-    protected function _createPlainToken($identity)
+    protected function createPlainToken(ArrayAccess $data): string
     {
-        $usernameField = $this->getConfig('fields.username');
-        $passwordField = $this->getConfig('fields.password');
+        $usernameField = $this->credentialFields[IdentifierInterface::CREDENTIAL_USERNAME];
+        $passwordField = $this->credentialFields[IdentifierInterface::CREDENTIAL_PASSWORD];
 
-        return $identity[$usernameField] . $identity[$passwordField];
+        return $data[$usernameField] . $data[$passwordField];
     }
 
     /**
@@ -165,66 +168,30 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      *
      * Cookie token consists of a username and hashed username + password hash.
      *
-     * @param array|\ArrayAccess $identity Identity data.
+     * @param \ArrayAccess $data Identity data.
      * @return string
      */
-    protected function _createToken($identity)
+    protected function createToken(ArrayAccess $data): string
     {
-        $plain = $this->_createPlainToken($identity);
-        $hash = $this->getPasswordHasher()->hash($plain);
+        $plain = $this->createPlainToken($data);
+        $hash = $this->passwordHasher->hash($plain);
 
-        $usernameField = $this->getConfig('fields.username');
+        $usernameField = $this->credentialFields[IdentifierInterface::CREDENTIAL_USERNAME];
 
-        return json_encode([$identity[$usernameField], $hash]);
+        return (string)json_encode([$data[$usernameField], $hash]);
     }
 
     /**
      * Checks whether a token hash matches the identity data.
      *
-     * @param array|\ArrayAccess $identity Identity data.
+     * @param \ArrayAccess $data Identity data.
      * @param string $tokenHash Hashed part of a cookie token.
      * @return bool
      */
-    protected function _checkToken($identity, $tokenHash)
+    protected function checkToken(ArrayAccess $data, $tokenHash): bool
     {
-        $plain = $this->_createPlainToken($identity);
+        $plain = $this->createPlainToken($data);
 
-        return $this->getPasswordHasher()->check($plain, $tokenHash);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response)
-    {
-        $cookie = $this->_createCookie(null)->withExpired();
-
-        return [
-            'request' => $request,
-            'response' => $response->withAddedHeader('Set-Cookie', $cookie->toHeaderValue())
-        ];
-    }
-
-    /**
-     * Creates a cookie instance with configured defaults.
-     *
-     * @param mixed $value Cookie value.
-     * @return \Cake\Http\Cookie\CookieInterface
-     */
-    protected function _createCookie($value)
-    {
-        $data = $this->getConfig('cookie');
-
-        $cookie = new Cookie(
-            $data['name'],
-            $value,
-            $data['expire'],
-            $data['path'],
-            $data['domain'],
-            $data['secure'],
-            $data['httpOnly']
-        );
-
-        return $cookie;
+        return $this->passwordHasher->check($plain, $tokenHash);
     }
 }

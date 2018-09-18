@@ -1,4 +1,5 @@
-<?php
+<?php 
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,9 +13,9 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Identifier\Ldap;
+namespace Phauthentic\Authentication\Identifier\Ldap;
 
-use Authentication\Identifier\Ldap\AdapterInterface;
+use Phauthentic\Authentication\Identifier\Ldap\AdapterInterface;
 use ErrorException;
 use RuntimeException;
 
@@ -32,7 +33,7 @@ class ExtensionAdapter implements AdapterInterface
     /**
      * LDAP Object
      *
-     * @var object|null
+     * @var resource|null
      */
     protected $_connection;
 
@@ -94,7 +95,7 @@ class ExtensionAdapter implements AdapterInterface
     public function connect($host, $port, $options)
     {
         $this->_setErrorHandler();
-        $this->_connection = ldap_connect($host, $port);
+        $this->_connection = ldap_connect($host, $port) ?: null;
         $this->_unsetErrorHandler();
 
         if (is_array($options)) {
@@ -151,7 +152,9 @@ class ExtensionAdapter implements AdapterInterface
     public function unbind()
     {
         $this->_setErrorHandler();
-        ldap_unbind($this->_connection);
+        if ($this->_connection) {
+            ldap_unbind($this->_connection);
+        }
         $this->_unsetErrorHandler();
 
         $this->_connection = null;

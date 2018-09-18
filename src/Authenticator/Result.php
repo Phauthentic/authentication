@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,7 +13,7 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
 use ArrayAccess;
 use InvalidArgumentException;
@@ -27,14 +28,14 @@ class Result implements ResultInterface
      *
      * @var string
      */
-    protected $_status;
+    protected $status;
 
     /**
      * The identity data used in the authentication attempt
      *
-     * @var null|array|\ArrayAccess
+     * @var null|\ArrayAccess
      */
-    protected $_data;
+    protected $data;
 
     /**
      * An array of string reasons why the authentication attempt was unsuccessful
@@ -43,33 +44,25 @@ class Result implements ResultInterface
      *
      * @var array
      */
-    protected $_errors = [];
+    protected $errors = [];
 
     /**
      * Sets the result status, identity, and failure messages
      *
-     * @param null|array|\ArrayAccess $data The identity data
+     * @param null|\ArrayAccess $data The identity data
      * @param string $status Status constant equivalent.
      * @param array $messages Messages.
      * @throws \InvalidArgumentException When invalid identity data is passed.
      */
-    public function __construct($data, $status, array $messages = [])
+    public function __construct(?ArrayAccess $data, $status, array $messages = [])
     {
         if ($status === self::SUCCESS && empty($data)) {
             throw new InvalidArgumentException('Identity data can not be empty with status success.');
         }
-        if ($data !== null && !is_array($data) && !($data instanceof ArrayAccess)) {
-            $type = is_object($data) ? get_class($data) : gettype($data);
-            $message = sprintf(
-                'Identity data must be `null`, an `array` or implement `ArrayAccess` interface, `%s` given.',
-                $type
-            );
-            throw new InvalidArgumentException($message);
-        }
 
-        $this->_status = $status;
-        $this->_data = $data;
-        $this->_errors = $messages;
+        $this->status = $status;
+        $this->data = $data;
+        $this->errors = $messages;
     }
 
     /**
@@ -77,9 +70,9 @@ class Result implements ResultInterface
      *
      * @return bool
      */
-    public function isValid()
+    public function isValid(): bool
     {
-        return $this->_status === ResultInterface::SUCCESS;
+        return $this->status === ResultInterface::SUCCESS;
     }
 
     /**
@@ -87,19 +80,19 @@ class Result implements ResultInterface
      *
      * @return string
      */
-    public function getStatus()
+    public function getStatus(): string
     {
-        return $this->_status;
+        return $this->status;
     }
 
     /**
      * Returns the identity data used in the authentication attempt.
      *
-     * @return \ArrayAccess|array|null
+     * @return \ArrayAccess|null
      */
-    public function getData()
+    public function getData(): ?ArrayAccess
     {
-        return $this->_data;
+        return $this->data;
     }
 
     /**
@@ -109,8 +102,8 @@ class Result implements ResultInterface
      *
      * @return array
      */
-    public function getErrors()
+    public function getErrors(): array
     {
-        return $this->_errors;
+        return $this->errors;
     }
 }

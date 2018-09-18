@@ -12,36 +12,46 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Identifier;
+namespace Phauthentic\Authentication\Test\TestCase\Identifier;
 
 use ArrayObject;
-use Authentication\Identifier\Resolver\ResolverInterface;
-use Authentication\Identifier\TokenIdentifier;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
+use Phauthentic\Authentication\Identifier\Resolver\ResolverInterface;
+use Phauthentic\Authentication\Identifier\TokenIdentifier;
+use PHPUnit\Framework\TestCase;
 
 class TokenIdentifierTest extends TestCase
 {
+
+    /**
+     * Resolver Mock
+     */
+    protected $resolver;
+
+    /**
+     * @inheritDoc
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->resolver = $this->createMock(ResolverInterface::class);
+    }
 
     /**
      * testIdentify
      *
      * @return void
      */
-    public function testIdentify()
+    public function testIdentify(): void
     {
-        $resolver = $this->createMock(ResolverInterface::class);
-
-        $identifier = new TokenIdentifier([
-            'dataField' => 'user',
-            'tokenField' => 'username'
-        ]);
-        $identifier->setResolver($resolver);
+        $identifier = (new TokenIdentifier($this->resolver))
+            ->setDataField('user')
+            ->setTokenField('username');
 
         $user = new ArrayObject([
             'username' => 'larry'
         ]);
 
-        $resolver->expects($this->once())
+        $this->resolver->expects($this->once())
             ->method('find')
             ->with([
                 'username' => 'larry'
@@ -57,14 +67,11 @@ class TokenIdentifierTest extends TestCase
      *
      * @return void
      */
-    public function testIdentifyMissingData()
+    public function testIdentifyMissingData(): void
     {
-        $resolver = $this->createMock(ResolverInterface::class);
+        $identifier = new TokenIdentifier($this->resolver);
 
-        $identifier = new TokenIdentifier();
-        $identifier->setResolver($resolver);
-
-        $resolver->expects($this->never())
+        $this->resolver->expects($this->never())
             ->method('find');
 
         $result = $identifier->identify(['user' => 'larry']);

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,7 +13,7 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -33,7 +34,7 @@ interface StatelessInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
      * @return void
-     * @throws \Authentication\Authenticator\UnauthorizedException
+     * @throws \Authentication\Authenticator\Exception\UnauthorizedException
      */
-    public function unauthorizedChallenge(ServerRequestInterface $request);
+    public function unauthorizedChallenge(ServerRequestInterface $request): void;
 }

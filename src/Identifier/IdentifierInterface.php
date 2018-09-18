@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,7 +13,9 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Identifier;
+namespace Phauthentic\Authentication\Identifier;
+
+use ArrayAccess;
 
 interface IdentifierInterface
 {
@@ -28,14 +31,14 @@ interface IdentifierInterface
      * Identifies an user or service by the passed credentials
      *
      * @param array $credentials Authentication credentials
-     * @return \ArrayAccess|array|null
+     * @return \ArrayAccess|null
      */
-    public function identify(array $credentials);
+    public function identify(array $credentials): ?ArrayAccess;
 
     /**
      * Gets a list of errors happened in the identification process
      *
      * @return array
      */
-    public function getErrors();
+    public function getErrors(): array;
 }

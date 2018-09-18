@@ -12,14 +12,12 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Authenticator;
+namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
-use Authentication\Authenticator\AuthenticatorCollection;
-use Authentication\Authenticator\AuthenticatorInterface;
-use Authentication\Authenticator\FormAuthenticator;
-use Authentication\Identifier\IdentifierCollection;
-use Cake\TestSuite\TestCase;
-use TestApp\Authentication\Identifier\InvalidIdentifier;
+use Phauthentic\Authentication\Authenticator\AuthenticatorCollection;
+use Phauthentic\Authentication\Authenticator\AuthenticatorInterface;
+use Phauthentic\Authentication\Identifier\IdentifierCollection;
+use PHPUnit\Framework\TestCase;
 
 class AuthenticatorCollectionTest extends TestCase
 {
@@ -31,25 +29,10 @@ class AuthenticatorCollectionTest extends TestCase
      */
     public function testConstruct()
     {
-        $identifiers = $this->createMock(IdentifierCollection::class);
-        $collection = new AuthenticatorCollection($identifiers, [
-            'Authentication.Form'
-        ]);
-        $result = $collection->get('Form');
-        $this->assertInstanceOf(FormAuthenticator::class, $result);
-    }
+        $authenticator = $this->createMock(AuthenticatorInterface::class);
+        $collection = new AuthenticatorCollection([$authenticator]);
 
-    /**
-     * testLoad
-     *
-     * @return void
-     */
-    public function testLoad()
-    {
-        $identifiers = $this->createMock(IdentifierCollection::class);
-        $collection = new AuthenticatorCollection($identifiers);
-        $result = $collection->load('Authentication.Form');
-        $this->assertInstanceOf(FormAuthenticator::class, $result);
+        $this->assertFalse($collection->isEmpty());
     }
 
     /**
@@ -57,36 +40,14 @@ class AuthenticatorCollectionTest extends TestCase
      *
      * @return void
      */
-    public function testSet()
+    public function testAdd()
     {
-        $identifiers = $this->createMock(IdentifierCollection::class);
         $authenticator = $this->createMock(AuthenticatorInterface::class);
 
-        $collection = new AuthenticatorCollection($identifiers);
-        $collection->set('Form', $authenticator);
-        $this->assertSame($authenticator, $collection->get('Form'));
-    }
+        $collection = new AuthenticatorCollection();
+        $collection->add($authenticator);
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Authenticator class `Does-not-exist` was not found.
-     */
-    public function testLoadException()
-    {
-        $identifiers = $this->createMock(IdentifierCollection::class);
-        $collection = new AuthenticatorCollection($identifiers);
-        $collection->load('Does-not-exist');
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Authenticator class `TestApp\Authentication\Identifier\InvalidIdentifier`
-     */
-    public function testLoadExceptionInterfaceNotImplemented()
-    {
-        $identifiers = $this->createMock(IdentifierCollection::class);
-        $collection = new AuthenticatorCollection($identifiers);
-        $collection->load(InvalidIdentifier::class);
+        $this->assertFalse($collection->isEmpty());
     }
 
     /**
@@ -97,10 +58,10 @@ class AuthenticatorCollectionTest extends TestCase
     public function testIsEmpty()
     {
         $identifiers = $this->createMock(IdentifierCollection::class);
-        $collection = new AuthenticatorCollection($identifiers);
+        $collection = new AuthenticatorCollection();
         $this->assertTrue($collection->isEmpty());
 
-        $collection->load('Authentication.Form');
+        $collection->add($this->createMock(AuthenticatorInterface::class));
         $this->assertFalse($collection->isEmpty());
     }
 
@@ -111,11 +72,10 @@ class AuthenticatorCollectionTest extends TestCase
      */
     public function testIterator()
     {
-        $identifiers = $this->createMock(IdentifierCollection::class);
         $authenticator = $this->createMock(AuthenticatorInterface::class);
 
-        $collection = new AuthenticatorCollection($identifiers);
-        $collection->set('Form', $authenticator);
+        $collection = new AuthenticatorCollection();
+        $collection->add($authenticator);
 
         $this->assertContains($authenticator, $collection);
     }

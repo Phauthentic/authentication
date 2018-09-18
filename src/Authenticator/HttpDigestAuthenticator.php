@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
@@ -11,10 +12,9 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
-use Authentication\Identifier\IdentifierInterface;
-use Psr\Http\Message\ResponseInterface;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -41,48 +41,110 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
 {
 
     /**
-     * Constructor
+     * A string that must be returned unchanged by clients. Defaults to `md5($config['realm'])`
      *
-     * Besides the keys specified in AbstractAuthenticator::$_defaultConfig,
-     * HttpDigestAuthenticate uses the following extra keys:
-     *
-     * - `realm` The realm authentication is for, Defaults to the servername.
-     * - `nonceLifetime` The number of seconds that nonces are valid for. Defaults to 300.
-     * - `qop` Defaults to 'auth', no other values are supported at this time.
-     * - `opaque` A string that must be returned unchanged by clients.
-     *    Defaults to `md5($config['realm'])`
-     *
-     * @param \Authentication\Identifier\IdentifierInterface $identifier Identifier instance.
-     * @param array $config Configuration settings.
+     * @var string|null
      */
-    public function __construct(IdentifierInterface $identifier, array $config = [])
-    {
-        $this->setConfig([
-            'realm' => null,
-            'qop' => 'auth',
-            'nonceLifetime' => 300,
-            'opaque' => null,
-        ]);
+    protected $opaque;
 
-        $this->setConfig($config);
-        parent::__construct($identifier, $config);
+    /**
+     * The number of seconds that nonces are valid for. Defaults to 300.
+     *
+     * @var int
+     */
+    protected $nonceLifetime = 300;
+
+    /**
+     * @var string
+     */
+    protected $secret = '';
+
+    /**
+     * Defaults to 'auth', no other values are supported at this time.
+     *
+     * @var string
+     */
+    protected $qop = 'auth';
+
+    /**
+     * Sets the secret
+     *
+     * @param string $secret Secret
+     * @return $this
+     */
+    public function setSecret(string $secret): self
+    {
+        $this->secret = $secret;
+
+        return $this;
+    }
+
+    /**
+     * Sets the Qop
+     *
+     * @param string $qop Qop
+     * @return $this
+     */
+    public function setQop(string $qop): self
+    {
+        $this->qop = $qop;
+
+        return $this;
+    }
+
+    /**
+     * Sets the Nonce Lifetime
+     *
+     * @param int $lifeTime Lifetime
+     * @return $this
+     */
+    public function setNonceLifetime(int $lifeTime): self
+    {
+        $this->nonceLifetime = $lifeTime;
+
+        return $this;
+    }
+
+    /**
+     * Sets the Opaque
+     *
+     * @param string|null $opaque Opaque
+     * @return $this
+     */
+    public function setOpaque(?string $opaque): self
+    {
+        $this->opaque = $opaque;
+
+        return $this;
+    }
+
+    /**
+     * Sets the password field name
+     *
+     * @param string $field Field name
+     * @return $this
+     */
+    public function setPasswordField(string $field)
+    {
+        $this->credentialFields[IdentifierInterface::CREDENTIAL_PASSWORD] = $field;
+
+        return $this;
     }
 
     /**
      * Get a user based on information in the request. Used by cookie-less auth for stateless clients.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @param \Psr\Http\Message\ResponseInterface $response Unused response object.
-     * @return \Authentication\Authenticator\ResultInterface
+     * @return \Phauthentic\Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request, ResponseInterface $response)
+    public function authenticate(ServerRequestInterface $request): ResultInterface
     {
         $digest = $this->_getDigest($request);
         if ($digest === null) {
             return new Result(null, Result::FAILURE_CREDENTIALS_MISSING);
         }
 
-        $user = $this->_identifier->identify([
+        $user = $this->identifier->identify([
             IdentifierInterface::CREDENTIAL_USERNAME => $digest['username']
         ]);
 
@@ -90,11 +152,11 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
             return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
         }
 
-        if (!$this->validNonce($digest['nonce'])) {
+        if (!$this->isNonceValid($digest['nonce'])) {
             return new Result(null, Result::FAILURE_CREDENTIALS_INVALID);
         }
 
-        $field = $this->_config['fields'][IdentifierInterface::CREDENTIAL_PASSWORD];
+        $field = $this->credentialFields[IdentifierInterface::CREDENTIAL_PASSWORD];
         $password = $user[$field];
 
         $server = $request->getServerParams();
@@ -116,7 +178,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
      * @return array|null Array of digest information.
      */
-    protected function _getDigest(ServerRequestInterface $request)
+    protected function _getDigest(ServerRequestInterface $request): ?array
     {
         $server = $request->getServerParams();
         $digest = empty($server['PHP_AUTH_DIGEST']) ? null : $server['PHP_AUTH_DIGEST'];
@@ -139,7 +201,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param string $digest The raw digest authentication headers.
      * @return array|null An array of digest authentication headers
      */
-    public function parseAuthData($digest)
+    public function parseAuthData($digest): ?array
     {
         if (substr($digest, 0, 7) === 'Digest ') {
             $digest = substr($digest, 7);
@@ -168,7 +230,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param string $method Request method
      * @return string Response hash
      */
-    public function generateResponseHash($digest, $password, $method)
+    public function generateResponseHash($digest, $password, $method): string
     {
         return md5(
             $password .
@@ -185,7 +247,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param string $realm The realm the password is for.
      * @return string the hashed password that can later be used with Digest authentication.
      */
-    public static function password($username, $password, $realm)
+    public static function generatePasswordHash(string $username, string $password, string $realm): string
     {
         return md5($username . ':' . $realm . ':' . $password);
     }
@@ -196,20 +258,20 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
      * @return array Headers for logging in.
      */
-    protected function loginHeaders(ServerRequestInterface $request)
+    protected function loginHeaders(ServerRequestInterface $request): array
     {
         $server = $request->getServerParams();
-        $realm = $this->_config['realm'] ?: $server['SERVER_NAME'];
+        $realm = $this->realm ?: $server['SERVER_NAME'];
 
         $options = [
             'realm' => $realm,
-            'qop' => $this->_config['qop'],
+            'qop' => $this->qop,
             'nonce' => $this->generateNonce(),
-            'opaque' => $this->_config['opaque'] ?: md5($realm)
+            'opaque' => $this->opaque ?: md5($realm)
         ];
 
         $digest = $this->_getDigest($request);
-        if ($digest !== null && isset($digest['nonce']) && !$this->validNonce($digest['nonce'])) {
+        if ($digest !== null && isset($digest['nonce']) && !$this->isNonceValid($digest['nonce'])) {
             $options['stale'] = true;
         }
 
@@ -231,11 +293,10 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      *
      * @return string
      */
-    protected function generateNonce()
+    protected function generateNonce(): string
     {
-        $expiryTime = microtime(true) + $this->getConfig('nonceLifetime');
-        $secret = $this->getConfig('secret');
-        $signatureValue = hash_hmac('sha1', $expiryTime . ':' . $secret, $secret);
+        $expiryTime = microtime(true) + $this->nonceLifetime;
+        $signatureValue = hash_hmac('sha1', $expiryTime . ':' . $this->secret, $this->secret);
         $nonceValue = $expiryTime . ':' . $signatureValue;
 
         return base64_encode($nonceValue);
@@ -247,7 +308,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param string $nonce The nonce value to check.
      * @return bool
      */
-    protected function validNonce($nonce)
+    protected function isNonceValid(string $nonce): bool
     {
         $value = base64_decode($nonce);
         if ($value === false) {
@@ -261,7 +322,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
         if ($expires < microtime(true)) {
             return false;
         }
-        $secret = $this->getConfig('secret');
+        $secret = $this->secret;
         $check = hash_hmac('sha1', $expires . ':' . $secret, $secret);
 
         return hash_equals($check, $checksum);

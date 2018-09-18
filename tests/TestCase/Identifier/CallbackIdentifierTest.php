@@ -12,20 +12,20 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Identifier;
+namespace Phauthentic\Authentication\Test\TestCase\Identifier;
 
 use ArrayAccess;
-use Authentication\Identifier\CallbackIdentifier;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
-use Cake\ORM\Entity;
-use stdClass;
+use ArrayObject;
+use Phauthentic\Authentication\Identifier\CallbackIdentifier;
+use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class MyCallback
 {
 
     public static function callme($data)
     {
-        return new Entity();
+        return new ArrayObject();
     }
 }
 
@@ -36,19 +36,17 @@ class CallbackIdentifierTest extends TestCase
      *
      * @return void
      */
-    public function testIdentify()
+    public function testIdentify(): void
     {
         $callback = function ($data) {
             if (isset($data['username']) && $data['username'] === 'florian') {
-                return new Entity($data);
+                return new ArrayObject($data);
             }
 
             return null;
         };
 
-        $identifier = new CallbackIdentifier([
-            'callback' => $callback
-        ]);
+        $identifier = new CallbackIdentifier($callback);
 
         $result = $identifier->identify([]);
         $this->assertNull($result);
@@ -65,61 +63,31 @@ class CallbackIdentifierTest extends TestCase
      *
      * @return void
      */
-    public function testValidCallable()
+    public function testValidCallable(): void
     {
-        $identifier = new CallbackIdentifier([
-            'callback' => function () {
-                return new Entity();
-            }
-        ]);
+        $identifier = new CallbackIdentifier(function () {
+            return new ArrayObject();
+        });
         $result = $identifier->identify([]);
 
         $this->assertInstanceOf(ArrayAccess::class, $result);
 
-        $identifier = new CallbackIdentifier([
-            'callback' => [MyCallback::class, 'callme']
-        ]);
+        $identifier = new CallbackIdentifier([MyCallback::class, 'callme']);
         $result = $identifier->identify([]);
 
         $this->assertInstanceOf(ArrayAccess::class, $result);
     }
 
     /**
-     * testInvalidCallbackType
-     *
-     * @expectedException \InvalidArgumentException
-     */
-    public function testInvalidCallbackTypeString()
-    {
-        new CallbackIdentifier([
-            'callback' => 'no'
-        ]);
-    }
-
-    /**
      * testInvalidCallbackTypeObject
      *
-     * @expectedException \InvalidArgumentException
+     * @expectedException RuntimeException
      */
-    public function testInvalidCallbackTypeObject()
+    public function testInvalidReturnValue(): void
     {
-        new CallbackIdentifier([
-            'callback' => new stdClass()
-        ]);
-    }
-
-    /**
-     * testInvalidCallbackTypeObject
-     *
-     * @expectedException \RuntimeException
-     */
-    public function testInvalidReturnValue()
-    {
-        $identifier = new CallbackIdentifier([
-            'callback' => function ($data) {
-                return 'no';
-            }
-        ]);
+        $identifier = new CallbackIdentifier(function ($data) {
+            return 'no';
+        });
         $identifier->identify([]);
     }
 }
