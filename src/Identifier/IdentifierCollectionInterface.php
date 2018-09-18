@@ -26,7 +26,7 @@ interface IdentifierCollectionInterface extends IteratorAggregate
     /**
      * Adds an identifier to the collection
      *
-     * @param \Authentication\Identifier\IdentifierInterface $identifier Identifier
+     * @param \Phauthentic\Authentication\Identifier\IdentifierInterface $identifier Identifier
      * @return void
      */
     public function add(IdentifierInterface $identifier);

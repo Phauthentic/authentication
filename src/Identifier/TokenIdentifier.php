@@ -27,7 +27,7 @@ class TokenIdentifier extends AbstractIdentifier
     /**
      * Resolver
      *
-     * @var \Authentication\Identifier\Resolver\ResolverInterface
+     * @var \Phauthentic\Authentication\Identifier\Resolver\ResolverInterface
      */
     protected $resolver;
 

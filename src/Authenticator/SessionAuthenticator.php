@@ -40,7 +40,7 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
     protected $verify = false;
 
     /**
-     * @var \Authentication\Authenticator\Storage\StorageInterface
+     * @var \Phauthentic\Authentication\Authenticator\Storage\StorageInterface
      */
     protected $storage;
 

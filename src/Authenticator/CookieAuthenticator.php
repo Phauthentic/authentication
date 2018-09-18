@@ -44,7 +44,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
     /**
      * Storage Implementation
      *
-     * @var \Authentication\Authenticator\Storage\StorageInterface
+     * @var \Phauthentic\Authentication\Authenticator\Storage\StorageInterface
      */
     protected $storage;
 
