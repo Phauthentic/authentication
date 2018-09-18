@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,46 +13,25 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Identifier;
-
-use Cake\Core\InstanceConfigTrait;
+namespace Phauthentic\Authentication\Identifier;
 
 abstract class AbstractIdentifier implements IdentifierInterface
 {
-
-    use InstanceConfigTrait;
-
-    /**
-     * Default configuration
-     *
-     * @var array
-     */
-    protected $_defaultConfig = [];
 
     /**
      * Errors
      *
      * @var array
      */
-    protected $_errors = [];
-
-    /**
-     * Constructor
-     *
-     * @param array $config Configuration
-     */
-    public function __construct(array $config = [])
-    {
-        $this->setConfig($config);
-    }
+    protected $errors = [];
 
     /**
      * Returns errors
      *
      * @return array
      */
-    public function getErrors()
+    public function getErrors(): array
     {
-        return $this->_errors;
+        return $this->errors;
     }
 }

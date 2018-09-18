@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
@@ -11,10 +12,11 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
-use Authentication\Identifier\IdentifierInterface;
-use Psr\Http\Message\ResponseInterface;
+use ArrayAccess;
+use Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -25,15 +27,36 @@ use Psr\Http\Message\ServerRequestInterface;
 class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessInterface
 {
 
+    use CredentialFieldsTrait;
+
+    /**
+     * Realm
+     *
+     * @var string|null
+     */
+    protected $realm;
+
+    /**
+     * Sets the realm
+     *
+     * @param string|null $realm Realm
+     * @return $this
+     */
+    public function setRealm(?string $realm): self
+    {
+        $this->realm = $realm;
+
+        return $this;
+    }
+
     /**
      * Authenticate a user using HTTP auth. Will use the configured User model and attempt a
      * login using HTTP auth.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request to authenticate with.
-     * @param \Psr\Http\Message\ResponseInterface $response The response to add headers to.
-     * @return \Authentication\Authenticator\ResultInterface
+     * @return \Phauthentic\Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request, ResponseInterface $response)
+    public function authenticate(ServerRequestInterface $request): ResultInterface
     {
         $user = $this->getUser($request);
 
@@ -48,9 +71,9 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
      * Get a user based on information in the request. Used by cookie-less auth for stateless clients.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request Request object.
-     * @return \ArrayAccess|array|null User entity or null on failure.
+     * @return \ArrayAccess|null User entity or null on failure.
      */
-    public function getUser(ServerRequestInterface $request)
+    public function getUser(ServerRequestInterface $request): ?ArrayAccess
     {
         $server = $request->getServerParams();
         if (!isset($server['PHP_AUTH_USER']) || !isset($server['PHP_AUTH_PW'])) {
@@ -64,7 +87,7 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
             return null;
         }
 
-        return $this->_identifier->identify([
+        return $this->identifier->identify([
             IdentifierInterface::CREDENTIAL_USERNAME => $username,
             IdentifierInterface::CREDENTIAL_PASSWORD => $password,
         ]);
@@ -75,9 +98,9 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request A request object.
      * @return void
-     * @throws \Authentication\Authenticator\UnauthorizedException
+     * @throws \Authentication\Authenticator\Exception\UnauthorizedException
      */
-    public function unauthorizedChallenge(ServerRequestInterface $request)
+    public function unauthorizedChallenge(ServerRequestInterface $request): void
     {
         throw new UnauthorizedException($this->loginHeaders($request), '');
     }
@@ -88,10 +111,10 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
      * @param \Psr\Http\Message\ServerRequestInterface $request Request object.
      * @return array Headers for logging in.
      */
-    protected function loginHeaders(ServerRequestInterface $request)
+    protected function loginHeaders(ServerRequestInterface $request): array
     {
         $server = $request->getServerParams();
-        $realm = $this->getConfig('realm') ?: $server['SERVER_NAME'];
+        $realm = $this->realm ?: $server['SERVER_NAME'];
 
         return ['WWW-Authenticate' => sprintf('Basic realm="%s"', $realm)];
     }

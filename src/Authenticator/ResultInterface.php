@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,7 +13,9 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
+
+use ArrayAccess;
 
 interface ResultInterface
 {
@@ -46,21 +49,21 @@ interface ResultInterface
      *
      * @return bool
      */
-    public function isValid();
+    public function isValid(): bool;
 
     /**
      * Get the result status for this authentication attempt.
      *
      * @return string
      */
-    public function getStatus();
+    public function getStatus(): string;
 
     /**
      * Returns the identity data used in the authentication attempt.
      *
-     * @return \ArrayAccess|array|null
+     * @return \ArrayAccess|null
      */
-    public function getData();
+    public function getData(): ?ArrayAccess;
 
     /**
      * Returns an array of string reasons why the authentication attempt was unsuccessful.
@@ -69,5 +72,5 @@ interface ResultInterface
      *
      * @return array
      */
-    public function getErrors();
+    public function getErrors(): array;
 }

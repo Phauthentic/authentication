@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,9 +13,10 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Identifier;
+namespace Phauthentic\Authentication\Identifier;
 
-use Authentication\Identifier\Resolver\ResolverAwareTrait;
+use ArrayAccess;
+use Phauthentic\Authentication\Identifier\Resolver\ResolverInterface;
 
 /**
  * Token Identifier
@@ -22,33 +24,76 @@ use Authentication\Identifier\Resolver\ResolverAwareTrait;
 class TokenIdentifier extends AbstractIdentifier
 {
 
-    use ResolverAwareTrait;
+    /**
+     * Resolver
+     *
+     * @var \Phauthentic\Authentication\Identifier\Resolver\ResolverInterface
+     */
+    protected $resolver;
 
     /**
-     * Default configuration.
+     * Token Field
      *
-     * @var array
+     * @var string
      */
-    protected $_defaultConfig = [
-        'tokenField' => 'token',
-        'dataField' => self::CREDENTIAL_TOKEN,
-        'resolver' => 'Authentication.Orm'
-    ];
+    protected $tokenField = 'token';
+
+    /**
+     * Data field
+     *
+     * @var string|null
+     */
+    protected $dataField = self::CREDENTIAL_TOKEN;
+
+    /**
+     * Constructor
+     *
+     * @param ResolverInterface $resolver Resolver instance.
+     */
+    public function __construct(ResolverInterface $resolver)
+    {
+        $this->resolver = $resolver;
+    }
+
+    /**
+     * Sets data field
+     *
+     * @param null|string $field Field name
+     * @return $this
+     */
+    public function setDataField(?string $field): self
+    {
+        $this->dataField = $field;
+
+        return $this;
+    }
+
+    /**
+     * Sets the token field
+     *
+     * @param string $field Field name
+     * @return $this
+     */
+    public function setTokenField(string $field): self
+    {
+        $this->tokenField = $field;
+
+        return $this;
+    }
 
     /**
      * {@inheritDoc}
      */
-    public function identify(array $data)
+    public function identify(array $data): ?ArrayAccess
     {
-        $dataField = $this->getConfig('dataField');
-        if (!isset($data[$dataField])) {
+        if (!isset($data[$this->dataField])) {
             return null;
         }
 
         $conditions = [
-            $this->getConfig('tokenField') => $data[$dataField]
+            $this->tokenField => $data[$this->dataField]
         ];
 
-        return $this->getResolver()->find($conditions);
+        return $this->resolver->find($conditions);
     }
 }

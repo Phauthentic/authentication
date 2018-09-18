@@ -12,11 +12,11 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Authenticator;
+namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
-use Authentication\Authenticator\AbstractAuthenticator;
-use Authentication\Identifier\IdentifierInterface;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
+use Phauthentic\Authentication\Authenticator\AbstractAuthenticator;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
+use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 
 class AbstractAuthenticatorTest extends TestCase
 {
@@ -30,21 +30,6 @@ class AbstractAuthenticatorTest extends TestCase
     {
         $identifier = $this->createMock(IdentifierInterface::class);
         $authenticator = $this->getMockForAbstractClass(AbstractAuthenticator::class, [$identifier]);
-
-        $this->assertSame($identifier, $authenticator->getIdentifier());
-    }
-
-    /**
-     * testSetIdentifier
-     *
-     * @return void
-     */
-    public function testSetIdentifier()
-    {
-        $authenticator = $this->getMockForAbstractClass(AbstractAuthenticator::class, [], '', false);
-
-        $identifier = $this->createMock(IdentifierInterface::class);
-        $authenticator->setIdentifier($identifier);
 
         $this->assertSame($identifier, $authenticator->getIdentifier());
     }

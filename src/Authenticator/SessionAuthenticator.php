@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
@@ -11,11 +12,12 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
 use ArrayAccess;
 use ArrayObject;
-use Authentication\Identifier\IdentifierInterface;
+use Phauthentic\Authentication\Authenticator\Storage\StorageInterface;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -26,45 +28,91 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
 {
 
     /**
-     * Default config for this object.
-     * - `fields` The fields to use to verify a user by.
-     * - `sessionKey` Session key.
-     * - `identify` Whether or not to identify user data stored in a session.
-     *
      * @var array
      */
-    protected $_defaultConfig = [
-        'fields' => [
-            IdentifierInterface::CREDENTIAL_USERNAME => 'username'
-        ],
-        'sessionKey' => 'Auth',
-        'identify' => false,
-        'identityAttribute' => 'identity',
+    protected $credentialFields = [
+        IdentifierInterface::CREDENTIAL_USERNAME => 'username',
     ];
+
+    /**
+     * @var bool
+     */
+    protected $verify = false;
+
+    /**
+     * @var \Phauthentic\Authentication\Authenticator\Storage\StorageInterface
+     */
+    protected $storage;
+
+    /**
+     * {@inheritDoc}
+     */
+    public function __construct(
+        IdentifierInterface $identifiers,
+        StorageInterface $storage
+    ) {
+        parent::__construct($identifiers);
+
+        $this->storage = $storage;
+    }
+
+    /**
+     * Set the fields to use to verify a user by.
+     *
+     * @param array $fields Credential fields.
+     * @return $this
+     */
+    public function setCredentialFields(array $fields): self
+    {
+        $this->credentialFields = $fields;
+
+        return $this;
+    }
+
+    /**
+     * Enable identity verification after it is retrieved from the session storage.
+     *
+     * @return $this
+     */
+    public function enableVerification(): self
+    {
+        $this->verify = true;
+
+        return $this;
+    }
+
+    /**
+     * Disable identity verification after it is retrieved from the session storage.
+     *
+     * @return $this
+     */
+    public function disableVerification(): self
+    {
+        $this->verify = false;
+
+        return $this;
+    }
 
     /**
      * Authenticate a user using session data.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request to authenticate with.
-     * @param \Psr\Http\Message\ResponseInterface $response The response to add headers to.
-     * @return \Authentication\Authenticator\ResultInterface
+     * @return \Phauthentic\Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request, ResponseInterface $response)
+    public function authenticate(ServerRequestInterface $request): ResultInterface
     {
-        $sessionKey = $this->getConfig('sessionKey');
-        $session = $request->getAttribute('session');
-        $user = $session->read($sessionKey);
+        $user = $this->storage->read($request);
 
         if (empty($user)) {
             return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
         }
 
-        if ($this->getConfig('identify') === true) {
+        if ($this->verify) {
             $credentials = [];
-            foreach ($this->getConfig('fields') as $key => $field) {
+            foreach ($this->credentialFields as $key => $field) {
                 $credentials[$key] = $user[$field];
             }
-            $user = $this->_identifier->identify($credentials);
+            $user = $this->identifier->identify($credentials);
 
             if (empty($user)) {
                 return new Result(null, Result::FAILURE_CREDENTIALS_INVALID);
@@ -81,28 +129,16 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
     /**
      * {@inheritDoc}
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $identity)
+    public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $sessionKey = $this->getConfig('sessionKey');
-        $request->getAttribute('session')->write($sessionKey, $identity);
-
-        return [
-            'request' => $request,
-            'response' => $response,
-        ];
+        return $this->storage->clear($request, $response);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response)
+    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, ArrayAccess $data): ResponseInterface
     {
-        $sessionKey = $this->getConfig('sessionKey');
-        $request->getAttribute('session')->delete($sessionKey);
-
-        return [
-            'request' => $request->withoutAttribute($this->getConfig('identityAttribute')),
-            'response' => $response
-        ];
+        return $this->storage->write($request, $response, $data);
     }
 }

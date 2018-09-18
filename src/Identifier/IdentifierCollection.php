@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,98 +13,64 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Identifier;
+namespace Phauthentic\Authentication\Identifier;
 
-use Authentication\AbstractCollection;
-use Cake\Core\App;
-use RuntimeException;
+use ArrayIterator;
+use Traversable;
 
-class IdentifierCollection extends AbstractCollection implements IdentifierInterface
+/**
+ * Identifier Collection
+ */
+class IdentifierCollection implements IdentifierCollectionInterface
 {
 
     /**
-     * Errors
+     * Identifier list
      *
      * @var array
      */
-    protected $_errors = [];
+    protected $identifiers;
 
     /**
-     * Identifies an user or service by the passed credentials
+     * Constructor
      *
-     * @param array $credentials Authentication credentials
-     * @return \ArrayAccess|array|null
+     * @param iterable $identifiers Identifier objects.
      */
-    public function identify(array $credentials)
+    public function __construct(iterable $identifiers = [])
     {
-        /** @var \Authentication\Identifier\IdentifierInterface $identifier */
-        foreach ($this->_loaded as $name => $identifier) {
-            $result = $identifier->identify($credentials);
-            if ($result) {
-                return $result;
-            }
-            $this->_errors[$name] = $identifier->getErrors();
+        foreach ($identifiers as $identifier) {
+            $this->add($identifier);
         }
-
-        return null;
     }
 
     /**
-     * Creates identifier instance.
+     * Adds an identifier to the collection
      *
-     * @param string $className Identifier class.
-     * @param string $alias Identifier alias.
-     * @param array $config Config array.
-     * @return \Authentication\Identifier\IdentifierInterface
-     * @throws \RuntimeException
-     */
-    protected function _create($className, $alias, $config)
-    {
-        $identifier = new $className($config);
-        if (!($identifier instanceof IdentifierInterface)) {
-            throw new RuntimeException(sprintf(
-                'Identifier class `%s` must implement `%s`.',
-                $className,
-                IdentifierInterface::class
-            ));
-        }
-
-        return $identifier;
-    }
-
-    /**
-     * Get errors
-     *
-     * @return array
-     */
-    public function getErrors()
-    {
-        return $this->_errors;
-    }
-
-    /**
-     * Resolves identifier class name.
-     *
-     * @param string $class Class name to be resolved.
-     * @return string|null
-     */
-    protected function _resolveClassName($class)
-    {
-        $className = App::className($class, 'Identifier', 'Identifier');
-
-        return is_string($className) ? $className : null;
-    }
-
-    /**
-     *
-     * @param string $class Missing class.
-     * @param string $plugin Class plugin.
+     * @param IdentifierInterface $identifier Identifier
      * @return void
-     * @throws \RuntimeException
      */
-    protected function _throwMissingClassError($class, $plugin)
+    public function add(IdentifierInterface $identifier): void
     {
-        $message = sprintf('Identifier class `%s` was not found.', $class);
-        throw new RuntimeException($message);
+        $this->identifiers[] = $identifier;
+    }
+
+    /**
+     * Returns true if a collection is empty.
+     *
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return empty($this->identifiers);
+    }
+
+    /**
+     * Returns iterator.
+     *
+     * @return \ArrayIterator
+     */
+    public function getIterator(): Traversable
+    {
+        return new ArrayIterator($this->identifiers);
     }
 }

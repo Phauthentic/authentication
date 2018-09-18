@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,78 +13,44 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
-use Authentication\Identifier\IdentifierInterface;
-use Cake\Core\InstanceConfigTrait;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
 
 abstract class AbstractAuthenticator implements AuthenticatorInterface
 {
-    use InstanceConfigTrait;
 
     /**
-     * Default config for this object.
-     * - `fields` The fields to use to identify a user by.
+     * Config
      *
      * @var array
      */
-    protected $_defaultConfig = [
-        'fields' => [
-            IdentifierInterface::CREDENTIAL_USERNAME => 'username',
-            IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
-        ]
-    ];
+    protected $config = [];
 
     /**
      * Identifier or identifiers collection.
      *
-     * @var \Authentication\Identifier\IdentifierInterface
+     * @var \Phauthentic\Authentication\Identifier\IdentifierInterface
      */
-    protected $_identifier;
+    protected $identifier;
 
     /**
      * Constructor
      *
-     * @param \Authentication\Identifier\IdentifierInterface $identifier Identifier or identifiers collection.
-     * @param array $config Configuration settings.
+     * @param \Phauthentic\Authentication\Identifier\IdentifierInterface $identifier Identifier or identifiers collection.
      */
-    public function __construct(IdentifierInterface $identifier, array $config = [])
+    public function __construct(IdentifierInterface $identifier)
     {
-        $this->_identifier = $identifier;
-        $this->setConfig($config);
+        $this->identifier = $identifier;
     }
 
     /**
      * Gets the identifier.
      *
-     * @return \Authentication\Identifier\IdentifierInterface
+     * @return \Phauthentic\Authentication\Identifier\IdentifierInterface
      */
-    public function getIdentifier()
+    public function getIdentifier(): IdentifierInterface
     {
-        return $this->_identifier;
+        return $this->identifier;
     }
-
-    /**
-     * Sets the identifier.
-     *
-     * @param \Authentication\Identifier\IdentifierInterface $identifier IdentifierInterface instance.
-     * @return $this
-     */
-    public function setIdentifier(IdentifierInterface $identifier)
-    {
-        $this->_identifier = $identifier;
-
-        return $this;
-    }
-
-    /**
-     * Authenticate a user based on the request information.
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request Request to get authentication information from.
-     * @param \Psr\Http\Message\ResponseInterface $response A response object that can have headers added.
-     * @return \Authentication\Authenticator\ResultInterface Returns a result object.
-     */
-    abstract public function authenticate(ServerRequestInterface $request, ResponseInterface $response);
 }

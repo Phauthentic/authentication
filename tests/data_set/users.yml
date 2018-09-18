@@ -1,0 +1,25 @@
+users:
+  -
+    id: 1
+    username: "florian"
+    password: "$2y$10$INLSuN.AbQ1IB27NYH.Wi.NqrLGLRb9SBxn6wUOqUTIDHcNj6ZN2q" #florian
+    created: "2007-03-17 01:16:23"
+    updated: "2007-03-17 01:16:23"
+  -
+    id: 2
+    username: "robert"
+    password: "$2y$10$VFTg46xeZ8/hU4zI.dtZVOfuz4AeIKAgZaB.uraGfcljXzid/xERa" #robert
+    created: "2007-03-17 01:16:23"
+    updated: "2007-03-17 01:16:23"
+  -
+    id: 3
+    username: "0"
+    password: "$2y$10$VFTg46xeZ8/hU4zI.dtZVOfuz4AeIKAgZaB.uraGfcljXzid/xERa" #robert
+    created: "2007-03-17 01:16:23"
+    updated: "2007-03-17 01:16:23"
+  -
+    id: 4
+    username: "digest"
+    password: "4544cecaf61d685189e175d94b03b108" #password
+    created: "2007-03-17 01:16:23"
+    updated: "2007-03-17 01:16:23"

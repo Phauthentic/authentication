@@ -12,62 +12,31 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Authenticator;
+namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
-use Authentication\Authenticator\HttpBasicAuthenticator;
-use Authentication\Authenticator\UnauthorizedException;
-use Authentication\Identifier\IdentifierCollection;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
-use Cake\Http\Response;
-use Cake\Http\ServerRequestFactory;
-use Cake\I18n\Time;
-use Cake\ORM\TableRegistry;
+use Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException;
+use Phauthentic\Authentication\Authenticator\HttpBasicAuthenticator;
+use Phauthentic\Authentication\Identifier\PasswordIdentifier;
+use Phauthentic\Authentication\Test\Resolver\TestResolver;
+use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
+use Phauthentic\PasswordHasher\DefaultPasswordHasher;
+use Zend\Diactoros\Response;
+use Zend\Diactoros\ServerRequestFactory;
 
 class HttpBasicAuthenticatorTest extends TestCase
 {
 
     /**
-     * Fixtures
-     *
-     * @var array
-     */
-    public $fixtures = [
-        'core.auth_users',
-        'core.users'
-    ];
-
-    /**
      * @inheritdoc
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
-        $this->identifiers = new IdentifierCollection([
-           'Authentication.Password'
-        ]);
-
+        $resolver = new TestResolver($this->getConnection()->getConnection());
+        $this->identifiers = new PasswordIdentifier($resolver, new DefaultPasswordHasher());
         $this->auth = new HttpBasicAuthenticator($this->identifiers);
         $this->response = new Response();
-    }
-
-    /**
-     * test applying settings in the constructor
-     *
-     * @return void
-     */
-    public function testConstructor()
-    {
-        $object = new HttpBasicAuthenticator($this->identifiers, [
-            'userModel' => 'AuthUser',
-            'fields' => [
-                'username' => 'user',
-                'password' => 'password'
-            ]
-        ]);
-
-        $this->assertEquals('AuthUser', $object->getConfig('userModel'));
-        $this->assertEquals(['username' => 'user', 'password' => 'password'], $object->getConfig('fields'));
     }
 
     /**
@@ -115,7 +84,7 @@ class HttpBasicAuthenticatorTest extends TestCase
         $request = ServerRequestFactory::fromGlobals(
             [
                 'REQUEST_URI' => '/posts/index',
-                'PHP_AUTH_USER' => 'mariano',
+                'PHP_AUTH_USER' => 'robert',
             ]
         );
 
@@ -149,34 +118,29 @@ class HttpBasicAuthenticatorTest extends TestCase
      */
     public function testAuthenticateUsernameZero()
     {
-        $User = TableRegistry::get('Users');
-        $User->updateAll(['username' => '0'], ['username' => 'mariano']);
-
         $_SERVER['PHP_AUTH_USER'] = '0';
-        $_SERVER['PHP_AUTH_PW'] = 'password';
+        $_SERVER['PHP_AUTH_PW'] = 'robert';
 
         $request = ServerRequestFactory::fromGlobals(
             [
                 'REQUEST_URI' => '/posts/index',
                 'SERVER_NAME' => 'localhost',
                 'PHP_AUTH_USER' => '0',
-                'PHP_AUTH_PW' => 'password'
+                'PHP_AUTH_PW' => 'robert'
             ],
             [
                 'user' => '0',
-                'password' => 'password'
+                'password' => 'robert'
             ]
         );
 
         $expected = [
-            'id' => 1,
+            'id' => 3,
             'username' => '0',
-            'created' => new Time('2007-03-17 01:16:23'),
-            'updated' => new Time('2007-03-17 01:18:31'),
         ];
         $result = $this->auth->authenticate($request, $this->response);
         $this->assertTrue($result->isValid());
-        $this->assertArraySubset($expected, $result->getData()->toArray());
+        $this->assertArraySubset($expected, $result->getData());
     }
 
     /**
@@ -213,20 +177,18 @@ class HttpBasicAuthenticatorTest extends TestCase
         $request = ServerRequestFactory::fromGlobals(
             [
                 'REQUEST_URI' => '/posts/index',
-                'PHP_AUTH_USER' => 'mariano',
-                'PHP_AUTH_PW' => 'password'
+                'PHP_AUTH_USER' => 'robert',
+                'PHP_AUTH_PW' => 'robert'
             ]
         );
 
         $result = $this->auth->authenticate($request, $this->response);
         $expected = [
-            'id' => 1,
-            'username' => 'mariano',
-            'created' => new Time('2007-03-17 01:16:23'),
-            'updated' => new Time('2007-03-17 01:18:31')
+            'id' => 2,
+            'username' => 'robert',
         ];
 
         $this->assertTrue($result->isValid());
-        $this->assertArraySubset($expected, $result->getData()->toArray());
+        $this->assertArraySubset($expected, $result->getData());
     }
 }

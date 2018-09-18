@@ -12,15 +12,13 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Identifier;
+namespace Phauthentic\Authentication\Test\TestCase\Identifier;
 
 use ArrayObject;
-use Authentication\Identifier\PasswordIdentifier;
-use Authentication\Identifier\Resolver\ResolverInterface;
-use Authentication\PasswordHasher\DefaultPasswordHasher;
-use Authentication\PasswordHasher\LegacyPasswordHasher;
-use Authentication\PasswordHasher\PasswordHasherInterface;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
+use Phauthentic\Authentication\Identifier\PasswordIdentifier;
+use Phauthentic\Authentication\Identifier\Resolver\ResolverInterface;
+use Phauthentic\PasswordHasher\PasswordHasherInterface;
+use PHPUnit\Framework\TestCase;
 
 class PasswordIdentifierTest extends TestCase
 {
@@ -50,8 +48,7 @@ class PasswordIdentifierTest extends TestCase
             ->with('password', 'h45hedpa55w0rd')
             ->willReturn(true);
 
-        $identifier = new PasswordIdentifier();
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
 
         $result = $identifier->identify([
             'username' => 'mariano',
@@ -88,8 +85,7 @@ class PasswordIdentifierTest extends TestCase
             ->with('h45hedpa55w0rd')
             ->willReturn(true);
 
-        $identifier = new PasswordIdentifier();
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
 
         $result = $identifier->identify([
             'username' => 'mariano',
@@ -120,8 +116,7 @@ class PasswordIdentifierTest extends TestCase
             ->with('exist', '')
             ->willReturn(false);
 
-        $identifier = new PasswordIdentifier();
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
 
         $result = $identifier->identify([
             'username' => 'does-not',
@@ -156,8 +151,7 @@ class PasswordIdentifierTest extends TestCase
             ->with('wrongpassword', 'h45hedpa55w0rd')
             ->willReturn(false);
 
-        $identifier = new PasswordIdentifier();
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
 
         $result = $identifier->identify([
             'username' => 'mariano',
@@ -192,8 +186,7 @@ class PasswordIdentifierTest extends TestCase
             ->with('', 'h45hedpa55w0rd')
             ->willReturn(false);
 
-        $identifier = new PasswordIdentifier();
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
 
         $result = $identifier->identify([
             'username' => 'mariano',
@@ -226,8 +219,7 @@ class PasswordIdentifierTest extends TestCase
         $hasher->expects($this->never())
             ->method('check');
 
-        $identifier = new PasswordIdentifier();
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
 
         $result = $identifier->identify([
             'username' => 'mariano'
@@ -252,8 +244,7 @@ class PasswordIdentifierTest extends TestCase
         $hasher->expects($this->never())
             ->method('check');
 
-        $identifier = new PasswordIdentifier();
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
 
         $result = $identifier->identify([]);
 
@@ -276,12 +267,14 @@ class PasswordIdentifierTest extends TestCase
             'password' => 'h45hedpa55w0rd'
         ]);
 
-        $resolver->expects($this->once())
+        $resolver->expects($this->at(0))
             ->method('find')
-            ->with([
-                'username' => 'mariano@example.com',
-                'email' => 'mariano@example.com'
-            ], 'OR')
+            ->with(['username' => 'mariano@example.com'])
+            ->willReturn(null);
+
+        $resolver->expects($this->at(1))
+            ->method('find')
+            ->with(['email' => 'mariano@example.com'])
             ->willReturn($user);
 
         $hasher->expects($this->once())
@@ -293,10 +286,8 @@ class PasswordIdentifierTest extends TestCase
             ->method('needsRehash')
             ->with('h45hedpa55w0rd');
 
-        $identifier = new PasswordIdentifier([
-            'fields' => ['username' => ['email', 'username']]
-        ]);
-        $identifier->setResolver($resolver)->setPasswordHasher($hasher);
+        $identifier = new PasswordIdentifier($resolver, $hasher);
+        $identifier->setUsernameFields(['username', 'email']);
 
         $result = $identifier->identify([
             'username' => 'mariano@example.com',
@@ -305,31 +296,5 @@ class PasswordIdentifierTest extends TestCase
 
         $this->assertInstanceOf('\ArrayAccess', $result);
         $this->assertSame($user, $result);
-    }
-
-    /**
-     * testDefaultPasswordHasher
-     *
-     * @return void
-     */
-    public function testDefaultPasswordHasher()
-    {
-        $identifier = new PasswordIdentifier();
-        $hasher = $identifier->getPasswordHasher();
-        $this->assertInstanceOf(DefaultPasswordHasher::class, $hasher);
-    }
-
-    /**
-     * testCustomPasswordHasher
-     *
-     * @return void
-     */
-    public function testCustomPasswordHasher()
-    {
-        $identifier = new PasswordIdentifier([
-            'passwordHasher' => 'Authentication.Legacy'
-        ]);
-        $hasher = $identifier->getPasswordHasher();
-        $this->assertInstanceOf(LegacyPasswordHasher::class, $hasher);
     }
 }

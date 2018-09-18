@@ -12,15 +12,14 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Identifier;
+namespace Phauthentic\Authentication\Test\TestCase\Identifier;
 
 use ArrayAccess;
-use Authentication\Identifier\LdapIdentifier;
-use Authentication\Identifier\Ldap\AdapterInterface;
-use Authentication\Identifier\Ldap\ExtensionAdapter;
-use Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
+use Phauthentic\Authentication\Identifier\Ldap\AdapterInterface;
+use Phauthentic\Authentication\Identifier\Ldap\ExtensionAdapter;
+use Phauthentic\Authentication\Identifier\LdapIdentifier;
 use ErrorException;
-use stdClass;
+use PHPUnit\Framework\TestCase;
 
 class LdapIdentifierTest extends TestCase
 {
@@ -41,6 +40,10 @@ class LdapIdentifierTest extends TestCase
         ];
 
         $ldap = $this->createMock(AdapterInterface::class);
+
+        $identifier = (new LdapIdentifier($ldap, $host, $bind))
+            ->setLdapOptions($options);
+
         $ldap->expects($this->once())
             ->method('connect')
             ->with($host, 389, $options);
@@ -48,13 +51,6 @@ class LdapIdentifierTest extends TestCase
             ->method('bind')
             ->with('cn=john,dc=example,dc=com', 'doe')
             ->willReturn(true);
-
-        $identifier = new LdapIdentifier([
-            'host' => $host,
-            'bindDN' => $bind,
-            'ldap' => $ldap,
-            'options' => $options
-        ]);
 
         $result = $identifier->identify([
             'username' => 'john',
@@ -75,13 +71,11 @@ class LdapIdentifierTest extends TestCase
         $ldap->method('bind')
             ->willReturn(false);
 
-        $identifier = new LdapIdentifier([
-            'host' => 'ldap.example.com',
-            'bindDN' => function () {
-                return 'dc=example,dc=com';
-            },
-            'ldap' => $ldap
-        ]);
+        $host = 'ldap.example.com';
+        $bind = function () {
+            return 'dc=example,dc=com';
+        };
+        $identifier = new LdapIdentifier($ldap, $host, $bind);
 
         $result = $identifier->identify([
             'username' => 'john',
@@ -100,81 +94,18 @@ class LdapIdentifierTest extends TestCase
      */
     public function testLdapExtensionAdapter()
     {
-        $this->skipIf(!extension_loaded('ldap'), 'LDAP extension is not loaded.');
-
-        $identifier = new LdapIdentifier([
-            'host' => 'ldap.example.com',
-            'bindDN' => function () {
+        if (!extension_loaded('ldap')) {
+            $this->markTestSkipped('LDAP extension is not loaded.');
+        }
+        $identifier = new LdapIdentifier(
+            new ExtensionAdapter(),
+            'ldap.example.com',
+            function () {
                 return 'dc=example,dc=com';
             }
-        ]);
+        );
 
         $this->assertInstanceOf(ExtensionAdapter::class, $identifier->getAdapter());
-    }
-
-    /**
-     * testWrongLdapObject
-     *
-     * @return void
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Option `ldap` must implement `Authentication\Identifier\Ldap\AdapterInterface`.
-     */
-    public function testWrongLdapObject()
-    {
-        $notLdap = new stdClass;
-
-        $identifier = new LdapIdentifier([
-            'host' => 'ldap.example.com',
-            'bindDN' => function () {
-                return 'dc=example,dc=com';
-            },
-            'ldap' => $notLdap
-        ]);
-    }
-
-    /**
-     * testMissingBindDN
-     *
-     * @return void
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Config `bindDN` is not set.
-     */
-    public function testMissingBindDN()
-    {
-        $identifier = new LdapIdentifier([
-            'host' => 'ldap.example.com'
-        ]);
-    }
-
-    /**
-     * testUncallableDN
-     *
-     * @return void
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The `bindDN` config is not a callable. Got `string` instead.
-     */
-    public function testUncallableDN()
-    {
-        $identifier = new LdapIdentifier([
-            'host' => 'ldap.example.com',
-            'bindDN' => 'Foo'
-        ]);
-    }
-
-    /**
-     * testMissingHost
-     *
-     * @return void
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Config `host` is not set.
-     */
-    public function testMissingHost()
-    {
-        $identifier = new LdapIdentifier([
-            'bindDN' => function () {
-                return 'dc=example,dc=com';
-            }
-        ]);
     }
 
     /**
@@ -190,13 +121,11 @@ class LdapIdentifierTest extends TestCase
         $ldap->method('getDiagnosticMessage')
             ->willReturn('This is another error.');
 
-        $identifier = new LdapIdentifier([
-            'host' => 'ldap.example.com',
-            'bindDN' => function () {
-                return 'dc=example,dc=com';
-            },
-            'ldap' => $ldap
-        ]);
+        $host = 'ldap.example.com';
+        $bind = function () {
+            return 'dc=example,dc=com';
+        };
+        $identifier = new LdapIdentifier($ldap, $host, $bind);
 
         $result = $identifier->identify([
             'username' => 'john',

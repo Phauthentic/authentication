@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,26 +13,17 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Identifier;
+namespace Phauthentic\Authentication\Identifier;
 
-use Authentication\Identifier\Resolver\ResolverAwareTrait;
-use Authentication\Identifier\Resolver\ResolverInterface;
-use Authentication\PasswordHasher\PasswordHasherFactory;
-use Authentication\PasswordHasher\PasswordHasherTrait;
+use ArrayAccess;
+use ArrayObject;
+use Phauthentic\Authentication\Identifier\Resolver\ResolverInterface;
+use Phauthentic\PasswordHasher\PasswordHasherInterface;
 
 /**
  * Password Identifier
  *
- * Identifies authentication credentials with password
- *
- * ```
- *  new PasswordIdentifier([
- *      'fields' => [
- *          'username' => ['username', 'email'],
- *          'password' => 'password'
- *      ]
- *  ]);
- * ```
+ * Identifies authentication credentials with password.
  *
  * When configuring PasswordIdentifier you can pass in config to which fields,
  * model and additional conditions are used.
@@ -39,70 +31,107 @@ use Authentication\PasswordHasher\PasswordHasherTrait;
 class PasswordIdentifier extends AbstractIdentifier
 {
 
-    use PasswordHasherTrait {
-        getPasswordHasher as protected _getPasswordHasher;
-    }
-    use ResolverAwareTrait;
-
     /**
-     * Default configuration.
-     * - `fields` The fields to use to identify a user by:
-     *   - `username`: one or many username fields.
-     *   - `password`: password field.
-     * - `resolver` The resolver implementation to use.
-     * - `passwordHasher` Password hasher class. Can be a string specifying class name
-     *    or an array containing `className` key, any other keys will be passed as
-     *    config to the class. Defaults to 'Default'.
+     * Credential fields
      *
      * @var array
      */
-    protected $_defaultConfig = [
-        'fields' => [
-            self::CREDENTIAL_USERNAME => 'username',
-            self::CREDENTIAL_PASSWORD => 'password'
-        ],
-        'resolver' => 'Authentication.Orm',
-        'passwordHasher' => null
+    protected $credentialFields = [
+        IdentifierInterface::CREDENTIAL_USERNAME => 'username',
+        IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
     ];
 
     /**
-     * Return password hasher object.
+     * Resolver
      *
-     * @return \Authentication\PasswordHasher\PasswordHasherInterface Password hasher instance.
+     * @var \Phauthentic\Authentication\Identifier\Resolver\ResolverInterface
      */
-    public function getPasswordHasher()
-    {
-        if ($this->_passwordHasher === null) {
-            $passwordHasher = $this->getConfig('passwordHasher');
-            if ($passwordHasher !== null) {
-                $passwordHasher = PasswordHasherFactory::build($passwordHasher);
-            } else {
-                $passwordHasher = $this->_getPasswordHasher();
-            }
-            $this->_passwordHasher = $passwordHasher;
-        }
+    protected $resolver;
 
-        return $this->_passwordHasher;
+    /**
+     * Password Hasher
+     *
+     * @var \Phauthentic\PasswordHasher\PasswordHasherInterface
+     */
+    protected $passwordHasher;
+
+    /**
+     * Whether or not the user authenticated by this class
+     * requires their password to be rehashed with another algorithm.
+     *
+     * @var bool
+     */
+    protected $needsPasswordRehash = false;
+
+    /**
+     * Constructor
+     *
+     * @param ResolverInterface $resolver Resolver instance.
+     * @param PasswordHasherInterface $passwordHasher Password hasher.
+     */
+    public function __construct(
+        ResolverInterface $resolver,
+        PasswordHasherInterface $passwordHasher
+    ) {
+        $this->resolver = $resolver;
+        $this->passwordHasher = $passwordHasher;
+    }
+
+    /**
+     * Set the username fields used to to get the credentials from.
+     *
+     * @param array $usernames An array of fields.
+     * @return $this
+     */
+    public function setUsernameFields(array $usernames): self
+    {
+        $this->credentialFields[self::CREDENTIAL_USERNAME] = $usernames;
+
+        return $this;
+    }
+
+    /**
+     * Set the single username field used to to get the credentials from.
+     *
+     * @param string $username Username field.
+     * @return $this
+     */
+    public function setUsernameField(string $username): self
+    {
+        return $this->setUsernameFields([$username]);
+    }
+
+    /**
+     * Sets the password field.
+     *
+     * @param string $password Password field.
+     * @return $this
+     */
+    public function setPasswordField(string $password): self
+    {
+        $this->credentialFields[self::CREDENTIAL_PASSWORD] = $password;
+
+        return $this;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function identify(array $data)
+    public function identify(array $credentials): ?ArrayAccess
     {
-        if (!isset($data[self::CREDENTIAL_USERNAME])) {
+        if (!isset($credentials[self::CREDENTIAL_USERNAME])) {
             return null;
         }
 
-        $identity = $this->_findIdentity($data[self::CREDENTIAL_USERNAME]);
-        if (array_key_exists(self::CREDENTIAL_PASSWORD, $data)) {
-            $password = $data[self::CREDENTIAL_PASSWORD];
-            if (!$this->_checkPassword($identity, $password)) {
+        $data = $this->_findIdentity($credentials[self::CREDENTIAL_USERNAME]);
+        if (array_key_exists(self::CREDENTIAL_PASSWORD, $credentials)) {
+            $password = $credentials[self::CREDENTIAL_PASSWORD];
+            if (!$this->_checkPassword($data, $password)) {
                 return null;
             }
         }
 
-        return $identity;
+        return $data;
     }
 
     /**
@@ -110,45 +139,62 @@ class PasswordIdentifier extends AbstractIdentifier
      * Input passwords will be hashed even when a user doesn't exist. This
      * helps mitigate timing attacks that are attempting to find valid usernames.
      *
-     * @param array|\ArrayAccess|null $identity The identity or null.
+     * @param \ArrayAccess|null $data The identity or null.
      * @param string|null $password The password.
      * @return bool
      */
-    protected function _checkPassword($identity, $password)
+    protected function _checkPassword(?ArrayAccess $data, $password): bool
     {
-        $passwordField = $this->getConfig('fields.' . self::CREDENTIAL_PASSWORD);
+        $passwordField = $this->credentialFields[self::CREDENTIAL_PASSWORD];
 
-        if ($identity === null) {
-            $identity = [
+        if ($data === null) {
+            $data = new ArrayObject([
                 $passwordField => ''
-            ];
+            ]);
         }
 
-        $hasher = $this->getPasswordHasher();
-        $hashedPassword = $identity[$passwordField];
-        if (!$hasher->check($password, $hashedPassword)) {
+        $hasher = $this->passwordHasher;
+        $hashedPassword = $data[$passwordField];
+        if (!$hasher->check((string)$password, $hashedPassword)) {
             return false;
         }
 
-        $this->_needsPasswordRehash = $hasher->needsRehash($hashedPassword);
+        $this->needsPasswordRehash = $hasher->needsRehash($hashedPassword);
 
         return true;
+    }
+
+    /**
+     * Check if a password needs to be re-hashed
+     *
+     * @return bool
+     */
+    public function needsPasswordRehash(): bool
+    {
+        return $this->needsPasswordRehash;
     }
 
     /**
      * Find a user record using the username/identifier provided.
      *
      * @param string $identifier The username/identifier.
-     * @return \ArrayAccess|array|null
+     * @return \ArrayAccess|null
      */
-    protected function _findIdentity($identifier)
+    protected function _findIdentity($identifier): ?ArrayAccess
     {
-        $fields = $this->getConfig('fields.' . self::CREDENTIAL_USERNAME);
-        $conditions = [];
+        $fields = $this->credentialFields[self::CREDENTIAL_USERNAME];
+
         foreach ((array)$fields as $field) {
-            $conditions[$field] = $identifier;
+            $conditions = [
+                $field => $identifier,
+            ];
+            $data = $this->resolver->find($conditions);
+
+            if ($data !== null) {
+                return $data;
+            }
         }
 
-        return $this->getResolver()->find($conditions, ResolverInterface::TYPE_OR);
+        return null;
     }
 }

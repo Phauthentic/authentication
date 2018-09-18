@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,11 +13,10 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
-use Authentication\Identifier\IdentifierInterface;
-use Authentication\UrlChecker\UrlCheckerTrait;
-use Psr\Http\Message\ResponseInterface;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
+use Phauthentic\Authentication\UrlChecker\UrlCheckerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -27,24 +27,19 @@ use Psr\Http\Message\ServerRequestInterface;
 class FormAuthenticator extends AbstractAuthenticator
 {
 
-    use UrlCheckerTrait;
+    use CredentialFieldsTrait;
+    use UrlAwareTrait;
 
     /**
-     * Default config for this object.
-     * - `fields` The fields to use to identify a user by.
-     * - `loginUrl` Login URL or an array of URLs.
-     * - `urlChecker` Url checker config.
-     *
-     * @var array
+     * {@inheritDoc}
      */
-    protected $_defaultConfig = [
-        'loginUrl' => null,
-        'urlChecker' => 'Authentication.Default',
-        'fields' => [
-            IdentifierInterface::CREDENTIAL_USERNAME => 'username',
-            IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
-        ]
-    ];
+    public function __construct(
+        IdentifierInterface $identifier,
+        UrlCheckerInterface $urlChecker
+    ) {
+        parent::__construct($identifier);
+        $this->urlChecker = $urlChecker;
+    }
 
     /**
      * Checks the fields to ensure they are supplied.
@@ -52,13 +47,12 @@ class FormAuthenticator extends AbstractAuthenticator
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
      * @return array|null Username and password retrieved from a request body.
      */
-    protected function _getData(ServerRequestInterface $request)
+    protected function getData(ServerRequestInterface $request): ?array
     {
-        $fields = $this->_config['fields'];
-        $body = $request->getParsedBody();
+        $body = (array)$request->getParsedBody();
 
         $data = [];
-        foreach ($fields as $key => $field) {
+        foreach ($this->credentialFields as $key => $field) {
             if (!isset($body[$field])) {
                 return null;
             }
@@ -78,15 +72,15 @@ class FormAuthenticator extends AbstractAuthenticator
      * Prepares the error object for a login URL error
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @return \Authentication\Authenticator\ResultInterface
+     * @return \Phauthentic\Authentication\Authenticator\ResultInterface
      */
-    protected function _buildLoginUrlErrorResult($request)
+    protected function _buildLoginUrlErrorResult($request): ResultInterface
     {
         $errors = [
             sprintf(
                 'Login URL `%s` did not match `%s`.',
                 (string)$request->getUri(),
-                implode('` or `', (array)$this->getConfig('loginUrl'))
+                implode('` or `', $this->loginUrls)
             )
         ];
 
@@ -99,26 +93,25 @@ class FormAuthenticator extends AbstractAuthenticator
      * there is no post data, either username or password is missing, or if the scope conditions have not been met.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @param \Psr\Http\Message\ResponseInterface $response Unused response object.
-     * @return \Authentication\Authenticator\ResultInterface
+     * @return \Phauthentic\Authentication\Authenticator\ResultInterface
      */
-    public function authenticate(ServerRequestInterface $request, ResponseInterface $response)
+    public function authenticate(ServerRequestInterface $request): ResultInterface
     {
-        if (!$this->_checkUrl($request)) {
+        if (!$this->checkUrl($request)) {
             return $this->_buildLoginUrlErrorResult($request);
         }
 
-        $data = $this->_getData($request);
+        $data = $this->getData($request);
         if ($data === null) {
             return new Result(null, Result::FAILURE_CREDENTIALS_MISSING, [
                 'Login credentials not found'
             ]);
         }
 
-        $user = $this->_identifier->identify($data);
+        $user = $this->identifier->identify($data);
 
         if (empty($user)) {
-            return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND, $this->_identifier->getErrors());
+            return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND, $this->identifier->getErrors());
         }
 
         return new Result($user, Result::SUCCESS);
