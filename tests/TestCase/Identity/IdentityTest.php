@@ -12,10 +12,10 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Identity;
+namespace Phauthentic\Authentication\Test\TestCase\Identity;
 
 use ArrayObject;
-use Authentication\Identity\Identity;
+use Phauthentic\Authentication\Identity\Identity;
 use BadMethodCallException;
 use PHPUnit\Framework\TestCase;
 

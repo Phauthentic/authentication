@@ -12,11 +12,11 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Test\TestCase\Authenticator;
+namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
-use Authentication\Authenticator\AuthenticatorCollection;
-use Authentication\Authenticator\AuthenticatorInterface;
-use Authentication\Identifier\IdentifierCollection;
+use Phauthentic\Authentication\Authenticator\AuthenticatorCollection;
+use Phauthentic\Authentication\Authenticator\AuthenticatorInterface;
+use Phauthentic\Authentication\Identifier\IdentifierCollection;
 use PHPUnit\Framework\TestCase;
 
 class AuthenticatorCollectionTest extends TestCase

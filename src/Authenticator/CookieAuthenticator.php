@@ -13,13 +13,13 @@ declare(strict_types=1);
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Authentication\Authenticator;
+namespace Phauthentic\Authentication\Authenticator;
 
 use ArrayAccess;
-use Authentication\Authenticator\Storage\StorageInterface;
-use Authentication\Identifier\IdentifierInterface;
+use Phauthentic\Authentication\Authenticator\Storage\StorageInterface;
+use Phauthentic\Authentication\Identifier\IdentifierInterface;
 use Phauthentic\PasswordHasher\PasswordHasherInterface;
-use Authentication\UrlChecker\UrlCheckerInterface;
+use Phauthentic\Authentication\UrlChecker\UrlCheckerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
