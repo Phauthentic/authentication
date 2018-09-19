@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Phauthentic\Authentication\Middleware;
 
 use Phauthentic\Authentication\AuthenticationServiceProviderInterface;
-use Phauthentic\Authentication\Authenticator\Exception\AuthenticationException;
+use Phauthentic\Authentication\Authenticator\Exception\AuthenticationExceptionInterface;
 use Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -59,15 +59,13 @@ class AuthenticationFailureHandlerMiddleware implements MiddlewareInterface
 
     /**
      * {@inheritDoc}
-     *
-     * @throws RuntimeException When request attribute exists.
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
             return $handler->handle($request);
         } catch (UnauthorizedException $e) {
-            return $this->createErrorResponse($e, $e->getCode());
+            return $this->createUnauthorizedResponse($e);
         } catch (AuthenticationException $e) {
             return $this->createErrorResponse($e);
         }
@@ -79,19 +77,38 @@ class AuthenticationFailureHandlerMiddleware implements MiddlewareInterface
      * @param UnauthorizedException $e Exception.
      * @return ResponseInterface
      */
-    protected function createErrorResponse(AuthenticationException $e, int $responseCode = 500): ResponseInterface
+    protected function createUnauthorizedResponse(UnauthorizedException $e): ResponseInterface
     {
         $body = $this->streamFactory->createStream();
         $body->write($e->getBody());
 
         $response = $this
             ->responseFactory
-            ->createResponse($responseCode)
+            ->createResponse($e->getCode())
             ->withBody($body);
 
         foreach ($e->getHeaders() as $header => $value) {
             $response = $response->withHeader($header, $value);
         }
+
+        return $response;
+    }
+
+    /**
+     * Creates an error response.
+     *
+     * @param UnauthorizedException $e Exception.
+     * @return ResponseInterface
+     */
+    protected function createErrorResponse(AuthenticationExceptionInterface $e, int $responseCode = 500): ResponseInterface
+    {
+        $body = $this->streamFactory->createStream();
+        $body->write($e->getMessage());
+
+        $response = $this
+            ->responseFactory
+            ->createResponse($responseCode)
+            ->withBody($body);
 
         return $response;
     }
