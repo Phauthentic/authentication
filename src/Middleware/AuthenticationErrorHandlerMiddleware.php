@@ -13,7 +13,6 @@ declare(strict_types=1);
  */
 namespace Phauthentic\Authentication\Middleware;
 
-use MongoDB\Driver\Exception\AuthenticationException;
 use Phauthentic\Authentication\AuthenticationServiceProviderInterface;
 use Phauthentic\Authentication\Authenticator\Exception\AuthenticationExceptionInterface;
 use Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException;
@@ -66,7 +65,7 @@ class AuthenticationErrorHandlerMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         } catch (UnauthorizedException $e) {
             return $this->createUnauthorizedResponse($e);
-        } catch (AuthenticationException $e) {
+        } catch (AuthenticationExceptionInterface $e) {
             return $this->createErrorResponse($e);
         }
     }
