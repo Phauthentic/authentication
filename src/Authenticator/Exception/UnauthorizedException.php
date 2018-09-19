@@ -20,7 +20,7 @@ use RuntimeException;
 /**
  * An exception that holds onto the headers/body for an unauthorized response.
  */
-class UnauthorizedException extends RuntimeException
+class UnauthorizedException extends RuntimeException implements AuthenticationExceptionInterface
 {
     /**
      * @var array
