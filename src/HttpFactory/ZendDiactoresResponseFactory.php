@@ -13,9 +13,9 @@ declare(strict_types=1);
  */
 namespace Phauthentic\Authentication\HttpFactory;
 
-use Zend\Diactoros\Response;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Zend\Diactoros\Response;
 
 /**
  * CakePHP Response Object Factory
