@@ -20,6 +20,6 @@ use RuntimeException;
 /**
  * An exception that signals that authentication was required but missing.
  */
-class UnauthenticatedException extends RuntimeException
+class UnauthenticatedException extends RuntimeException implements AuthenticationExceptionInterface
 {
 }

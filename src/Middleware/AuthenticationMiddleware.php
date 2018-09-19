@@ -18,23 +18,16 @@ use Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
-use Zend\Diactoros\Stream;
 
 /**
  * PSR 15 Authenticator Middleware
  */
 class AuthenticationMiddleware implements MiddlewareInterface
 {
-    /**
-     * Response factory
-     *
-     * @var \Psr\Http\Message\ResponseFactoryInterface
-     */
-    protected $responseFactory;
-
     /**
      * @var \Phauthentic\Authentication\AuthenticationServiceProviderInterface
      */
@@ -59,11 +52,9 @@ class AuthenticationMiddleware implements MiddlewareInterface
      * @param \Psr\Http\Message\ResponseFactoryInterface $responseFactory Factory.
      */
     public function __construct(
-        AuthenticationServiceProviderInterface $provider,
-        ResponseFactoryInterface $responseFactory
+        AuthenticationServiceProviderInterface $provider
     ) {
         $this->provider = $provider;
-        $this->responseFactory = $responseFactory;
     }
 
     /**
@@ -121,11 +112,7 @@ class AuthenticationMiddleware implements MiddlewareInterface
         $service = $this->provider->getAuthenticationService($request);
         $request = $this->addAttribute($request, $this->serviceAttribute, $service);
 
-        try {
-            $service->authenticate($request);
-        } catch (UnauthorizedException $e) {
-            return $this->createUnauthorizedResponse($e);
-        }
+        $service->authenticate($request);
 
         $identity = $service->getIdentity();
         $request = $this->addAttribute($request, $this->identityAttribute, $identity);
@@ -135,28 +122,6 @@ class AuthenticationMiddleware implements MiddlewareInterface
             $result = $service->persistIdentity($request, $response);
 
             return $result->getResponse();
-        }
-
-        return $response;
-    }
-
-    /**
-     * Creates an unauthorized response.
-     *
-     * @param UnauthorizedException $e Exception.
-     * @return ResponseInterface
-     */
-    protected function createUnauthorizedResponse(UnauthorizedException $e): ResponseInterface
-    {
-        $body = new Stream('php://memory', 'rw');
-        $body->write($e->getBody());
-        $response = $this
-            ->responseFactory
-            ->createResponse($e->getCode())
-            ->withBody($body);
-
-        foreach ($e->getHeaders() as $header => $value) {
-            $response = $response->withHeader($header, $value);
         }
 
         return $response;
