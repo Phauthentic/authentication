@@ -14,8 +14,9 @@ declare(strict_types=1);
 namespace Phauthentic\Authentication\Authenticator\Exception;
 
 use RuntimeException;
+use Throwable;
 
 /**
  * Base class for other Authentication exceptions
  */
-interface AuthenticationExceptionInterface {};
+interface AuthenticationExceptionInterface extends Throwable {};
