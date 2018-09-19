@@ -13,6 +13,7 @@ declare(strict_types=1);
  */
 namespace Phauthentic\Authentication\Middleware;
 
+use MongoDB\Driver\Exception\AuthenticationException;
 use Phauthentic\Authentication\AuthenticationServiceProviderInterface;
 use Phauthentic\Authentication\Authenticator\Exception\AuthenticationExceptionInterface;
 use Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException;
@@ -22,12 +23,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use RuntimeException;
 
 /**
  * Handles the case when the authentication middleware has thrown an exception
  */
-class AuthenticationFailureHandlerMiddleware implements MiddlewareInterface
+class AuthenticationErrorHandlerMiddleware implements MiddlewareInterface
 {
     /**
      * Response factory
@@ -105,11 +105,9 @@ class AuthenticationFailureHandlerMiddleware implements MiddlewareInterface
         $body = $this->streamFactory->createStream();
         $body->write($e->getMessage());
 
-        $response = $this
+        return $this
             ->responseFactory
             ->createResponse($responseCode)
             ->withBody($body);
-
-        return $response;
     }
 }
