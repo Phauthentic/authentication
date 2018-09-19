@@ -79,9 +79,9 @@ class AuthenticationErrorHandlerMiddlewareTest extends TestCase
             ->method('createStream')
             ->willReturn($stream);
 
-        $request->expects($this->once())
+        $response->expects($this->once())
             ->method('withBody')
-            ->willReturn($response);
+            ->willReturnSelf();
 
         $responseFactory->expects($this->any())
             ->method('createResponse')
