@@ -72,6 +72,7 @@ class AuthenticationMiddleware implements MiddlewareInterface
     ) {
         $this->provider = $provider;
         $this->responseFactory = $responseFactory;
+        $this->streamFactory = $streamFactory;
     }
 
     /**

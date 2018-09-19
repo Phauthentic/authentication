@@ -15,6 +15,7 @@ namespace Phauthentic\Authentication\HttpFactory;
 
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
+use RuntimeException;
 use Zend\Diactoros\Stream;
 
 /**
@@ -28,10 +29,25 @@ class ZendStreamFactory implements StreamFactoryInterface
     public function createStream(string $content = ''): StreamInterface
     {
         $resource = fopen('php://memory', 'rw');
+        $this->checkResource($resource);
+
         fwrite($resource, $content);
         rewind($resource);
 
         return $this->createStreamFromResource($resource);
+    }
+
+    /**
+     * Checks if the given variable is a resource and if not throws an exception
+     *
+     * @param mixed $resource Resource
+     * @return void
+     */
+    protected function checkResource($resource)
+    {
+        if (!is_resource($resource)) {
+            throw new RuntimeException('Failed to open stream.');
+        }
     }
 
     /**
@@ -40,6 +56,7 @@ class ZendStreamFactory implements StreamFactoryInterface
     public function createStreamFromFile(string $file, string $mode = 'r'): StreamInterface
     {
         $resource = fopen($file, $mode);
+        $this->checkResource($resource);
 
         return $this->createStreamFromResource($resource);
     }
