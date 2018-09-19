@@ -18,10 +18,10 @@ use Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
-use Zend\Diactoros\Stream;
 
 /**
  * PSR 15 Authenticator Middleware
@@ -34,6 +34,13 @@ class AuthenticationMiddleware implements MiddlewareInterface
      * @var \Psr\Http\Message\ResponseFactoryInterface
      */
     protected $responseFactory;
+
+    /**
+     * PSR Stream Interface
+     *
+     * @var \Psr\Http\Message\StreamFactoryInterface
+     */
+    protected $streamFactory;
 
     /**
      * @var \Phauthentic\Authentication\AuthenticationServiceProviderInterface
@@ -60,7 +67,8 @@ class AuthenticationMiddleware implements MiddlewareInterface
      */
     public function __construct(
         AuthenticationServiceProviderInterface $provider,
-        ResponseFactoryInterface $responseFactory
+        ResponseFactoryInterface $responseFactory,
+        StreamFactoryInterface $streamFactory
     ) {
         $this->provider = $provider;
         $this->responseFactory = $responseFactory;
@@ -148,8 +156,9 @@ class AuthenticationMiddleware implements MiddlewareInterface
      */
     protected function createUnauthorizedResponse(UnauthorizedException $e): ResponseInterface
     {
-        $body = new Stream('php://memory', 'rw');
+        $body = $this->streamFactory->createStream();
         $body->write($e->getBody());
+
         $response = $this
             ->responseFactory
             ->createResponse($e->getCode())
