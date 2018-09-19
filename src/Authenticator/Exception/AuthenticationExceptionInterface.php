@@ -18,6 +18,4 @@ use RuntimeException;
 /**
  * Base class for other Authentication exceptions
  */
-class AuthenticationException extends RuntimeException
-{
-}
+interface AuthenticationExceptionInterface {};

@@ -15,9 +15,11 @@ declare(strict_types=1);
  */
 namespace Phauthentic\Authentication\Authenticator\Exception;
 
+use RuntimeException;
+
 /**
  * An exception that signals that authentication was required but missing.
  */
-class UnauthenticatedException extends AuthenticationException
+class UnauthenticatedException extends RuntimeException implements AuthenticationExceptionInterface
 {
 }
