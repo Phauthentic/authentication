@@ -36,9 +36,7 @@ class AuthenticationMiddlewareTest extends TestCase
             ->getMock();
 
         $middleware = new AuthenticationMiddleware(
-            $service,
-            new ZendDiactoresResponseFactory(),
-            new ZendStreamFactory()
+            $service
         );
     }
 }

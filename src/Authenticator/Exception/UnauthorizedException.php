@@ -15,12 +15,10 @@ declare(strict_types=1);
  */
 namespace Phauthentic\Authentication\Authenticator\Exception;
 
-use RuntimeException;
-
 /**
  * An exception that holds onto the headers/body for an unauthorized response.
  */
-class UnauthorizedException extends RuntimeException
+class UnauthorizedException extends AuthenticationException
 {
     /**
      * @var array
