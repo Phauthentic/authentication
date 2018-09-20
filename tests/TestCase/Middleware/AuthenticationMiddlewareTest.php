@@ -25,12 +25,15 @@ use PHPUnit\Framework\TestCase;
  */
 class AuthenticationMiddlewareTest extends TestCase
 {
+    use HttpEnvMockTrait;
+
     /**
      * testProcess
      *
      * @return void
      */
-    public function testProcess(): void {
+    public function testProcess(): void
+    {
         $service = $this
             ->getMockBuilder(AuthenticationServiceProviderInterface::class)
             ->getMock();
