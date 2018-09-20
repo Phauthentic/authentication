@@ -3,26 +3,14 @@
 Identifiers will identify an user or service based on the information that was extracted from the request by the authenticators. Identifiers can take options in the `loadIdentifier` method. A holistic example of using the Password Identifier looks like:
 
 ```php
-$service->loadIdentifier('Authentication.Password', [
-    'fields' => [
-        'username' => 'email',
-        'password' => 'passwd',
-    ],
-    'resolver' => [
-        'className' => 'Authentication.Orm',
-        'finder' => 'active'
-    ],
-    'passwordHasher' => [
-        'className' => 'Authentication.Fallback',
-        'hashers' => [
-            ['Authentication.Default'],
-            [
-                'className' => 'Authentication.Legacy',
-                'hashType' => 'md5'
-            ],
-        ]
-    ]
-]);
+use Phauthentic\Identifier\PasswordIdenfier;
+use Phauthentic\Identifier\Resolver\OrmResolver;
+use Phauthentic\PasswordHasher\DefaultPasswordHasher;
+
+$identifier = new PasswordIdenfier(
+    new OrmResolver(),
+    new DefaultPasswordHasher()
+);
 ```
 
 ## Password
@@ -35,8 +23,6 @@ Configuration option setters:
   You can also set the `username` to an array. For e.g. using
   `['username' => ['username', 'email'], 'password' => 'password']` will allow
   you to match value of either username or email columns.
-* **resolver**: The identity resolver. Default is `Authentication.Orm` which uses CakePHP ORM.
-* **passwordHasher**: Password hasher. Default is `DefaultPasswordHasher::class`.
 
 ## Token
 
@@ -46,7 +32,6 @@ Configuration option setters:
 
 * **tokenField**: The field in the database to check against. Default is `token`.
 * **dataField**: The field in the passed data from the authenticator. Default is `token`.
-* **resolver**: The identity resolver. Default is `Authentication.Orm` which uses CakePHP ORM.
 
 ## JWT Subject
 
