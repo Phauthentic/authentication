@@ -18,8 +18,8 @@
     "require-dev": {
         "cakephp/cakephp-codesniffer": "^3.0",
         "firebase/php-jwt": "~4.0",
-        "phpunit/dbunit": "^4.0",
         "phpstan/phpstan": "^0.10.3",
+        "phpunit/dbunit": "^4.0",
         "phpunit/phpunit": "^7.0",
         "squizlabs/php_codesniffer": "^3.3"
     },
