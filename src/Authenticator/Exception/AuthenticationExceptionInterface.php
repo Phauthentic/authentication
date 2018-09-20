@@ -19,4 +19,6 @@ use Throwable;
 /**
  * Base class for other Authentication exceptions
  */
-interface AuthenticationExceptionInterface extends Throwable {};
+interface AuthenticationExceptionInterface extends Throwable
+{
+}

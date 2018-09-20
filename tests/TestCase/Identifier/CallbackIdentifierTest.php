@@ -20,6 +20,7 @@ use Phauthentic\Authentication\Identifier\CallbackIdentifier;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
+// phpcs:disable
 class MyCallback
 {
 
@@ -28,6 +29,7 @@ class MyCallback
         return new ArrayObject();
     }
 }
+// phpcs:enable
 
 class CallbackIdentifierTest extends TestCase
 {

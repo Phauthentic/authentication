@@ -134,11 +134,11 @@ class LdapIdentifier extends AbstractIdentifier
      */
     public function identify(array $data): ?ArrayAccess
     {
-        $this->_connectLdap();
+        $this->connectLdap();
         $fields = $this->credentialFields;
 
         if (isset($data[$fields[self::CREDENTIAL_USERNAME]]) && isset($data[$fields[self::CREDENTIAL_PASSWORD]])) {
-            return $this->_bindUser($data[$fields[self::CREDENTIAL_USERNAME]], $data[$fields[self::CREDENTIAL_PASSWORD]]);
+            return $this->bindUser($data[$fields[self::CREDENTIAL_USERNAME]], $data[$fields[self::CREDENTIAL_PASSWORD]]);
         }
 
         return null;
@@ -159,7 +159,7 @@ class LdapIdentifier extends AbstractIdentifier
      *
      * @return void
      */
-    protected function _connectLdap()
+    protected function connectLdap()
     {
         $this->ldap->connect(
             $this->host,
@@ -175,7 +175,7 @@ class LdapIdentifier extends AbstractIdentifier
      * @param string $password The password
      * @return \ArrayAccess|null
      */
-    protected function _bindUser($username, $password)
+    protected function bindUser($username, $password)
     {
         try {
             $callable = $this->bindDN;
@@ -188,7 +188,7 @@ class LdapIdentifier extends AbstractIdentifier
                 ]);
             }
         } catch (ErrorException $e) {
-            $this->_handleLdapError($e->getMessage());
+            $this->handleLdapError($e->getMessage());
         }
         $this->ldap->unbind();
 
@@ -201,7 +201,7 @@ class LdapIdentifier extends AbstractIdentifier
      * @param string $message Exception message
      * @return void
      */
-    protected function _handleLdapError($message)
+    protected function handleLdapError($message)
     {
         $extendedError = $this->ldap->getDiagnosticMessage();
         if (!is_null($extendedError)) {

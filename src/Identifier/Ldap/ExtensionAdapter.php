@@ -1,4 +1,4 @@
-<?php 
+<?php
 declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
@@ -62,9 +62,9 @@ class ExtensionAdapter implements AdapterInterface
      */
     public function bind($bind, $password)
     {
-        $this->_setErrorHandler();
+        $this->setErrorHandler();
         $result = ldap_bind($this->getConnection(), $bind, $password);
-        $this->_unsetErrorHandler();
+        $this->unsetErrorHandler();
 
         return $result;
     }
@@ -77,11 +77,11 @@ class ExtensionAdapter implements AdapterInterface
      */
     public function getConnection()
     {
-        if (empty($this->_connection)) {
+        if (empty($this->connection)) {
             throw new RuntimeException('You are not connected to a LDAP server.');
         }
 
-        return $this->_connection;
+        return $this->connection;
     }
 
     /**
@@ -94,9 +94,9 @@ class ExtensionAdapter implements AdapterInterface
      */
     public function connect($host, $port, $options)
     {
-        $this->_setErrorHandler();
-        $this->_connection = ldap_connect($host, $port) ?: null;
-        $this->_unsetErrorHandler();
+        $this->setErrorHandler();
+        $this->connection = ldap_connect($host, $port) ?: null;
+        $this->unsetErrorHandler();
 
         if (is_array($options)) {
             foreach ($options as $option => $value) {
@@ -114,9 +114,9 @@ class ExtensionAdapter implements AdapterInterface
      */
     public function setOption($option, $value)
     {
-        $this->_setErrorHandler();
+        $this->setErrorHandler();
         ldap_set_option($this->getConnection(), $option, $value);
-        $this->_unsetErrorHandler();
+        $this->unsetErrorHandler();
     }
 
     /**
@@ -127,9 +127,9 @@ class ExtensionAdapter implements AdapterInterface
      */
     public function getOption($option)
     {
-        $this->_setErrorHandler();
+        $this->setErrorHandler();
         ldap_get_option($this->getConnection(), $option, $returnValue);
-        $this->_unsetErrorHandler();
+        $this->unsetErrorHandler();
 
         return $returnValue;
     }
@@ -151,13 +151,13 @@ class ExtensionAdapter implements AdapterInterface
      */
     public function unbind()
     {
-        $this->_setErrorHandler();
-        if ($this->_connection) {
-            ldap_unbind($this->_connection);
+        $this->setErrorHandler();
+        if ($this->connection) {
+            ldap_unbind($this->connection);
         }
-        $this->_unsetErrorHandler();
+        $this->unsetErrorHandler();
 
-        $this->_connection = null;
+        $this->connection = null;
     }
 
     /**
@@ -166,7 +166,7 @@ class ExtensionAdapter implements AdapterInterface
      * @return void
      * @throws \ErrorException
      */
-    protected function _setErrorHandler()
+    protected function setErrorHandler()
     {
         set_error_handler(
             function ($errorNumber, $errorText) {
@@ -181,7 +181,7 @@ class ExtensionAdapter implements AdapterInterface
      *
      * @return void
      */
-    protected function _unsetErrorHandler()
+    protected function unsetErrorHandler()
     {
         restore_error_handler();
     }

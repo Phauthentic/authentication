@@ -391,5 +391,4 @@ class FormAuthenticatorTest extends TestCase
 
         $form->authenticate($request, $response);
     }
-
 }

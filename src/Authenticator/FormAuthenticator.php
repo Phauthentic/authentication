@@ -74,7 +74,7 @@ class FormAuthenticator extends AbstractAuthenticator
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
      * @return \Phauthentic\Authentication\Authenticator\ResultInterface
      */
-    protected function _buildLoginUrlErrorResult($request): ResultInterface
+    protected function buildLoginUrlErrorResult($request): ResultInterface
     {
         $errors = [
             sprintf(
@@ -98,7 +98,7 @@ class FormAuthenticator extends AbstractAuthenticator
     public function authenticate(ServerRequestInterface $request): ResultInterface
     {
         if (!$this->checkUrl($request)) {
-            return $this->_buildLoginUrlErrorResult($request);
+            return $this->buildLoginUrlErrorResult($request);
         }
 
         $data = $this->getData($request);
