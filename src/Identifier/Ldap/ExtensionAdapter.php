@@ -35,7 +35,7 @@ class ExtensionAdapter implements AdapterInterface
      *
      * @var resource|null
      */
-    protected $_connection;
+    protected $connection;
 
     /**
      * Constructor
