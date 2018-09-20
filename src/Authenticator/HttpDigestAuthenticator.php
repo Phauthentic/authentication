@@ -182,17 +182,31 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
     {
         $server = $request->getServerParams();
         $digest = empty($server['PHP_AUTH_DIGEST']) ? null : $server['PHP_AUTH_DIGEST'];
+        $digest = $this->getDigestFromApacheHeaders($digest);
+
+        if (empty($digest)) {
+            return null;
+        }
+
+        return $this->parseAuthData($digest);
+    }
+
+    /**
+     * Fallback to apache_request_headers()
+     *
+     * @param null|string $digest Digest
+     * @return null|string
+     */
+    protected function getDigestFromApacheHeaders(?string $digest)
+    {
         if (empty($digest) && function_exists('apache_request_headers')) {
             $headers = apache_request_headers();
             if (!empty($headers['Authorization']) && substr($headers['Authorization'], 0, 7) === 'Digest ') {
                 $digest = substr($headers['Authorization'], 7);
             }
         }
-        if (empty($digest)) {
-            return null;
-        }
 
-        return $this->parseAuthData($digest);
+        return $digest;
     }
 
     /**
