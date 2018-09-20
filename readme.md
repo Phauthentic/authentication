@@ -22,6 +22,7 @@ Your application **must** use PSR HTTP Message interfaces for your request and r
  * psr/http-message
 
 Only if you plan to use the PSR-15 middleware:
+
  * psr/http-server-handler
  * psr/http-factory
  * psr/http-server-middleware
@@ -41,7 +42,9 @@ Only if you plan to use the PSR-15 middleware:
  * [Identifiers](docs/Identifiers.md)
  * [Identity Objects](docs/Identity-Object.md)
  * [URL Checkers](docs/URL-Checkers.md)
-
+ * [PSR15 Middleware](docs/PSR15-Middleware.md)
+ * [PSR7 Middleware](docs/PSR7-Middleware.md)
+ 
 ## Copyright & License
 
 Licensed under the [MIT license](LICENSE.txt).
