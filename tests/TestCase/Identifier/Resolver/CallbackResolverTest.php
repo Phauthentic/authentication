@@ -30,7 +30,7 @@ class CallbackResolverTest extends TestCase
      */
     public function testFindDefault(): void
     {
-        $function = function($data) {
+        $function = function ($data) {
             if (isset($data['username']) && $data['username'] === 'mariano') {
                 return new ArrayObject([
                     'id' => 1,
