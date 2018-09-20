@@ -17,6 +17,11 @@ use Phauthentic\Authentication\HttpFactory\ZendDiactoresResponseFactory;
 use Phauthentic\Authentication\HttpFactory\ZendStreamFactory;
 use Phauthentic\Authentication\Middleware\AuthenticationMiddleware;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * Authentication Middleware Test
