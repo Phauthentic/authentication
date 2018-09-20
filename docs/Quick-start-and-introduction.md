@@ -42,7 +42,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
             new DefaultUrlChecekr()
         ));
 
-        return new AuthenticationService($authenticatorCollection->add(););
+        return new AuthenticationService($authenticatorCollection);
     }
 
     public function middleware($middlewareQueue)
