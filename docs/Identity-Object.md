@@ -5,17 +5,12 @@ The identity object is returned by the service and made available in the request
 The reason this object exists is to provide an interface that makes it easy to get access to the identity's id across various implementations/sources.
 
 ```php
-// Service
+// Service implementing \Phauthentic\AuthenticationServiceInterface
 $authenticationService
     ->getIdentity()
     ->getIdentifier()
 
-// Component
-$this->Authentication
-    ->getIdentity()
-    ->getIdentifier();
-
-// Request
+// Instance of a request implementing \Psr\Http\Message\ServerRequestInterface
 $this->request
     ->getAttribute('identity')
     ->getIdentifier();
@@ -51,10 +46,10 @@ If you'd like to continue using your existing User class with this plugin you
 can implement the `Authentication\IdentityInterface`:
 
 ```php
-namespace App\Model\Entity;
+namespace MyApp\Model\User;
 
 use Phauthentic\Authentication\IdentityInterface;
-use Cake\ORM\Entity;
+use SomeFramework\ORM\Entity;
 
 class User extends Entity implements IdentityInterface
 {
@@ -81,9 +76,7 @@ class User extends Entity implements IdentityInterface
 
 ## Using a Custom Identity Decorator
 
-If your identifiers cannot have their resulting objects modified to implement
-the `IdentityInterface` you can implement a custom decorator that implements the
-required interface:
+If your identifiers cannot have their resulting objects modified to implement the `IdentityInterface` you can implement a custom decorator that implements the required interface:
 
 ```php
 // You can use a callable...
