@@ -74,8 +74,10 @@ class AuthenticationService implements AuthenticationServiceInterface
      * @param \Phauthentic\Authentication\Authenticator\AuthenticatorCollection $authenticators Authenticator collection.
      * @param \Phauthentic\Authentication\Identity\IdentityFactoryInterface $factory Identity factory.
      */
-    public function __construct(AuthenticatorCollectionInterface $authenticators, IdentityFactoryInterface $factory)
-    {
+    public function __construct(
+        AuthenticatorCollectionInterface $authenticators,
+        IdentityFactoryInterface $factory
+    ) {
         $this->authenticators = $authenticators;
         $this->identityFactory = $factory;
     }
@@ -118,7 +120,7 @@ class AuthenticationService implements AuthenticationServiceInterface
 
         $result = null;
         foreach ($this->authenticators() as $authenticator) {
-            /* @var $authenticator \Authentication\Authenticator\AuthenticatorInterface */
+            /* @var $authenticator \Phauthentic\Authentication\Authenticator\AuthenticatorInterface */
             $result = $authenticator->authenticate($request);
             if ($result->isValid()) {
                 $this->successfulAuthenticator = $authenticator;
@@ -156,8 +158,10 @@ class AuthenticationService implements AuthenticationServiceInterface
      * @param \Psr\Http\Message\ResponseInterface $response The response.
      * @return \Phauthentic\Authentication\PersistenceResultInterface Return an array containing the request and response objects.
      */
-    public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response): PersistenceResultInterface
-    {
+    public function clearIdentity(
+        ServerRequestInterface $request,
+        ResponseInterface $response
+    ): PersistenceResultInterface {
         foreach ($this->authenticators() as $authenticator) {
             if ($authenticator instanceof PersistenceInterface) {
                 $response = $authenticator->clearIdentity($request, $response);
@@ -175,8 +179,11 @@ class AuthenticationService implements AuthenticationServiceInterface
      * @param \Phauthentic\Authentication\Identity\IdentityInterface|null $identity Identity.
      * @return \Phauthentic\Authentication\PersistenceResultInterface
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, IdentityInterface $identity = null): PersistenceResultInterface
-    {
+    public function persistIdentity(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        IdentityInterface $identity = null
+    ): PersistenceResultInterface {
         if ($identity === null) {
             $identity = $this->getIdentity();
         }

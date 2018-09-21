@@ -32,5 +32,4 @@ class AuthenticationTestCase extends FixturizedTestCase
     {
         return new UsersFixture();
     }
-
 }

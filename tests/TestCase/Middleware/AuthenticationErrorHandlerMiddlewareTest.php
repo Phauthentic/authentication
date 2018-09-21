@@ -60,7 +60,13 @@ class TestRequestHandler implements RequestHandlerInterface
  */
 class AuthenticationErrorHandlerMiddlewareTest extends TestCase
 {
-    public function setUp()/* The :void return type declaration that should be here would cause a BC issue */ {
+    use HttpEnvMockTrait;
+
+    /**
+     * The :void return type declaration that should be here would cause a BC issue
+     */
+    public function setUp()
+    {
         parent::setUp();
 
         $this->request = $this
@@ -89,7 +95,8 @@ class AuthenticationErrorHandlerMiddlewareTest extends TestCase
      *
      * @return void
      */
-    public function testProcessAndCreateErrorResponse(): void {
+    public function testProcessAndCreateErrorResponse(): void
+    {
         $handler = new TestRequestHandler(new UnauthenticatedException('Failed to authenticate :('));
         $middleware = new AuthenticationErrorHandlerMiddleware($this->responseFactory, $this->streamFactory);
 
@@ -117,7 +124,8 @@ class AuthenticationErrorHandlerMiddlewareTest extends TestCase
      *
      * @return void
      */
-    public function testProcessAndCreateUnauthorizedResponse(): void {
+    public function testProcessAndCreateUnauthorizedResponse(): void
+    {
         $handler = new TestRequestHandler(new UnauthorizedException([], 'Failed :('));
         $middleware = new AuthenticationErrorHandlerMiddleware($this->responseFactory, $this->streamFactory);
 

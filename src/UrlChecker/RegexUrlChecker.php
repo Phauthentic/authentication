@@ -1,4 +1,4 @@
-<?php 
+<?php
 declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
@@ -47,7 +47,7 @@ class RegexUrlChecker implements UrlCheckerInterface
      */
     public function check(ServerRequestInterface $request, string $regex): bool
     {
-        $requestUrl = $this->_getUrlFromRequest($request->getUri());
+        $requestUrl = $this->getUrlFromRequest($request->getUri());
 
         return (bool)preg_match($regex, $requestUrl);
     }
@@ -58,7 +58,7 @@ class RegexUrlChecker implements UrlCheckerInterface
      * @param \Psr\Http\Message\UriInterface $uri Server Request
      * @return string
      */
-    protected function _getUrlFromRequest(UriInterface $uri): string
+    protected function getUrlFromRequest(UriInterface $uri): string
     {
         if ($this->checkFullUrl) {
             return (string)$uri;
