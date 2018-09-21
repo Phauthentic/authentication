@@ -81,5 +81,4 @@ trait UrlAwareTrait
 
         return false;
     }
-
 }

@@ -123,10 +123,10 @@ class PasswordIdentifier extends AbstractIdentifier
             return null;
         }
 
-        $data = $this->_findIdentity($credentials[self::CREDENTIAL_USERNAME]);
+        $data = $this->findIdentity($credentials[self::CREDENTIAL_USERNAME]);
         if (array_key_exists(self::CREDENTIAL_PASSWORD, $credentials)) {
             $password = $credentials[self::CREDENTIAL_PASSWORD];
-            if (!$this->_checkPassword($data, $password)) {
+            if (!$this->checkPassword($data, $password)) {
                 return null;
             }
         }
@@ -143,7 +143,7 @@ class PasswordIdentifier extends AbstractIdentifier
      * @param string|null $password The password.
      * @return bool
      */
-    protected function _checkPassword(?ArrayAccess $data, $password): bool
+    protected function checkPassword(?ArrayAccess $data, $password): bool
     {
         $passwordField = $this->credentialFields[self::CREDENTIAL_PASSWORD];
 
@@ -180,7 +180,7 @@ class PasswordIdentifier extends AbstractIdentifier
      * @param string $identifier The username/identifier.
      * @return \ArrayAccess|null
      */
-    protected function _findIdentity($identifier): ?ArrayAccess
+    protected function findIdentity($identifier): ?ArrayAccess
     {
         $fields = $this->credentialFields[self::CREDENTIAL_USERNAME];
 

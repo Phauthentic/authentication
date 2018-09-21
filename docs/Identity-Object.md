@@ -1,34 +1,40 @@
 # The Identity Object
 
-The identity object is returned by the service and made available in the request. The object provides a method `getIdentifier()` that can be called to get the id of the current log in identity.
+The identity object is returned by the service and made available in the 
+request. The object provides a method `getIdentifier()` that can be called to 
+get the id of the current log in identity.
 
-The reason this object exists is to provide an interface that makes it easy to get access to the identity's id across various implementations/sources.
+The reason this object exists is to provide an interface that makes it easy to 
+get access to the identity's id across various implementations/sources.
+
+It is named "identity" because a login can be made also by another system which 
+is not necessary what is considered an "user". Identity provides a neutral but 
+ubiquitous naming.
 
 ```php
-// Service
+// Service implementing \Phauthentic\AuthenticationServiceInterface
 $authenticationService
     ->getIdentity()
     ->getIdentifier()
 
-// Component
-$this->Authentication
-    ->getIdentity()
-    ->getIdentifier();
-
-// Request
+// Instance of a request implementing \Psr\Http\Message\ServerRequestInterface
 $this->request
     ->getAttribute('identity')
     ->getIdentifier();
 ```
 
-The identity object provides ArrayAccess but as well a `get()` method to access data. It is strongly recommended to use the `get()` method over array access because the get method is aware of the field mapping. 
+The identity object provides ArrayAccess but as well a `get()` method to access 
+data. It is strongly recommended to use the `get()` method over array access 
+because the get method is aware of the field mapping. 
 
 ```php
 $identity->get('email');
 $identity->get('username');
 ```
 
-The default Identity object class can be configured to map fields. This is pretty useful if the identifier of the identity is a non-conventional `id` field or if you want to map other fields to more generic and common names.
+The default Identity object class can be configured to map fields. This is 
+pretty useful if the identifier of the identity is a non-conventional `id` field 
+or if you want to map other fields to more generic and common names.
 
 ```php
     $identity = new Identity($data, [
@@ -51,10 +57,10 @@ If you'd like to continue using your existing User class with this plugin you
 can implement the `Authentication\IdentityInterface`:
 
 ```php
-namespace App\Model\Entity;
+namespace App\Model\User;
 
 use Phauthentic\Authentication\IdentityInterface;
-use Cake\ORM\Entity;
+use SomeFramework\ORM\Entity;
 
 class User extends Entity implements IdentityInterface
 {
@@ -81,8 +87,8 @@ class User extends Entity implements IdentityInterface
 
 ## Using a Custom Identity Decorator
 
-If your identifiers cannot have their resulting objects modified to implement
-the `IdentityInterface` you can implement a custom decorator that implements the
+If your identifiers cannot have their resulting objects modified to implement 
+the `IdentityInterface` you can implement a custom decorator that implements the 
 required interface:
 
 ```php

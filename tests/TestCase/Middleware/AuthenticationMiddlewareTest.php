@@ -14,29 +14,75 @@
  */
 namespace Phauthentic\Authentication\Test\TestCase\Middleware;
 
+use ArrayObject;
+use Phauthentic\Authentication\AuthenticationServiceInterface;
 use Phauthentic\Authentication\AuthenticationServiceProviderInterface;
 use Phauthentic\Authentication\HttpFactory\ZendDiactoresResponseFactory;
 use Phauthentic\Authentication\HttpFactory\ZendStreamFactory;
+use Phauthentic\Authentication\Identity\Identity;
 use Phauthentic\Authentication\Middleware\AuthenticationMiddleware;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Authentication Middleware Test
  */
 class AuthenticationMiddlewareTest extends TestCase
 {
+
+    use HttpEnvMockTrait;
+
+    /**
+     * The :void return type declaration that should be here would cause a BC issue
+     */
+    public function setUp()
+    {
+        parent::setUp();
+        $this->setupPsrHttpMessageTraits();
+    }
+
     /**
      * testProcess
      *
      * @return void
      */
-    public function testProcess(): void {
+    public function testProcess(): void
+    {
+        $this->request->expects($this->atLeastOnce())
+            ->method('withAttribute')
+            ->willReturnSelf();
+
         $service = $this
+            ->getMockBuilder(AuthenticationServiceInterface::class)
+            ->getMock();
+
+        $service->expects($this->atLeastOnce())
+            ->method('authenticate');
+
+        $service->expects($this->atLeastOnce())
+            ->method('getIdentity')
+            ->willReturn(new Identity(new ArrayObject(['id' => 1, 'username' => 'florian'])));
+
+        $serviceProvider = $this
             ->getMockBuilder(AuthenticationServiceProviderInterface::class)
             ->getMock();
 
+        $serviceProvider->expects($this->atLeastOnce())
+            ->method('getAuthenticationService')
+            ->willReturn($service);
+
+        $requestHandler =  $this
+            ->getMockBuilder(RequestHandlerInterface::class)
+            ->getMock();
+
         $middleware = new AuthenticationMiddleware(
-            $service
+            $serviceProvider
         );
+
+        $result = $middleware->process($this->request, $requestHandler);
+
+        $this->assertInstanceOf(ResponseInterface::class, $result);
     }
 }

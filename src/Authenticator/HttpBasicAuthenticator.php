@@ -68,6 +68,21 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
     }
 
     /**
+     * Checks for the user and password in the server request params
+     *
+     * @param array $serverParams Server params from \Psr\Http\Message\ServerRequestInterface::getServerParams()
+     * @return bool
+     */
+    protected function checkServerParams(array $serverParams): bool {
+        return !isset($serverParams['PHP_AUTH_USER'])
+            || !isset($serverParams['PHP_AUTH_PW'])
+            || !is_string($serverParams['PHP_AUTH_USER'])
+            || $serverParams['PHP_AUTH_USER'] === ''
+            || !is_string($serverParams['PHP_AUTH_PW'])
+            || $serverParams['PHP_AUTH_PW'] === '';
+    }
+
+    /**
      * Get a user based on information in the request. Used by cookie-less auth for stateless clients.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request Request object.
@@ -75,21 +90,14 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
      */
     public function getUser(ServerRequestInterface $request): ?ArrayAccess
     {
-        $server = $request->getServerParams();
-        if (!isset($server['PHP_AUTH_USER']) || !isset($server['PHP_AUTH_PW'])) {
-            return null;
-        }
-
-        $username = $server['PHP_AUTH_USER'];
-        $password = $server['PHP_AUTH_PW'];
-
-        if (!is_string($username) || $username === '' || !is_string($password) || $password === '') {
+        $serverParams = $request->getServerParams();
+        if ($this->checkServerParams($serverParams)) {
             return null;
         }
 
         return $this->identifier->identify([
-            IdentifierInterface::CREDENTIAL_USERNAME => $username,
-            IdentifierInterface::CREDENTIAL_PASSWORD => $password,
+            IdentifierInterface::CREDENTIAL_USERNAME => $serverParams['PHP_AUTH_USER'],
+            IdentifierInterface::CREDENTIAL_PASSWORD => $serverParams['PHP_AUTH_PW'],
         ]);
     }
 
@@ -98,7 +106,7 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request A request object.
      * @return void
-     * @throws \Authentication\Authenticator\Exception\UnauthorizedException
+     * @throws \Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException
      */
     public function unauthorizedChallenge(ServerRequestInterface $request): void
     {

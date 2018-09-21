@@ -13,6 +13,7 @@ composer require phauthentic/authentication
 Example of configuring the authentication middleware using `authentication` application hook.
 
 ```php
+use Appplication\Http\BaseApplication;
 use Phauthentic\Authentication\AuthenticationService;
 use Phauthentic\Authentication\AuthenticationServiceProviderInterface;
 use Phauthentic\Authentication\Middleware\AuthenticationMiddleware;
@@ -31,24 +32,17 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
      */
     public function getAuthenticationService(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $service = new AuthenticationService();
+        $authenticatorCollection = new AuthenticatorCollection();
 
-        $fields = [
-            'username' => 'email',
-            'password' => 'password'
-        ];
+        $authenticatorCollection->add(new FormAuthenticator(
+            new PasswordIdenfier(
+                new OrmResolver(),
+                new DefaultPasswordHasher()
+            ),
+            new DefaultUrlChecekr()
+        ));
 
-        // Load identifiers
-        $service->loadIdentifier('Authentication.Password', compact('fields'));
-
-        // Load the authenticators, you want session first
-        $service->loadAuthenticator('Authentication.Session');
-        $service->loadAuthenticator('Authentication.Form', [
-            'fields' => $fields,
-            'loginUrl' => '/users/login'
-        ]);
-
-        return $service;
+        return new AuthenticationService($authenticatorCollection);
     }
 
     public function middleware($middlewareQueue)
@@ -82,115 +76,17 @@ these authenticators as the *last* authenticators:
 
 ```php
 use Phauthentic\Authentication\AuthenticationService;
+use Phauthentic\Authentication\Authenticator\SessionAuthenticator;
+use Phauthentic\Authentication\Authenticator\HttpBasicAuthentcator;
+use Phauthentic\Authentication\Authenticator\SessionAuthenticator;
+use Phauthentic\Authentication\Authenticator\AuthenticatorCollection;
 
-// Instantiate the service
-$service = new AuthenticationService();
+$authenticatorCollection = new AuthenticatorCollection();
 
-// Load identifiers
-$service->loadIdentifier('Authentication.Password', [
-    'fields' => [
-        'username' => 'email',
-        'password' => 'password'
-    ]
-]);
+$authenticatorCollection->add(new SessionAuthenticator(/*...*/);
+$authenticatorCollection->add(new FormAuthenticator(/*...*/);
+// Load the authenticators leaving Basic as the last one!
+$authenticatorCollection->add(new HttpBasicAuthentcator(/*...*/);
 
-// Load the authenticators leaving Basic as the last one.
-$service->loadAuthenticator('Authentication.Session');
-$service->loadAuthenticator('Authentication.Form');
-$service->loadAuthenticator('Authentication.HttpBasic');
+$service = new AuthenticationService($authenticatorCollection);
 ```
-
-## Authentication Component
-
-You can use the `AuthenticationComponent` to access the result of authentication,
-get user identity and logout user. Load the component in your `AppController::initialize()`
-like any other component.
-
-```php
-$this->loadComponent('Authentication.Authentication', [
-    'logoutRedirect' => '/users/login'  // Default is false
-]);
-```
-
-Once loaded, the `AuthenticationComponent` will require that all actions have an
-authenticated user present, but perform no other access control checks. You can
-disable this check for specific actions using `allowUnauthenticated()`:
-
-```php
-// In your controller's beforeFilter method.
-$this->Authentication->allowUnauthenticated(['view']);
-```
-
-### Accessing the user / identity data
-
-You can get the authenticated identity data using the authentication component:
-
-```php
-$user = $this->Authentication->getIdentity();
-```
-
-You can also get the identity directly from the request instance:
-
-```php
-$user = $request->getAttribute('identity');
-```
-
-### Checking the login status
-
-You can check if the authentication process was successful by accessing the result
-object:
-
-```php
-// Using Authentication component
-$result = $this->Authentication->getResult();
-
-// Using request object
-$result = $request->getAttribute('authentication')->getResult();
-
-if ($result->isValid()) {
-    $user = $request->getAttribute('identity');
-} else {
-    $this->log($result->getStatus());
-    $this->log($result->getErrors());
-}
-```
-
-The result sets objects status returned from `getStatus()` will match one of these these constants in the Result object:
-
-* `ResultInterface::SUCCESS`, when successful.
-* `ResultInterface::FAILURE_IDENTITY_NOT_FOUND`, when identity could not be found.
-* `ResultInterface::FAILURE_CREDENTIALS_INVALID`, when credentials are invalid.
-* `ResultInterface::FAILURE_CREDENTIALS_MISSING`, when credentials are missing in the request.
-* `ResultInterface::FAILURE_OTHER`, on any other kind of failure.
-
-The error array returned by `getErrors()` contains *additional* information coming from the specific system against which the authentication attempt was made. For example LDAP or OAuth would put errors specific to their implementation in here for easier logging and debugging the cause. But most of the included authenticators don't put anything in here.
-
-### Clearing the identity / logging the user out
-
-To log an identity out just do:
-
-```php
-$this->Authentication->logout();
-```
-
-If you have set the `loginRedirect` config, `Authentication::logout()` will
-return that value else will return `false`. It won't perform any actual redirection
-in either case.
-
-Alternatively, instead of the component you can also use the request instance to log out:
-
-```php
-$return = $request->getAttribute('authentication')->clearIdentity($request, $response);
-debug($return);
-```
-
-The debug will show you an array like this:
-
-```
-[
-    'response' => object(Cake\Http\Response) { ... },
-    'request' => object(Cake\Http\ServerRequest) { ... }
-]
-```
-
-**Attention!** This will return an array containing the request and response objects. Since both are immutable you'll get new objects back. Depending on your context you're working in you'll have to use these instances from now on if you want to continue to work with the modified response and request objects.
