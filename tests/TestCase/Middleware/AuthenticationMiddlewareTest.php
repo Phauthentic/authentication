@@ -17,8 +17,6 @@ namespace Phauthentic\Authentication\Test\TestCase\Middleware;
 use ArrayObject;
 use Phauthentic\Authentication\AuthenticationServiceInterface;
 use Phauthentic\Authentication\AuthenticationServiceProviderInterface;
-use Phauthentic\Authentication\HttpFactory\ZendDiactoresResponseFactory;
-use Phauthentic\Authentication\HttpFactory\ZendStreamFactory;
 use Phauthentic\Authentication\Identity\Identity;
 use Phauthentic\Authentication\Middleware\AuthenticationMiddleware;
 use PHPUnit\Framework\TestCase;
