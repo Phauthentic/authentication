@@ -1,6 +1,6 @@
 # Identifiers
 
-Identifiers will identify an user or service based on the information that was extracted from the request by the authenticators. Identifiers can take options in the `loadIdentifier` method. A holistic example of using the Password Identifier looks like:
+Identifiers will identify an user or service based on the information that was extracted from the request by the authenticators. A holistic example of using the Password Identifier looks like:
 
 ```php
 use Phauthentic\Identifier\PasswordIdenfier;
@@ -13,98 +13,62 @@ $identifier = new PasswordIdenfier(
 );
 ```
 
-## Password
+Some identifiers might use other constructor arguments. Construct them manually or set them up in your DI config as needed.
+
+## Identifier options
+
+Almost each identifier takes a few different configuration options. The options can be set through setter methods. The following list of identifiers describes their setter options: 
+
+
+## Password Identifier
 
 The password identifier checks the passed credentials against a datasource.
 
 Configuration option setters:
 
-* **fields**: The fields for the lookup. Default is `['username' => 'username', 'password' => 'password']`.
+* **setFields()**: The fields for the lookup. Default is `['username' => 'username', 'password' => 'password']`.
   You can also set the `username` to an array. For e.g. using
   `['username' => ['username', 'email'], 'password' => 'password']` will allow
   you to match value of either username or email columns.
 
-## Token
+## Token Identifier
 
 Checks the passed token against a datasource.
 
 Configuration option setters:
 
-* **tokenField**: The field in the database to check against. Default is `token`.
-* **dataField**: The field in the passed data from the authenticator. Default is `token`.
+* **setTokenField()**: The field in the database to check against. Default is `token`.
+* **setDataField()**: The field in the passed data from the authenticator. Default is `token`.
 
-## JWT Subject
+## JWT Subject Identifier
 
 Checks the passed JWT token against a datasource.
 
 Configuration option setters:
 
-* **tokenField**: The field in the database to check against. Default is `id`.
-* **dataField**: The payload key to get user identifier from. Default is `sub`.
-* **resolver**: The identity resolver. Default is `Authentication.Orm` which uses CakePHP ORM.
+* **setTokenField()**: The field in the database to check against. Default is `id`.
+* **setDataField()**: The payload key to get user identifier from. Default is `sub`.
+* **setResolver()**: The identity resolver. Default is `Authentication.Orm` which uses CakePHP ORM.
 
-## LDAP
+## LDAP Identifier
 
 Checks the passed credentials against a LDAP server. This identifier requires the PHP LDAP extension.
 
 Configuration option setters:
 
-* **fields**: The fields for the lookup. Default is `['username' => 'username', 'password' => 'password']`.
-* **host**: The FQDN of your LDAP server.
-* **port**: The port of your LDAP server. Defaults to `389`.
-* **bindDN**: The Distinguished Name of the user to authenticate. Must be a callable. Anonymous binds are not supported.
-* **ldap**: The extension adapter. Defaults to `\Authentication\Identifier\Ldap\ExtensionAdapter`.
+* **setFields()**: The fields for the lookup. Default is `['username' => 'username', 'password' => 'password']`.
+* **setHost()**: The FQDN of your LDAP server.
+* **setPort()**: The port of your LDAP server. Defaults to `389`.
+* **setBindDN()**: The Distinguished Name of the user to authenticate. Must be a callable. Anonymous binds are not supported.
+* **setLdap()**: The extension adapter. Defaults to `\Authentication\Identifier\Ldap\ExtensionAdapter`.
   You can pass a custom object/classname here if it implements the `AdapterInterface`.
-* **options**: Additional LDAP options, like `LDAP_OPT_PROTOCOL_VERSION` or `LDAP_OPT_NETWORK_TIMEOUT`.
+* **setOptions()**: Additional LDAP options, like `LDAP_OPT_PROTOCOL_VERSION` or `LDAP_OPT_NETWORK_TIMEOUT`.
   See [php.net](http://php.net/manual/en/function.ldap-set-option.php) for more valid options.
 
-## Callback
+## Callback Identifier
 
 Allows you to use a callback for identification. This is useful for simple identifiers or quick prototyping.
 
 Configuration option setters:
 
-* **callback**: Default is `null` and will cause an exception. You're required to pass a valid callback to this option to use the authenticator.
-
-# Identity resolvers
-
-Identity resolvers provide adapters for different datasources. They allow
-you to control which source identities are searched in. They are separate from
-the identifiers so that they can be swapped out independently from the
-identifier method (form, jwt, basic auth).
-
-## ORM Resolver
-
-Identity resolver for the CakePHP ORM.
-
-Configuration option setters:
-
-* **userModel**: The user model identities are located in. Default is `Users`.
-* **finder**: The finder to use with the model. Default is `all`.
-
-In order to use ORM resolver you must require `cakephp/orm` in your `composer.json` file.
-
-## Writing your own resolver
-
-Any ORM or datasource can be adapted to work with authentication by creating a resolver.  Resolvers must implement `\Phauthentic\Authentication\Identifier\Resolver\ResolverInterface`.
-
-Resolver can be configured using `resolver` config option:
-
-```php
-$service->loadIdentifier('Authentication.Password', [
-    'resolver' => [
-         // can be a full class name: \Some\Other\Custom\Resolver::class
-        'className' => 'MyResolver',
-        // Pass additional options to the resolver constructor.
-        'option' => 'value'
-    ]
-]);
-```
-
-Or injected using a setter:
-
-```php
-$resolver = new \App\Identifier\Resolver\CustomResolver();
-$identifier = $service->loadIdentifier('Authentication.Password');
-$identifier->setResolver($resolver);
-```
+* **setCallback()**: Default is `null` and will cause an exception. You're required to pass a valid callback to this option to use the authenticator.
