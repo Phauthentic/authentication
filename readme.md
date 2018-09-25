@@ -40,6 +40,7 @@ Only if you plan to use the PSR-15 middleware:
  * [Quick Start and Introduction](docs/Quick-start-and-introduction.md)
  * [Authenticators](docs/Authenticators.md)
  * [Identifiers](docs/Identifiers.md)
+   * [Identity Resolvers](docs/Identity-Resolvers.md)
  * [Identity Objects](docs/Identity-Object.md)
  * [URL Checkers](docs/URL-Checkers.md)
  * [PSR15 Middleware](docs/PSR15-Middleware.md)
