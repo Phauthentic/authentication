@@ -36,7 +36,7 @@ class PdoStatementResolver implements ResolverInterface
     /**
      * Constructor.
      *
-     * @param \PDOStatement A prepared statement to query the DB
+     * @param \PDOStatement $statement A prepared statement to query the DB
      */
     public function __construct(PDOStatement $statement)
     {
