@@ -31,14 +31,14 @@ abstract class FixturizedTestCase extends TestCase
     /**
      * @var DefaultConnection
      */
-    private $connection = null;
+    protected $connection = null;
 
     /**
      * Returns PDO instance.
      *
      * @return PDO
      */
-    private static function getPDO(): PDO
+    protected static function getPDO(): PDO
     {
         if (self::$pdo == null) {
             self::$pdo = new PDO(getenv('PDO_DB_DSN'));
