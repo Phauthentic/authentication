@@ -16,16 +16,16 @@ composer require Phauthentic/authentication
 
 ## Requirements
 
-Your application **must** use PSR HTTP Message interfaces for your request and response objects. The whole library is build to be framework agnostic but uses these interfaces as the common API. Every modern and well written framework and application should fulfill this requirement.
+Your application **must** use the [PSR 7 HTTP Message interfaces](https://github.com/php-fig/http-message) for your request and response objects. The whole library is build to be framework agnostic but uses these interfaces as the common API. Every modern and well written framework and application should fulfill this requirement.
 
  * php >= 7.1
- * psr/http-message
+ * [psr/http-message](https://github.com/php-fig/http-message)
 
 Only if you plan to use the PSR-15 middleware:
 
- * psr/http-server-handler
- * psr/http-factory
- * psr/http-server-middleware
+ * [psr/http-server-handler](https://github.com/php-fig/http-server-handler)
+ * [psr/http-factory](https://github.com/php-fig/http-factory)
+ * [psr/http-server-middleware](https://github.com/php-fig/http-server-middleware)
 
 ## Framework integrations
 
