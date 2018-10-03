@@ -27,7 +27,8 @@ class PersistenceResultTest extends AuthenticationTestCase
     /**
      * @inheritdoc
      */
-    public function setUp(): void {
+    public function setUp(): void
+    {
         parent::setUp();
 
         $this->request = $this
@@ -37,7 +38,6 @@ class PersistenceResultTest extends AuthenticationTestCase
         $this->response = $this
             ->getMockBuilder(ResponseInterface::class)
             ->getMock();
-
     }
 
     /**
