@@ -48,27 +48,43 @@ Configuration option setters:
 
 * **setTokenField()**: The field in the database to check against. Default is `id`.
 * **setDataField()**: The payload key to get user identifier from. Default is `sub`.
-* **setResolver()**: The identity resolver. Default is `Authentication.Orm` which uses CakePHP ORM.
 
 ## LDAP Identifier
 
-Checks the passed credentials against a LDAP server. This identifier requires the PHP LDAP extension.
+Checks the passed credentials against a LDAP server.
+
+The constructor takes three required argument, the fourth, the port, is optional.
+
+The first argument is an adapter instance, the library comes with an LDAP adapter that requires [the LDAP extension](http://php.net/manual/en/book.ldap.php).
+
+The second argument is the host. The third argument is the distinguished name of the user to authenticate. Must be a callable. Anonymous binds are not supported. You can pass a custom object/classname here if it implements the `AdapterInterface`.
+
+```php
+use Phauthentic\Identifier\LdapIdentifier;
+use Phauthentic\Identifier\Ldap\ExtensionAdapter;
+
+$identifier = new LdapIdentifier(
+    new ExtensionAdapter(), // 
+    '127.0.0.1' // Host
+    function() { /*...*/ } // BindDN Callable
+    389 // Port, optional, defaults to 389
+);
+```
 
 Configuration option setters:
 
-* **setFields()**: The fields for the lookup. Default is `['username' => 'username', 'password' => 'password']`.
-* **setHost()**: The FQDN of your LDAP server.
-* **setPort()**: The port of your LDAP server. Defaults to `389`.
-* **setBindDN()**: The Distinguished Name of the user to authenticate. Must be a callable. Anonymous binds are not supported.
-* **setLdap()**: The extension adapter. Defaults to `\Authentication\Identifier\Ldap\ExtensionAdapter`.
-  You can pass a custom object/classname here if it implements the `AdapterInterface`.
-* **setOptions()**: Additional LDAP options, like `LDAP_OPT_PROTOCOL_VERSION` or `LDAP_OPT_NETWORK_TIMEOUT`.
+* **setCredentialFields()**: The fields for the lookup. Default is `['username' => 'username', 'password' => 'password']`.
+* **setLdapOptions()**: Additional LDAP options, like `LDAP_OPT_PROTOCOL_VERSION` or `LDAP_OPT_NETWORK_TIMEOUT`.
   See [php.net](http://php.net/manual/en/function.ldap-set-option.php) for more valid options.
 
 ## Callback Identifier
 
 Allows you to use a callback for identification. This is useful for simple identifiers or quick prototyping.
 
-Configuration option setters:
+```php
+use Phauthentic\Identifier\CallableIdentifier;
 
-* **setCallback()**: Default is `null` and will cause an exception. You're required to pass a valid callback to this option to use the authenticator.
+$identifier = new CallableIdentifier(function($data) {
+    // Whatever you need here
+});
+```
