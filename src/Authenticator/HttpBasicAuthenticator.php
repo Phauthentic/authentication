@@ -73,7 +73,8 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
      * @param array $serverParams Server params from \Psr\Http\Message\ServerRequestInterface::getServerParams()
      * @return bool
      */
-    protected function checkServerParams(array $serverParams): bool {
+    protected function checkServerParams(array $serverParams): bool
+    {
         return !isset($serverParams['PHP_AUTH_USER'])
             || !isset($serverParams['PHP_AUTH_PW'])
             || !is_string($serverParams['PHP_AUTH_USER'])

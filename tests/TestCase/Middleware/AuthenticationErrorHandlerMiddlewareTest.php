@@ -15,8 +15,6 @@ namespace Phauthentic\Authentication\Test\TestCase\Middleware;
 use Phauthentic\Authentication\AuthenticationServiceProviderInterface;
 use Phauthentic\Authentication\Authenticator\Exception\UnauthenticatedException;
 use Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException;
-use Phauthentic\Authentication\HttpFactory\ZendDiactoresResponseFactory;
-use Phauthentic\Authentication\HttpFactory\ZendStreamFactory;
 use Phauthentic\Authentication\Middleware\AuthenticationErrorHandlerMiddleware;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -27,6 +25,7 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 
+// phpcs:disable
 class TestRequestHandler implements RequestHandlerInterface
 {
     /**
@@ -54,6 +53,7 @@ class TestRequestHandler implements RequestHandlerInterface
         throw $this->exception;
     }
 }
+// phpcs:enable
 
 /**
  * Authentication Error Handler Middleware Test
