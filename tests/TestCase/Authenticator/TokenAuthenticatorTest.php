@@ -63,7 +63,7 @@ class TokenAuthenticatorTest extends TestCase
     {
         // Test without token
         $tokenAuth = (new TokenAuthenticator($this->identifier))
-            ->setQueryParamn('token');
+            ->setQueryParam('token');
 
         $result = $tokenAuth->authenticate($this->request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
@@ -89,7 +89,7 @@ class TokenAuthenticatorTest extends TestCase
         // Test with query param token
         $requestWithParams = $this->request->withQueryParams(['token' => 'florian']);
         $tokenAuth = (new TokenAuthenticator($this->identifier))
-            ->setQueryParamn('token');
+            ->setQueryParam('token');
 
         $result = $tokenAuth->authenticate($requestWithParams, $this->response);
         $this->assertInstanceOf(Result::class, $result);
@@ -98,7 +98,7 @@ class TokenAuthenticatorTest extends TestCase
         // Test with valid query param but invalid token
         $requestWithParams = $this->request->withQueryParams(['token' => 'does-not-exist']);
         $tokenAuth = (new TokenAuthenticator($this->identifier))
-            ->setQueryParamn('token');
+            ->setQueryParam('token');
 
         $result = $tokenAuth->authenticate($requestWithParams, $this->response);
         $this->assertInstanceOf(Result::class, $result);

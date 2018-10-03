@@ -65,7 +65,7 @@ class TokenAuthenticator extends AbstractAuthenticator implements StatelessInter
      * @param null|string $queryParam Query param
      * @return $this
      */
-    public function setQueryParamn(?string $queryParam): self
+    public function setQueryParam(?string $queryParam): self
     {
         $this->queryParam = $queryParam;
 

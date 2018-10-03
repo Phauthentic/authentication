@@ -81,11 +81,11 @@ class JwtAuthenticator extends TokenAuthenticator
     /**
      * {@inheritDoc}
      */
-    public function __construct(IdentifierInterface $identifier, string $secretkey)
+    public function __construct(IdentifierInterface $identifier, string $secretKey)
     {
         parent::__construct($identifier);
 
-        $this->secretKey = $secretkey;
+        $this->secretKey = $secretKey;
     }
 
     /**
