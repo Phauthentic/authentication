@@ -16,10 +16,18 @@ declare(strict_types=1);
 namespace Phauthentic\Authentication\Authenticator\Exception;
 
 use RuntimeException;
+use Throwable;
 
 /**
  * An exception that signals that authentication was required but missing.
  */
 class UnauthenticatedException extends RuntimeException implements AuthenticationExceptionInterface
 {
+    /**
+     * {@inheritDoc}
+     */
+    public function __construct(string $message = '', int $code = 401, Throwable $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
 }
