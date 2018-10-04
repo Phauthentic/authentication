@@ -385,4 +385,24 @@ class AuthenticationServiceTest extends TestCase
         $result = $service->buildIdentity($data);
         $this->assertSame($identity, $result);
     }
+
+    public function testGetIdentity()
+    {
+        $request = ServerRequestFactory::fromGlobals(
+            ['REQUEST_URI' => '/testpath'],
+            [],
+            ['username' => 'robert', 'password' => 'robert']
+        );
+
+        $authenticators = $this->createAuthenticators();
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
+
+        $success = $service->authenticate($request);
+        $this->assertTrue($success);
+
+        $identity = $service->getIdentity();
+        $this->assertNotNull($identity);
+
+        $this->assertSame($identity, $service->getIdentity());
+    }
 }
