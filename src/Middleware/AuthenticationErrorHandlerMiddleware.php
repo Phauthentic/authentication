@@ -13,8 +13,6 @@ declare(strict_types=1);
  */
 namespace Phauthentic\Authentication\Middleware;
 
-use Phauthentic\Authentication\AuthenticationServiceProviderInterface;
-use Phauthentic\Authentication\Authenticator\Exception\AuthenticationExceptionInterface;
 use Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -65,16 +63,14 @@ class AuthenticationErrorHandlerMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         } catch (UnauthorizedException $e) {
             return $this->createUnauthorizedResponse($e);
-        } catch (AuthenticationExceptionInterface $e) {
-            return $this->createErrorResponse($e);
         }
     }
 
     /**
      * Creates an unauthorized response.
      *
-     * @param UnauthorizedException $e Exception.
-     * @return ResponseInterface
+     * @param \Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException $e Exception.
+     * @return \Psr\Http\Message\ResponseInterface
      */
     protected function createUnauthorizedResponse(UnauthorizedException $e): ResponseInterface
     {
@@ -91,22 +87,5 @@ class AuthenticationErrorHandlerMiddleware implements MiddlewareInterface
         }
 
         return $response;
-    }
-
-    /**
-     * Creates an error response.
-     *
-     * @param UnauthorizedException $e Exception.
-     * @return ResponseInterface
-     */
-    protected function createErrorResponse(AuthenticationExceptionInterface $e, int $responseCode = 500): ResponseInterface
-    {
-        $body = $this->streamFactory->createStream();
-        $body->write($e->getMessage());
-
-        return $this
-            ->responseFactory
-            ->createResponse($responseCode)
-            ->withBody($body);
     }
 }

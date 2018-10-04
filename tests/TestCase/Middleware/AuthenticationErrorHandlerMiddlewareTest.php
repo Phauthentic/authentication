@@ -100,22 +100,7 @@ class AuthenticationErrorHandlerMiddlewareTest extends TestCase
         $handler = new TestRequestHandler(new UnauthenticatedException('Failed to authenticate :('));
         $middleware = new AuthenticationErrorHandlerMiddleware($this->responseFactory, $this->streamFactory);
 
-        $this->stream->expects($this->once())
-            ->method('write')
-            ->with('Failed to authenticate :(');
-
-        $this->streamFactory->expects($this->any())
-            ->method('createStream')
-            ->willReturn($this->stream);
-
-        $this->response->expects($this->once())
-            ->method('withBody')
-            ->willReturnSelf();
-
-        $this->responseFactory->expects($this->any())
-            ->method('createResponse')
-            ->willReturn($this->response);
-
+        $this->expectException(UnauthenticatedException::class);
         $middleware->process($this->request, $handler);
     }
 
