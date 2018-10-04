@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Phauthentic\Authentication\Authenticator\Exception;
 
 use RuntimeException;
+use Throwable;
 
 /**
  * An exception that holds onto the headers/body for an unauthorized response.
@@ -38,10 +39,11 @@ class UnauthorizedException extends RuntimeException implements AuthenticationEx
      * @param array $headers The headers that should be sent in the unauthorized challenge response.
      * @param string $body The response body that should be sent in the challenge response.
      * @param int $code The exception code that will be used as a HTTP status code
+     * @param Throwable $previous Previous exception
      */
-    public function __construct(array $headers, string $body = '', $code = 401)
+    public function __construct(array $headers, string $body = '', $code = 401, Throwable $previous = null)
     {
-        parent::__construct('Authentication is required to continue', $code);
+        parent::__construct('Authentication is required to continue', $code, $previous);
         $this->headers = $headers;
         $this->body = $body;
     }
