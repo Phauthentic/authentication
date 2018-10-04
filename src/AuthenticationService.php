@@ -55,6 +55,13 @@ class AuthenticationService implements AuthenticationServiceInterface
     protected $failures = [];
 
     /**
+     * Identity object.
+     *
+     * @var \Phauthentic\Authentication\Identity\IdentityInterface|null
+     */
+    protected $identity;
+
+    /**
      * Result of the last authenticate() call.
      *
      * @var \Phauthentic\Authentication\Authenticator\ResultInterface|null
@@ -115,6 +122,7 @@ class AuthenticationService implements AuthenticationServiceInterface
     public function authenticate(ServerRequestInterface $request): bool
     {
         $this->checkAuthenticators();
+        $this->identity = null;
         $this->successfulAuthenticator = null;
         $this->failures = [];
 
@@ -235,7 +243,11 @@ class AuthenticationService implements AuthenticationServiceInterface
             return $data;
         }
 
-        return $this->buildIdentity($data);
+        if ($this->identity === null) {
+            $this->identity = $this->buildIdentity($data);
+        }
+
+        return $this->identity;
     }
 
     /**
