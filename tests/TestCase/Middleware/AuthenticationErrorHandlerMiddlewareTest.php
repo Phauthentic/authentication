@@ -25,7 +25,7 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 
-// phpcs:disable
+// phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
 class TestRequestHandler implements RequestHandlerInterface
 {
     /**
@@ -53,7 +53,6 @@ class TestRequestHandler implements RequestHandlerInterface
         throw $this->exception;
     }
 }
-// phpcs:enable
 
 /**
  * Authentication Error Handler Middleware Test

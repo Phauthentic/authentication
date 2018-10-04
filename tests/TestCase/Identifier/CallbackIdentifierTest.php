@@ -20,7 +20,7 @@ use Phauthentic\Authentication\Identifier\CallbackIdentifier;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
-// phpcs:disable
+// phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
 class MyCallback
 {
 
@@ -29,8 +29,10 @@ class MyCallback
         return new ArrayObject();
     }
 }
-// phpcs:enable
 
+/**
+ * Callback Identifier Test
+ */
 class CallbackIdentifierTest extends TestCase
 {
     /**
