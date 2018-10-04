@@ -269,12 +269,10 @@ class PasswordIdentifierTest extends TestCase
 
         $resolver->expects($this->at(0))
             ->method('find')
-            ->with(['username' => 'mariano@example.com'])
-            ->willReturn(null);
-
-        $resolver->expects($this->at(1))
-            ->method('find')
-            ->with(['email' => 'mariano@example.com'])
+            ->with([
+                'username' => 'mariano@example.com',
+                'email' => 'mariano@example.com'
+            ])
             ->willReturn($user);
 
         $hasher->expects($this->once())

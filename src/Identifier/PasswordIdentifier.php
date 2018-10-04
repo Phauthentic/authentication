@@ -184,17 +184,11 @@ class PasswordIdentifier extends AbstractIdentifier
     {
         $fields = $this->credentialFields[self::CREDENTIAL_USERNAME];
 
+        $conditions = [];
         foreach ((array)$fields as $field) {
-            $conditions = [
-                $field => $identifier,
-            ];
-            $data = $this->resolver->find($conditions);
-
-            if ($data !== null) {
-                return $data;
-            }
+            $conditions[$field] = $identifier;
         }
 
-        return null;
+        return $this->resolver->find($conditions);
     }
 }
