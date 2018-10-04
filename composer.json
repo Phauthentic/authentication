@@ -8,11 +8,12 @@
         "library"
     ],
     "require": {
+        "php": "^7.1",
+        "phauthentic/password-hashers": "dev-master",
+        "psr/http-factory": "^1.0",
         "psr/http-message": "~1.0",
         "psr/http-server-handler": "~1.0",
-        "psr/http-factory": "^1.0",
         "psr/http-server-middleware": "^1.0",
-        "phauthentic/password-hashers": "dev-master",
         "zendframework/zend-diactoros": "^1.4.0"
     },
     "require-dev": {
