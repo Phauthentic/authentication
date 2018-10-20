@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -16,13 +17,13 @@ namespace Phauthentic\Authentication\Test\TestCase\UrlChecker;
 
 use Phauthentic\Authentication\UrlChecker\DefaultUrlChecker;
 use PHPUnit\Framework\TestCase;
-use Zend\Diactoros\ServerRequestFactory;
 
 /**
  * DefaultUrlCheckerTest
  */
 class DefaultUrlCheckerTest extends TestCase
 {
+    use RequestMockTrait;
 
     /**
      * testCheckFailure
@@ -33,10 +34,7 @@ class DefaultUrlCheckerTest extends TestCase
     {
         $checker = new DefaultUrlChecker();
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/does-not-match']
-        );
-
+        $request = $this->getMockRequest('/users/does-not-match');
         $result = $checker->check($request, '/users/login');
         $this->assertFalse($result);
     }
@@ -49,9 +47,8 @@ class DefaultUrlCheckerTest extends TestCase
     public function testCheck()
     {
         $checker = new DefaultUrlChecker();
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/login']
-        );
+
+        $request = $this->getMockRequest('/users/login');
         $result = $checker->check($request, '/users/login');
         $this->assertTrue($result);
     }
@@ -65,10 +62,8 @@ class DefaultUrlCheckerTest extends TestCase
     {
         $checker = new DefaultUrlChecker();
         $checker->checkFullUrl(true);
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/login', 'HTTP_HOST' => 'localhost']
-        );
 
+        $request = $this->getMockRequest('/users/login');
         $result = $checker->check($request, 'http://localhost/users/login');
         $this->assertTrue($result);
     }
@@ -82,10 +77,8 @@ class DefaultUrlCheckerTest extends TestCase
     {
         $checker = new DefaultUrlChecker();
         $checker->checkFullUrl(true);
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/does-not-match']
-        );
 
+        $request = $this->getMockRequest('/users/does-not-match');
         $result = $checker->check($request, 'http://localhost/users/login');
         $this->assertFalse($result);
     }
