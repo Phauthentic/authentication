@@ -53,23 +53,24 @@ class NativePhpSessionStorageTest extends TestCase
     }
 
     /**
-     * testGetIdentifier
+     * Test reading from an empty session
      *
      * @return void
      */
     public function testReadFromEmptySession()
     {
+        unset($_SESSION);
         $storage = new NativePhpSessionStorage('Auth');
         $result = $storage->read($this->request);
         $this->assertNull($result);
     }
 
     /**
-     * testGetIdentifier
+     * testReadAndWrite
      *
      * @return void
      */
-    public function testWrite()
+    public function testReadAndWrite()
     {
         $data = ['username' => 'florian'];
         $storage = new NativePhpSessionStorage('Auth');
