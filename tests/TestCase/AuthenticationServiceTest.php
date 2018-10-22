@@ -341,6 +341,10 @@ class AuthenticationServiceTest extends TestCase
         $result = $service->clearIdentity($request, $response);
         $this->assertInstanceOf(PersistenceResultInterface::class, $result);
         $this->assertEquals('Cleared', $result->getResponse()->getHeaderLine('Identity'));
+        $this->assertNull($service->getIdentity());
+        $this->assertNull($service->getResult());
+        $this->assertNull($service->getSuccessfulAuthenticator());
+        $this->assertEmpty($service->getFailures());
     }
 
     /**
