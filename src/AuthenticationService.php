@@ -176,7 +176,23 @@ class AuthenticationService implements AuthenticationServiceInterface
             }
         }
 
+
+        $this->resetInternalState();
+
         return new PersistenceResult($request, $response);
+    }
+
+    /**
+     * Resets the internal state of the service
+     *
+     * @return void
+     */
+    protected function resetInternalState(): void
+    {
+        $this->identity = null;
+        $this->result = null;
+        $this->successfulAuthenticator = null;
+        $this->failures = [];
     }
 
     /**
