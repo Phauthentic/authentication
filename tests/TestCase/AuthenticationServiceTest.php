@@ -35,12 +35,23 @@ use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Phauthentic\Authentication\UrlChecker\DefaultUrlChecker;
 use Phauthentic\Authentication\UrlChecker\UrlCheckerInterface;
 use Phauthentic\PasswordHasher\DefaultPasswordHasher;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UriInterface;
 use RuntimeException;
 use Zend\Diactoros\Response;
-use Zend\Diactoros\ServerRequestFactory;
 
+/**
+ * Authentication Service Test
+ */
 class AuthenticationServiceTest extends TestCase
 {
+    /**
+     * Create a new PasswordIdentifier instance
+     *
+     * @return \Phauthentic\Authentication\Identifier\PasswordIdentifier
+     */
     protected function createPasswordIdentifier()
     {
         $resolver = new TestResolver($this->getConnection()->getConnection());
@@ -49,6 +60,11 @@ class AuthenticationServiceTest extends TestCase
         return new PasswordIdentifier($resolver, $passwordHasher);
     }
 
+    /**
+     * Create a new SessionAuthenticator instance
+     *
+     * @return \Phauthentic\Authentication\Authenticator\SessionAuthenticator
+     */
     protected function createSessionAuthenticator(IdentifierInterface $identifier = null, StorageInterface $storage = null)
     {
         if (!$identifier) {
@@ -61,6 +77,11 @@ class AuthenticationServiceTest extends TestCase
         return new SessionAuthenticator($identifier, $storage);
     }
 
+    /**
+     * Create a new FormAuthenticator instance
+     *
+     * @return \Phauthentic\Authentication\Authenticator\FormAuthenticator
+     */
     protected function createFormAuthenticator(IdentifierInterface $identifier = null, UrlCheckerInterface $urlChecker = null)
     {
         if (!$identifier) {
@@ -74,6 +95,13 @@ class AuthenticationServiceTest extends TestCase
         return new FormAuthenticator($identifier, $urlChecker);
     }
 
+    /**
+     * Create Authenticators
+     *
+     * @param \Phauthentic\Authentication\Identifier\IdentifierInterface
+     * @param \Phauthentic\Authentication\Authenticator\Storage\StorageInterface
+     * @return \Phauthentic\Authentication\Authenticator\AuthenticatorCollectionInterface
+     */
     protected function createAuthenticators(IdentifierInterface $identifier = null, StorageInterface $storage = null)
     {
         $authenticators = new AuthenticatorCollection();
@@ -88,15 +116,55 @@ class AuthenticationServiceTest extends TestCase
     }
 
     /**
+     * Gets a mocked request
+     *
+     * @param string $path Path
+     * @param array $body Parsed body data as array
+     * @param array §server Server environment
+     * @return mixed
+     */
+    protected function getMockRequest($path, $body, $server = [])
+    {
+        $request = $this->getMockBuilder(ServerRequestInterface::class)
+            ->getMock();
+
+        $uri = $this->getMockBuilder(UriInterface::class)
+            ->getMock();
+
+        $uri->expects($this->any())
+            ->method('getPath')
+            ->willReturn($path);
+
+        $uri->expects($this->any())
+            ->method('__toString')
+            ->willReturn('http://localhost' . $path);
+
+        $request->expects($this->any())
+            ->method('getUri')
+            ->willReturn($uri);
+
+        $request->expects($this->any())
+            ->method('getParsedBody')
+            ->willReturn($body);
+
+        if (!empty($server)) {
+            $request->expects($this->any())
+                ->method('getServerParams')
+                ->willReturn($server);
+        }
+
+        return $request;
+    }
+
+    /**
      * testAuthenticate
      *
      * @return void
      */
-    public function testAuthenticate()
+    public function testAuthenticate(): void
     {
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath'],
-            [],
+        $request = $this->getMockRequest(
+            '/testpath',
             ['username' => 'robert', 'password' => 'robert']
         );
 
@@ -130,11 +198,10 @@ class AuthenticationServiceTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticateFailure()
+    public function testAuthenticateFailure(): void
     {
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath'],
-            [],
+        $request = $this->getMockRequest(
+            '/testpath',
             ['username' => 'robert', 'password' => 'invalid']
         );
 
@@ -174,10 +241,11 @@ class AuthenticationServiceTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticateStorage()
+    public function testAuthenticateStorage(): void
     {
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath']
+        $request = $this->getMockRequest(
+            '/testpath',
+            []
         );
 
         $storage = $this->createMock(StorageInterface::class);
@@ -221,14 +289,18 @@ class AuthenticationServiceTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticateWithChallenge()
+    public function testAuthenticateWithChallenge(): void
     {
-        $request = ServerRequestFactory::fromGlobals([
-            'SERVER_NAME' => 'example.com',
-            'REQUEST_URI' => '/testpath',
-            'PHP_AUTH_USER' => 'robert',
-            'PHP_AUTH_PW' => 'WRONG'
-        ]);
+        $request = $this->getMockRequest(
+            '/testpath',
+            [],
+            [
+                'SERVER_NAME' => 'example.com',
+                'REQUEST_URI' => '/testpath',
+                'PHP_AUTH_USER' => 'robert',
+                'PHP_AUTH_PW' => 'WRONG'
+            ]
+        );
 
         $identifier = $this->createPasswordIdentifier();
         $authenticators = new AuthenticatorCollection([
@@ -247,13 +319,13 @@ class AuthenticationServiceTest extends TestCase
      *
      * @return void
      */
-    public function testPersistAuthenticatedIdentity()
+    public function testPersistAuthenticatedIdentity(): void
     {
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath'],
-            [],
+        $request = $this->getMockRequest(
+            '/testpath',
             ['username' => 'robert', 'password' => 'robert']
         );
+
         $response = new Response();
 
         $storage = $this->createMock(StorageInterface::class);
@@ -286,13 +358,13 @@ class AuthenticationServiceTest extends TestCase
      *
      * @return void
      */
-    public function testPersistCustomIdentity()
+    public function testPersistCustomIdentity(): void
     {
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath'],
-            [],
+        $request = $this->getMockRequest(
+            '/testpath',
             ['username' => 'robert', 'password' => 'robert']
         );
+
         $response = new Response();
 
         $storage = $this->createMock(StorageInterface::class);
@@ -318,11 +390,10 @@ class AuthenticationServiceTest extends TestCase
      *
      * @return void
      */
-    public function testClearIdentity()
+    public function testClearIdentity(): void
     {
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath'],
-            [],
+        $request = $this->getMockRequest(
+            '/testpath',
             ['username' => 'robert', 'password' => 'robert']
         );
         $response = new Response();
@@ -352,11 +423,10 @@ class AuthenticationServiceTest extends TestCase
      *
      * @return void
      */
-    public function testNoAuthenticatorsLoadedException()
+    public function testNoAuthenticatorsLoadedException(): void
     {
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath'],
-            [],
+        $request = $this->getMockRequest(
+            '/testpath',
             ['username' => 'robert', 'password' => 'robert']
         );
 
@@ -373,7 +443,7 @@ class AuthenticationServiceTest extends TestCase
      *
      * @return void
      */
-    public function testBuildIdentity()
+    public function testBuildIdentity(): void
     {
         $data = new ArrayObject(['username' => 'robert']);
         $identity = new Identity($data);
@@ -390,11 +460,10 @@ class AuthenticationServiceTest extends TestCase
         $this->assertSame($identity, $result);
     }
 
-    public function testGetIdentity()
+    public function testGetIdentity(): void
     {
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath'],
-            [],
+        $request = $this->getMockRequest(
+            '/testpath',
             ['username' => 'robert', 'password' => 'robert']
         );
 
