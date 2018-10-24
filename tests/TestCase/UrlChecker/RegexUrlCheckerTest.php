@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -16,13 +17,13 @@ namespace Phauthentic\Authentication\Test\TestCase\UrlChecker;
 
 use Phauthentic\Authentication\UrlChecker\RegexUrlChecker;
 use PHPUnit\Framework\TestCase;
-use Zend\Diactoros\ServerRequestFactory;
 
 /**
  * RegexUrlCheckerTest
  */
 class RegexUrlCheckerTest extends TestCase
 {
+    use RequestMockTrait;
 
     /**
      * testCheckFailure
@@ -33,10 +34,7 @@ class RegexUrlCheckerTest extends TestCase
     {
         $checker = new RegexUrlChecker();
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/does-not-match']
-        );
-
+        $request = $this->getMockRequest('/users/does-not-match');
         $result = $checker->check($request, '%^/[a-z]{2}/users/login/?$%');
         $this->assertFalse($result);
     }
@@ -49,10 +47,8 @@ class RegexUrlCheckerTest extends TestCase
     public function testCheck()
     {
         $checker = new RegexUrlChecker();
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/en/users/login']
-        );
 
+        $request = $this->getMockRequest('/en/users/login');
         $result = $checker->check($request, '%^/[a-z]{2}/users/login/?$%');
         $this->assertTrue($result);
     }
@@ -66,10 +62,8 @@ class RegexUrlCheckerTest extends TestCase
     {
         $checker = new RegexUrlChecker();
         $checker->checkFullUrl(true);
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/en/users/login']
-        );
 
+        $request = $this->getMockRequest('/en/users/login');
         $result = $checker->check($request, '%^http.*/[a-z]{2}/users/login/?$%');
         $this->assertTrue($result);
     }
@@ -83,10 +77,8 @@ class RegexUrlCheckerTest extends TestCase
     {
         $checker = new RegexUrlChecker();
         $checker->checkFullUrl(true);
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/en/users/login']
-        );
 
+        $request = $this->getMockRequest('/en/users/login');
         $result = $checker->check($request, '%^https.*/[a-z]{2}/users/login/?$%');
         $this->assertFalse($result);
     }
