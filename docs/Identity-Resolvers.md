@@ -15,9 +15,8 @@ possibilities of every implementation.
 ## Callback Resolver
 
 The callback resolver is good starting point for prototyping or might already be
- enough for your concrete implementation.
-
-Just define a callable and pass it as constructor to the resolver.
+ enough for your concrete implementation. Just define a callable and pass it as 
+ constructor to the resolver.
 
 Here is a *very* simple *example* that just checks if a given username is in a 
 list of provided usernames and compares the passwords.
@@ -30,7 +29,7 @@ $userList = [
     'robert' => 'password'
 ];
 
-// You could wrap this in a class implementing __invoke() as well!
+// You could wrap this in a class implementing __invoke() as well
 $callback = function($conditions) use ($userList) {
     if (isset($conditions['username']) 
         && isset($userList[$conditions['username']]) 
@@ -55,12 +54,17 @@ The PDO Statement resolver will, as the name implies, take an instance of
 `\PDOStatement`. Prepare your query and you'll have to use the `:placeholder` 
 notation, so that the resolver can insert the correct values.
 
+Check the [official documentation for prepared statements](https://www.php.net/manual/en/pdo.prepared-statements.php) 
+for more information.
+
 The names might be different depending on your configuration of the identifiers
 that pass the data as an array of `['name' => 'value']` to your resolver.
 
 Remember, it's up to your resolver to implement the query. So write it according
 your needs. Sometimes you might want to use the username to compare it against
 an `username` and `email` field. So write your statement as you need it.  
+
+If you need to know more about PDO please [read the PDO documentation on php.net](https://www.php.net/manual/en/book.pdo.php)
 
 ```php
 use PDO;
@@ -69,6 +73,9 @@ use Phauthentic\Identifier\Resolver\PdoStatementResolver;
 // Get your PDO instance from your library / framework or create it
 $pdo = new PDO(getenv('sqlite::memory:'));
 $statement = $statement = $pdo->query('SELECT * FROM users WHERE username = :username AND password = :password');
+
+// You could also query username and email:
+// SELECT * FROM users WHERE username = :username OR email = :username AND password = :password
 
 $resolver = new PdoStatementResolver($statement);
 ```
