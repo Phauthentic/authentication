@@ -19,69 +19,77 @@ use PDO;
 use PDOException;
 use PDOStatement;
 use Phauthentic\Authentication\Identifier\Resolver\ResolverInterface;
+use RuntimeException;
 
 /**
  * PDO Resolver
  */
 class PdoResolver implements ResolverInterface
 {
-	/**
-	 * @var \PDO
-	 */
-	protected $pdo;
+    /**
+     * @var \PDO
+     */
+    protected $pdo;
 
-	/**
-	 * @var string
-	 */
-	protected $sql;
+    /**
+     * @var string
+     */
+    protected $sql;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param \PDO PDO Instance
-	 * @param string $sql SQL String
-	 */
-	public function __construct(PDO $pdo, string $sql)
-	{
-		$this->pdo = $pdo;
-		$this->sql = $sql;
-	}
+    /**
+     * Constructor.
+     *
+     * @param \PDO PDO Instance
+     * @param string $sql SQL String
+     */
+    public function __construct(PDO $pdo, string $sql)
+    {
+        $this->pdo = $pdo;
+        $this->sql = $sql;
+    }
 
-	/**
-	 * Builds the statement
-	 *
-	 * @return \PDOStatement
-	 */
-	protected function buildStatement(): PDOStatement
-	{
-		$statement = $this->pdo->prepare($this->sql);
+    /**
+     * Builds the statement
+     *
+     * @return \PDOStatement
+     */
+    protected function buildStatement(): PDOStatement
+    {
+        $statement = $this->pdo->prepare($this->sql);
 
-		$error = $this->pdo->errorInfo();
-		if ($error[0] !== '00000') {
-			throw new PDOException($error[2], (int)$error[0]);
-		}
+        $error = $this->pdo->errorInfo();
+        if ($error[0] !== '00000') {
+            throw new PDOException($error[2], (int)$error[0]);
+        }
 
-		return $statement;
-	}
+        if ($statement === false) {
+            throw new RuntimeException(sprintf(
+                'There was an error running your PDO resolver using this query: %s',
+                $this->sql
+            ));
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function find(array $conditions): ?ArrayAccess
-	{
-		foreach ($conditions as $key => $value) {
-			unset($conditions[$key]);
-			$conditions[':' . $key] = $value;
-		}
+        return $statement;
+    }
 
-		$statement = $this->buildStatement();
-		$statement->execute($conditions);
-		$result = $statement->fetchAll();
+    /**
+     * {@inheritDoc}
+     */
+    public function find(array $conditions): ?ArrayAccess
+    {
+        foreach ($conditions as $key => $value) {
+            unset($conditions[$key]);
+            $conditions[':' . $key] = $value;
+        }
 
-		if (empty($result)) {
-			return null;
-		}
+        $statement = $this->buildStatement();
+        $statement->execute($conditions);
+        $result = $statement->fetchAll();
 
-		return new ArrayObject($result[0]);
-	}
+        if (empty($result)) {
+            return null;
+        }
+
+        return new ArrayObject($result[0]);
+    }
 }
