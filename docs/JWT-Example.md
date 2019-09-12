@@ -1,8 +1,8 @@
 # JWT Example
 
-Perquisites:
+Requirements for this document:
 
- * You know how JWT works
+ * You know how [JWT](https://jwt.io/) works
  * You've read [the quick start and introduction](Quick-start-and-introduction.md) guide
  
 Assuming you've read the quick start guide, you'll remember the `getAuthenticationService()` method. Inside this method you already added the `FormAuthenticator`, now you're going to add the `JwtAuthenticator` to the `$authenticatorCollection`:

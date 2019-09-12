@@ -38,6 +38,7 @@ Only if you plan to use the PSR-15 middleware:
 
  * [Architectural Overview](docs/Architecture-Overview.md) 
  * [Quick Start and Introduction](docs/Quick-start-and-introduction.md)
+   * [JWT Example](docs/JWT-Example.md)
  * [Authenticators](docs/Authenticators.md)
    * [Session](docs/Authenticators.md#session)
    * [Token](docs/Authenticators.md#token)
