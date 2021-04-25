@@ -6,6 +6,7 @@
 /tmp
 /vendor
 /bin
+/.phpunit.result.cache
 
 # OS generated files #
 ######################
@@ -37,4 +38,3 @@ Thumbs.db
 nbproject/*
 # Visual Studio Code
 .vscode
-/.phpunit.result.cache

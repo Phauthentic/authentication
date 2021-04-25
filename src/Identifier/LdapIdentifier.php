@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -13,6 +13,7 @@ declare(strict_types=1);
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
 namespace Phauthentic\Authentication\Identifier;
 
 use ArrayAccess;
@@ -86,9 +87,9 @@ class LdapIdentifier extends AbstractIdentifier
     /**
      * LDAP connection object
      *
-     * @var \Phauthentic\Authentication\Identifier\Ldap\AdapterInterface|null
+     * @var \Phauthentic\Authentication\Identifier\Ldap\AdapterInterface
      */
-    protected ?AdapterInterface $ldap;
+    protected AdapterInterface $ldap;
 
     /**
      * {}
@@ -153,7 +154,7 @@ class LdapIdentifier extends AbstractIdentifier
      *
      * @return \Phauthentic\Authentication\Identifier\Ldap\AdapterInterface
      */
-    public function getAdapter()
+    public function getAdapter(): AdapterInterface
     {
         return $this->ldap;
     }

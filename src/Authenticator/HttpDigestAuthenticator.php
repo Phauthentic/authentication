@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+
 /**
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
@@ -12,6 +12,7 @@ declare(strict_types=1);
  * @link          http://cakephp.org CakePHP(tm) Project
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
+
 namespace Phauthentic\Authentication\Authenticator;
 
 use Phauthentic\Authentication\Identifier\IdentifierInterface;
@@ -176,7 +177,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * Gets the digest headers from the request/environment.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @return array<string, string>|null Array of digest information.
+     * @return array<mixed, mixed>|null Array of digest information.
      */
     protected function getDigest(ServerRequestInterface $request): ?array
     {
@@ -213,7 +214,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * Parse the digest authentication headers and split them up.
      *
      * @param string $digest The raw digest authentication headers.
-     * @return array<string, string>|null An array of digest authentication headers
+     * @return array<mixed, mixed>|null An array of digest authentication headers
      */
     public function parseAuthData(string $digest): ?array
     {
@@ -244,7 +245,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * @param string $method Request method
      * @return string Response hash
      */
-    public function generateResponseHash($digest, $password, $method): string
+    public function generateResponseHash(array $digest, string $password, string $method): string
     {
         return md5(
             $password .
@@ -267,6 +268,23 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
     }
 
     /**
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @return array<string, mixed>
+     */
+    protected function getDigestOptions(ServerRequestInterface $request): array
+    {
+        $server = $request->getServerParams();
+        $realm = $this->realm ?: $server['SERVER_NAME'];
+
+        return [
+            'realm' => $realm,
+            'qop' => $this->qop,
+            'nonce' => $this->generateNonce(),
+            'opaque' => $this->opaque ?: md5($realm)
+        ];
+    }
+
+    /**
      * Generate the login headers
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
@@ -274,17 +292,9 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      */
     protected function loginHeaders(ServerRequestInterface $request): array
     {
-        $server = $request->getServerParams();
-        $realm = $this->realm ?: $server['SERVER_NAME'];
-
-        $options = [
-            'realm' => $realm,
-            'qop' => $this->qop,
-            'nonce' => $this->generateNonce(),
-            'opaque' => $this->opaque ?: md5($realm)
-        ];
-
+        $options = $this->getDigestOptions($request);
         $digest = $this->getDigest($request);
+
         if ($digest !== null && isset($digest['nonce']) && !$this->isNonceValid($digest['nonce'])) {
             $options['stale'] = true;
         }
