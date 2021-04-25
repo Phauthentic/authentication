@@ -26,7 +26,7 @@ abstract class FixturizedTestCase extends TestCase
     /**
      * @var PDO
      */
-    static private $pdo = null;
+    private static $pdo = null;
 
     /**
      * @var DefaultConnection

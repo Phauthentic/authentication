@@ -21,7 +21,6 @@ use Phauthentic\Authentication\Identity\Identity;
 use Phauthentic\Authentication\Middleware\AuthenticationMiddleware;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
@@ -35,7 +34,7 @@ class AuthenticationMiddlewareTest extends TestCase
     /**
      * The :void return type declaration that should be here would cause a BC issue
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->setupPsrHttpMessageTraits();

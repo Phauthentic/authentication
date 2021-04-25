@@ -31,14 +31,14 @@ class AuthenticationErrorHandlerMiddleware implements MiddlewareInterface
      *
      * @var \Psr\Http\Message\ResponseFactoryInterface
      */
-    protected $responseFactory;
+    protected ResponseFactoryInterface $responseFactory;
 
     /**
      * PSR Stream Interface
      *
      * @var \Psr\Http\Message\StreamFactoryInterface
      */
-    protected $streamFactory;
+    protected StreamFactoryInterface $streamFactory;
 
     /**
      * Constructor.

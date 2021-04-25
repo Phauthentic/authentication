@@ -45,26 +45,26 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      *
      * @var string|null
      */
-    protected $opaque;
+    protected ?string $opaque;
 
     /**
      * The number of seconds that nonces are valid for. Defaults to 300.
      *
      * @var int
      */
-    protected $nonceLifetime = 300;
+    protected int $nonceLifetime = 300;
 
     /**
      * @var string
      */
-    protected $secret = '';
+    protected string $secret = '';
 
     /**
      * Defaults to 'auth', no other values are supported at this time.
      *
      * @var string
      */
-    protected $qop = 'auth';
+    protected string $qop = 'auth';
 
     /**
      * Sets the secret
@@ -176,7 +176,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * Gets the digest headers from the request/environment.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @return array|null Array of digest information.
+     * @return array<string, string>|null Array of digest information.
      */
     protected function getDigest(ServerRequestInterface $request): ?array
     {
@@ -200,8 +200,8 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
     protected function getDigestFromApacheHeaders(?string $digest)
     {
         if (empty($digest) && function_exists('apache_request_headers')) {
-            $headers = apache_request_headers();
-            if (!empty($headers['Authorization']) && substr($headers['Authorization'], 0, 7) === 'Digest ') {
+            $headers = (array)apache_request_headers();
+            if (!empty($headers['Authorization']) && strpos($headers['Authorization'], 'Digest ') === 0) {
                 $digest = substr($headers['Authorization'], 7);
             }
         }
@@ -213,11 +213,11 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * Parse the digest authentication headers and split them up.
      *
      * @param string $digest The raw digest authentication headers.
-     * @return array|null An array of digest authentication headers
+     * @return array<string, string>|null An array of digest authentication headers
      */
-    public function parseAuthData($digest): ?array
+    public function parseAuthData(string $digest): ?array
     {
-        if (substr($digest, 0, 7) === 'Digest ') {
+        if (strpos($digest, 'Digest ') === 0) {
             $digest = substr($digest, 7);
         }
         $keys = $match = [];
@@ -239,7 +239,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
     /**
      * Generate the response hash for a given digest array.
      *
-     * @param array $digest Digest information containing data from HttpDigestAuthenticate::parseAuthData().
+     * @param array<string, mixed> $digest Digest information containing data from HttpDigestAuthenticate::parseAuthData().
      * @param string $password The digest hash password generated with HttpDigestAuthenticate::password()
      * @param string $method Request method
      * @return string Response hash
@@ -270,7 +270,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * Generate the login headers
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @return array Headers for logging in.
+     * @return array<string, string> Headers for logging in.
      */
     protected function loginHeaders(ServerRequestInterface $request): array
     {
@@ -325,14 +325,14 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
     protected function isNonceValid(string $nonce): bool
     {
         $value = base64_decode($nonce);
-        if ($value === false) {
+        if (!is_string($value)) {
             return false;
         }
         $parts = explode(':', $value);
         if (count($parts) !== 2) {
             return false;
         }
-        list($expires, $checksum) = $parts;
+        [$expires, $checksum] = $parts;
         if ($expires < microtime(true)) {
             return false;
         }

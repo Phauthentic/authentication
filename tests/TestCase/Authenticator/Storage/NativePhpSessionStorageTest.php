@@ -15,7 +15,6 @@ namespace Phauthentic\Authentication\Test\TestCase\Authenticator\Storage;
 
 use Phauthentic\Authentication\Authenticator\Storage\NativePhpSessionStorage;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -41,7 +40,7 @@ class NativePhpSessionStorageTest extends TestCase
     /**
      * @inheritDoc
      */
-    public function setUp()/* The :void return type declaration that should be here would cause a BC issue */
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -81,7 +80,7 @@ class NativePhpSessionStorageTest extends TestCase
         $result = $storage->read($this->request);
         $this->assertEquals($data, $result);
 
-        $storage->clear($this->request,  $this->response);
+        $storage->clear($this->request, $this->response);
         $result = $storage->read($this->request);
         $this->assertNull($result);
     }

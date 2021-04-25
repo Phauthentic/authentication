@@ -36,49 +36,49 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * Authenticator collection
      *
-     * @var \Phauthentic\Authentication\Authenticator\AuthenticatorCollection
+     * @var \Phauthentic\Authentication\Authenticator\AuthenticatorCollectionInterface<\Phauthentic\Authentication\Authenticator\AuthenticatorInterface>
      */
-    protected $authenticators;
+    protected AuthenticatorCollectionInterface $authenticators;
 
     /**
      * Authenticator that successfully authenticated the identity.
      *
      * @var \Phauthentic\Authentication\Authenticator\AuthenticatorInterface|null
      */
-    protected $successfulAuthenticator;
+    protected ?AuthenticatorInterface $successfulAuthenticator;
 
     /**
      * A list of failed authenticators after an authentication attempt
      *
      * @var \Phauthentic\Authentication\Authenticator\FailureInterface[]
      */
-    protected $failures = [];
+    protected array $failures = [];
 
     /**
      * Identity object.
      *
      * @var \Phauthentic\Authentication\Identity\IdentityInterface|null
      */
-    protected $identity;
+    protected ?IdentityInterface $identity;
 
     /**
      * Result of the last authenticate() call.
      *
      * @var \Phauthentic\Authentication\Authenticator\ResultInterface|null
      */
-    protected $result;
+    protected ?ResultInterface $result;
 
     /**
      * Identity factory used to instantiate an identity object
      *
      * @var \Phauthentic\Authentication\Identity\IdentityFactoryInterface
      */
-    protected $identityFactory;
+    protected IdentityFactoryInterface $identityFactory;
 
     /**
      * Constructor
      *
-     * @param \Phauthentic\Authentication\Authenticator\AuthenticatorCollection $authenticators Authenticator collection.
+     * @param \Phauthentic\Authentication\Authenticator\AuthenticatorCollectionInterface<\Phauthentic\Authentication\Authenticator\AuthenticatorInterface> $authenticators Authenticator collection.
      * @param \Phauthentic\Authentication\Identity\IdentityFactoryInterface $factory Identity factory.
      */
     public function __construct(
@@ -92,7 +92,7 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * Access the authenticator collection
      *
-     * @return \Phauthentic\Authentication\Authenticator\AuthenticatorCollection
+     * @return \Phauthentic\Authentication\Authenticator\AuthenticatorCollectionInterface<\Phauthentic\Authentication\Authenticator\AuthenticatorInterface>
      */
     public function authenticators(): AuthenticatorCollectionInterface
     {

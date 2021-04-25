@@ -33,7 +33,7 @@ class SessionAuthenticatorTest extends TestCase
      * @param StorageInterface $storage Storage instance.
      * @return SessionAuthenticator
      */
-    protected function createAuthenticator(StorageInterface $storage)
+    protected function createAuthenticator(StorageInterface $storage): SessionAuthenticator
     {
         $hasher = new DefaultPasswordHasher();
         $resolver = new TestResolver($this->getConnection()->getConnection());
@@ -47,7 +47,7 @@ class SessionAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticate()
+    public function testAuthenticate(): void
     {
         $request = ServerRequestFactory::fromGlobals(['REQUEST_URI' => '/']);
         $response = new Response();
@@ -74,7 +74,7 @@ class SessionAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticateMissing()
+    public function testAuthenticateMissing(): void
     {
         $request = ServerRequestFactory::fromGlobals(['REQUEST_URI' => '/']);
         $response = new Response();
@@ -98,7 +98,7 @@ class SessionAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testVerifyByDatabase()
+    public function testVerifyByDatabase(): void
     {
         $request = ServerRequestFactory::fromGlobals(['REQUEST_URI' => '/']);
         $response = new Response();
@@ -127,7 +127,7 @@ class SessionAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testVerifyByDatabaseInvalid()
+    public function testVerifyByDatabaseInvalid(): void
     {
         $request = ServerRequestFactory::fromGlobals(['REQUEST_URI' => '/']);
         $response = new Response();
@@ -156,7 +156,7 @@ class SessionAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testPersistIdentity()
+    public function testPersistIdentity(): void
     {
         $request = ServerRequestFactory::fromGlobals(['REQUEST_URI' => '/']);
         $response = new Response();

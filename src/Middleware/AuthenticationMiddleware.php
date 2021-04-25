@@ -14,11 +14,8 @@ declare(strict_types=1);
 namespace Phauthentic\Authentication\Middleware;
 
 use Phauthentic\Authentication\AuthenticationServiceProviderInterface;
-use Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
@@ -31,25 +28,24 @@ class AuthenticationMiddleware implements MiddlewareInterface
     /**
      * @var \Phauthentic\Authentication\AuthenticationServiceProviderInterface
      */
-    protected $provider;
+    protected AuthenticationServiceProviderInterface $provider;
 
     /**
      * @var string
      */
-    protected $serviceAttribute = 'authentication';
+    protected string $serviceAttribute = 'authentication';
 
     /**
      * Request attribute for the identity
      *
      * @var string
      */
-    protected $identityAttribute = 'identity';
+    protected string $identityAttribute = 'identity';
 
     /**
      * Constructor.
      *
      * @param \Phauthentic\Authentication\AuthenticationServiceProviderInterface $provider Provider.
-     * @param \Psr\Http\Message\ResponseFactoryInterface $responseFactory Factory.
      */
     public function __construct(
         AuthenticationServiceProviderInterface $provider
@@ -118,12 +114,9 @@ class AuthenticationMiddleware implements MiddlewareInterface
         $request = $this->addAttribute($request, $this->identityAttribute, $identity);
 
         $response = $handler->handle($request);
-        if ($response instanceof ResponseInterface) {
-            $result = $service->persistIdentity($request, $response);
 
-            return $result->getResponse();
-        }
+        $result = $service->persistIdentity($request, $response);
 
-        return $response;
+        return $result->getResponse();
     }
 }

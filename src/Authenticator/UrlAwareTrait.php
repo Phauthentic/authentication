@@ -15,29 +15,29 @@ declare(strict_types=1);
  */
 namespace Phauthentic\Authentication\Authenticator;
 
+use Phauthentic\Authentication\UrlChecker\UrlCheckerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 trait UrlAwareTrait
 {
-
     /**
      * Url Checker
      *
      * @var \Phauthentic\Authentication\UrlChecker\UrlCheckerInterface
      */
-    protected $urlChecker;
+    protected UrlCheckerInterface $urlChecker;
 
     /**
      * Login URLs
      *
-     * @var array
+     * @var string[]
      */
-    protected $loginUrls = [];
+    protected array $loginUrls = [];
 
     /**
      * Sets multiple login URLs.
      *
-     * @param array $urls An array of URLs.
+     * @param array<int, string> $urls An array of URLs.
      * @return $this
      */
     public function setLoginUrls(array $urls): self

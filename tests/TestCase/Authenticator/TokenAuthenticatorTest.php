@@ -24,13 +24,12 @@ use Zend\Diactoros\ServerRequestFactory;
 
 class TokenAuthenticatorTest extends TestCase
 {
-
     /**
      * Fixtures
      *
      * @var array
      */
-    public $fixtures = [
+    public array $fixtures = [
         'core.auth_users',
         'core.users'
     ];
@@ -59,7 +58,7 @@ class TokenAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticateViaHeaderToken()
+    public function testAuthenticateViaHeaderToken(): void
     {
         // Test without token
         $tokenAuth = (new TokenAuthenticator($this->identifier))
@@ -84,7 +83,7 @@ class TokenAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testViaQueryParamToken()
+    public function testViaQueryParamToken(): void
     {
         // Test with query param token
         $requestWithParams = $this->request->withQueryParams(['token' => 'florian']);
@@ -110,7 +109,7 @@ class TokenAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testTokenPrefix()
+    public function testTokenPrefix(): void
     {
         //valid prefix
         $requestWithHeaders = $this->request->withAddedHeader('Token', 'identity florian');

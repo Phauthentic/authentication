@@ -267,7 +267,7 @@ class PasswordIdentifierTest extends TestCase
             'password' => 'h45hedpa55w0rd'
         ]);
 
-        $resolver->expects($this->at(0))
+        $resolver->expects($this->once())
             ->method('find')
             ->with([
                 'username' => 'mariano@example.com',

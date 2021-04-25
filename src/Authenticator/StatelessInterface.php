@@ -34,7 +34,6 @@ interface StatelessInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request.
      * @return void
-     * @throws \Authentication\Authenticator\Exception\UnauthorizedException
      */
     public function unauthorizedChallenge(ServerRequestInterface $request): void;
 }

@@ -26,11 +26,12 @@ class ResultTest extends TestCase
      * testConstructorEmptyData
      *
      * @return void
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Identity data can not be empty with status success.
      */
-    public function testConstructorEmptyData()
+    public function testConstructorEmptyData(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Identity data can not be empty with status success.');
+
         new Result(null, Result::SUCCESS);
     }
 
@@ -39,7 +40,7 @@ class ResultTest extends TestCase
      *
      * @return void
      */
-    public function testIsValid()
+    public function testIsValid(): void
     {
         $result = new Result(null, Result::FAILURE_CREDENTIALS_INVALID);
         $this->assertFalse($result->isValid());
@@ -63,7 +64,7 @@ class ResultTest extends TestCase
      *
      * @return void
      */
-    public function testGetIdentity()
+    public function testGetIdentity(): void
     {
         $entity = new ArrayObject(['user' => 'florian']);
         $result = new Result($entity, Result::SUCCESS);
@@ -75,7 +76,7 @@ class ResultTest extends TestCase
      *
      * @return void
      */
-    public function testGetCode()
+    public function testGetCode(): void
     {
         $result = new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
         $this->assertEquals(Result::FAILURE_IDENTITY_NOT_FOUND, $result->getStatus());
@@ -90,7 +91,7 @@ class ResultTest extends TestCase
      *
      * @return void
      */
-    public function testGetErrors()
+    public function testGetErrors(): void
     {
         $messages = [
             'Out of coffee!',

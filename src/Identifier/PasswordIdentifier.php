@@ -34,9 +34,9 @@ class PasswordIdentifier extends AbstractIdentifier
     /**
      * Credential fields
      *
-     * @var array
+     * @var array<string, mixed>
      */
-    protected $credentialFields = [
+    protected array $credentialFields = [
         IdentifierInterface::CREDENTIAL_USERNAME => 'username',
         IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
     ];
@@ -46,14 +46,14 @@ class PasswordIdentifier extends AbstractIdentifier
      *
      * @var \Phauthentic\Authentication\Identifier\Resolver\ResolverInterface
      */
-    protected $resolver;
+    protected ResolverInterface $resolver;
 
     /**
      * Password Hasher
      *
      * @var \Phauthentic\PasswordHasher\PasswordHasherInterface
      */
-    protected $passwordHasher;
+    protected PasswordHasherInterface $passwordHasher;
 
     /**
      * Whether or not the user authenticated by this class
@@ -61,7 +61,7 @@ class PasswordIdentifier extends AbstractIdentifier
      *
      * @var bool
      */
-    protected $needsPasswordRehash = false;
+    protected bool $needsPasswordRehash = false;
 
     /**
      * Constructor
@@ -80,7 +80,7 @@ class PasswordIdentifier extends AbstractIdentifier
     /**
      * Set the username fields used to to get the credentials from.
      *
-     * @param array $usernames An array of fields.
+     * @param array<int, string> $usernames An array of fields.
      * @return $this
      */
     public function setUsernameFields(array $usernames): self

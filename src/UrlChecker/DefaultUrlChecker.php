@@ -27,7 +27,7 @@ class DefaultUrlChecker implements UrlCheckerInterface
     /**
      * @var bool
      */
-    protected $checkFullUrl = false;
+    protected bool $checkFullUrl = false;
 
     /**
      * Check the full URL

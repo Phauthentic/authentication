@@ -28,12 +28,12 @@ class JwtSubjectIdentifier extends TokenIdentifier
      *
      * @var string
      */
-    protected $tokenField = 'id';
+    protected string $tokenField = 'id';
 
     /**
      * Data field
      *
      * @var string
      */
-    protected $dataField = self::CREDENTIAL_JWT_SUBJECT;
+    protected ?string $dataField = self::CREDENTIAL_JWT_SUBJECT;
 }

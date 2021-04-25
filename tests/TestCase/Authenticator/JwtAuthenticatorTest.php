@@ -35,7 +35,7 @@ class JwtAuthenticatorTest extends TestCase
      *
      * @var string
      */
-    public $token;
+    public string $token;
 
     /**
      * Identifier Collection
@@ -79,7 +79,6 @@ class JwtAuthenticatorTest extends TestCase
         $authenticator = (new JwtAuthenticator($this->identifiers, 'secretKey'));
 
         $result = $authenticator->authenticate($this->request, $this->response);
-        $this->assertInstanceOf(Result::class, $result);
         $this->assertEquals(Result::SUCCESS, $result->getStatus());
         $this->assertInstanceOf(ArrayAccess::class, $result->getData());
     }
@@ -89,7 +88,7 @@ class JwtAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticateViaQueryParamToken()
+    public function testAuthenticateViaQueryParamToken(): void
     {
         $this->request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/'],
@@ -109,7 +108,7 @@ class JwtAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticationViaIdentifierAndSubject()
+    public function testAuthenticationViaIdentifierAndSubject(): void
     {
         $this->request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/'],
@@ -145,7 +144,7 @@ class JwtAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticateInvalidPayloadNotAnObject()
+    public function testAuthenticateInvalidPayloadNotAnObject(): void
     {
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/'],
@@ -164,9 +163,9 @@ class JwtAuthenticatorTest extends TestCase
             ])
             ->getMock();
 
-        $authenticator->expects($this->at(0))
+        $authenticator->expects($this->once())
             ->method('getPayLoad')
-            ->will($this->returnValue('no an object'));
+            ->willReturn('no an object');
 
         $result = $authenticator->authenticate($request, $response);
         $this->assertInstanceOf(Result::class, $result);
@@ -179,7 +178,7 @@ class JwtAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticateInvalidPayloadEmpty()
+    public function testAuthenticateInvalidPayloadEmpty(): void
     {
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/'],
@@ -198,9 +197,9 @@ class JwtAuthenticatorTest extends TestCase
             ])
             ->getMock();
 
-        $authenticator->expects($this->at(0))
+        $authenticator->expects($this->once())
             ->method('getPayLoad')
-            ->will($this->returnValue(new stdClass()));
+            ->willReturn(new stdClass());
 
         $result = $authenticator->authenticate($request, $response);
         $this->assertInstanceOf(Result::class, $result);

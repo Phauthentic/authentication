@@ -90,8 +90,9 @@ class CallbackIdentifierTest extends TestCase
     public function testInvalidReturnValue(): void
     {
         $identifier = new CallbackIdentifier(function ($data) {
-            return 'no';
+            return null;
         });
-        $identifier->identify([]);
+
+        $this->assertNull($identifier->identify([]));
     }
 }

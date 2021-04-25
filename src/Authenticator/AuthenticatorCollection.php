@@ -26,19 +26,19 @@ class AuthenticatorCollection implements AuthenticatorCollectionInterface
     /**
      * List of authenticators
      *
-     * @var array
+     * @var \Phauthentic\Authentication\Authenticator\AuthenticatorInterface[]
      */
-    protected $authenticators = [];
+    protected array $authenticators = [];
 
     /**
      * Constructor
      *
-     * @param iterable $autheticators Authenticators
+     * @param iterable<\Phauthentic\Authentication\Authenticator\AuthenticatorInterface> $autheticators Authenticators
      */
     public function __construct(iterable $autheticators = [])
     {
-        foreach ($autheticators as $autheticator) {
-            $this->add($autheticator);
+        foreach ($autheticators as $authenticator) {
+            $this->add($authenticator);
         }
     }
 
@@ -64,8 +64,7 @@ class AuthenticatorCollection implements AuthenticatorCollectionInterface
      * Retrieve an external iterator
      *
      * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
-     * <b>Traversable</b>
+     * @return Traversable<\Phauthentic\Authentication\Authenticator\AuthenticatorInterface>
      */
     public function getIterator(): Traversable
     {

@@ -19,18 +19,18 @@ use ArrayAccess;
 
 interface IdentifierInterface
 {
-    const CREDENTIAL_USERNAME = 'username';
+    public const CREDENTIAL_USERNAME = 'username';
 
-    const CREDENTIAL_PASSWORD = 'password';
+    public const CREDENTIAL_PASSWORD = 'password';
 
-    const CREDENTIAL_TOKEN = 'token';
+    public const CREDENTIAL_TOKEN = 'token';
 
-    const CREDENTIAL_JWT_SUBJECT = 'sub';
+    public const CREDENTIAL_JWT_SUBJECT = 'sub';
 
     /**
      * Identifies an user or service by the passed credentials
      *
-     * @param array $credentials Authentication credentials
+     * @param array<string, string> $credentials Authentication credentials
      * @return \ArrayAccess|null
      */
     public function identify(array $credentials): ?ArrayAccess;
@@ -38,7 +38,7 @@ interface IdentifierInterface
     /**
      * Gets a list of errors happened in the identification process
      *
-     * @return array
+     * @return array<mixed, mixed>
      */
     public function getErrors(): array;
 }

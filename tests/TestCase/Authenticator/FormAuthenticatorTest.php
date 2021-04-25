@@ -44,7 +44,7 @@ class FormAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticate()
+    public function testAuthenticate(): void
     {
         $identifier = $this->getIdentifier();
         $request = ServerRequestFactory::fromGlobals(
@@ -66,7 +66,7 @@ class FormAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testCredentialsNotPresent()
+    public function testCredentialsNotPresent(): void
     {
         $identifier = $this->getIdentifier();
 
@@ -92,7 +92,7 @@ class FormAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testCredentialsEmpty()
+    public function testCredentialsEmpty(): void
     {
         $identifier = $this->getIdentifier();
 
@@ -118,7 +118,7 @@ class FormAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testSingleLoginUrlMismatch()
+    public function testSingleLoginUrlMismatch(): void
     {
         $identifier = $this->getIdentifier();
 
@@ -148,7 +148,7 @@ class FormAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testMultipleLoginUrlMismatch()
+    public function testMultipleLoginUrlMismatch(): void
     {
         $identifier = $this->getIdentifier();
 
@@ -181,7 +181,7 @@ class FormAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testSingleLoginUrlSuccess()
+    public function testSingleLoginUrlSuccess(): void
     {
         $identifier = $this->getIdentifier();
 
@@ -208,7 +208,7 @@ class FormAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testMultipleLoginUrlSuccess()
+    public function testMultipleLoginUrlSuccess(): void
     {
         $identifier = $this->getIdentifier();
 
@@ -238,7 +238,7 @@ class FormAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testRegexLoginUrlSuccess()
+    public function testRegexLoginUrlSuccess(): void
     {
         $identifier = $this->getIdentifier();
 
@@ -266,7 +266,7 @@ class FormAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testFullRegexLoginUrlFailure()
+    public function testFullRegexLoginUrlFailure(): void
     {
         $identifier = $this->getIdentifier();
 
@@ -298,7 +298,7 @@ class FormAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testFullRegexLoginUrlSuccess()
+    public function testFullRegexLoginUrlSuccess(): void
     {
         $identifier = $this->getIdentifier();
 
@@ -330,7 +330,7 @@ class FormAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticateCustomFields()
+    public function testAuthenticateCustomFields(): void
     {
         $identifier = $this->createMock(IdentifierInterface::class);
 
@@ -364,7 +364,7 @@ class FormAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticateValidData()
+    public function testAuthenticateValidData(): void
     {
         $identifier = $this->createMock(IdentifierInterface::class);
 

@@ -41,9 +41,9 @@ class LdapIdentifier extends AbstractIdentifier
     /**
      * Credential fields
      *
-     * @var array
+     * @var array<string, string>
      */
-    protected $credentialFields = [
+    protected array $credentialFields = [
         self::CREDENTIAL_USERNAME => 'username',
         self::CREDENTIAL_PASSWORD => 'password'
     ];
@@ -53,7 +53,7 @@ class LdapIdentifier extends AbstractIdentifier
      *
      * @var string
      */
-    protected $host = '';
+    protected string $host = '';
 
     /**
      * Bind DN
@@ -67,31 +67,35 @@ class LdapIdentifier extends AbstractIdentifier
      *
      * @var int
      */
-    protected $port = 389;
+    protected int $port = 389;
 
     /**
      * Adapter Options
      *
-     * @var array
+     * @var array<int, bool|int|string>
      */
-    protected $ldapOptions = [];
+    protected array $ldapOptions = [];
 
     /**
      * List of errors
      *
-     * @var array
+     * @var array<mixed, mixed>
      */
-    protected $errors = [];
+    protected array $errors = [];
 
     /**
      * LDAP connection object
      *
-     * @var \Phauthentic\Authentication\Identifier\Ldap\AdapterInterface
+     * @var \Phauthentic\Authentication\Identifier\Ldap\AdapterInterface|null
      */
-    protected $ldap = null;
+    protected ?AdapterInterface $ldap;
 
     /**
-     * {@inheritDoc}
+     * {}
+     * @param \Phauthentic\Authentication\Identifier\Ldap\AdapterInterface $ldapAdapter
+     * @param string $host
+     * @param callable $bindDN
+     * @param int $port
      */
     public function __construct(AdapterInterface $ldapAdapter, string $host, callable $bindDN, int $port = 389)
     {
@@ -119,7 +123,7 @@ class LdapIdentifier extends AbstractIdentifier
     /**
      * Sets LDAP options
      *
-     * @param array $options LDAP Options array
+     * @param array<int, bool|int|string> $options LDAP Options array
      * @return $this
      */
     public function setLdapOptions(array $options): self

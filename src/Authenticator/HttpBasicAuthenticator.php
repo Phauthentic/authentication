@@ -70,13 +70,12 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
     /**
      * Checks for the user and password in the server request params
      *
-     * @param array $serverParams Server params from \Psr\Http\Message\ServerRequestInterface::getServerParams()
+     * @param array<string, mixed> $serverParams Server params from \Psr\Http\Message\ServerRequestInterface::getServerParams()
      * @return bool
      */
     protected function checkServerParams(array $serverParams): bool
     {
-        return !isset($serverParams['PHP_AUTH_USER'])
-            || !isset($serverParams['PHP_AUTH_PW'])
+        return !isset($serverParams['PHP_AUTH_USER'], $serverParams['PHP_AUTH_PW'])
             || !is_string($serverParams['PHP_AUTH_USER'])
             || $serverParams['PHP_AUTH_USER'] === ''
             || !is_string($serverParams['PHP_AUTH_PW'])
@@ -118,7 +117,7 @@ class HttpBasicAuthenticator extends AbstractAuthenticator implements StatelessI
      * Generate the login headers
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request Request object.
-     * @return array Headers for logging in.
+     * @return array<string, string> Headers for logging in.
      */
     protected function loginHeaders(ServerRequestInterface $request): array
     {

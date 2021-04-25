@@ -18,14 +18,14 @@ use ArrayAccess;
 class DefaultIdentityFactory implements IdentityFactoryInterface
 {
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    protected $config = [];
+    protected array $config = [];
 
     /**
      * Constructor.
      *
-     * @param array $config Config.
+     * @param array<string, mixed> $config Config.
      */
     public function __construct(array $config = [])
     {

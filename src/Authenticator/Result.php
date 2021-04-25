@@ -28,35 +28,35 @@ class Result implements ResultInterface
      *
      * @var string
      */
-    protected $status;
+    protected string $status;
 
     /**
      * The identity data used in the authentication attempt
      *
      * @var null|\ArrayAccess
      */
-    protected $data;
+    protected ?ArrayAccess $data;
 
     /**
      * An array of string reasons why the authentication attempt was unsuccessful
      *
      * If authentication was successful, this should be an empty array.
      *
-     * @var array
+     * @var array<int, string>
      */
-    protected $errors = [];
+    protected array $errors = [];
 
     /**
      * Sets the result status, identity, and failure messages
      *
      * @param null|\ArrayAccess $data The identity data
      * @param string $status Status constant equivalent.
-     * @param array $messages Messages.
+     * @param mixed[] $messages Messages.
      * @throws \InvalidArgumentException When invalid identity data is passed.
      */
-    public function __construct(?ArrayAccess $data, $status, array $messages = [])
+    public function __construct(?ArrayAccess $data, string $status, array $messages = [])
     {
-        if ($status === self::SUCCESS && empty($data)) {
+        if ($status === self::SUCCESS && $data === null) {
             throw new InvalidArgumentException('Identity data can not be empty with status success.');
         }
 
@@ -100,7 +100,7 @@ class Result implements ResultInterface
      *
      * If authentication was successful, this method returns an empty array.
      *
-     * @return array
+     * @return mixed[]
      */
     public function getErrors(): array
     {

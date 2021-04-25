@@ -16,9 +16,9 @@ namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
 use Phauthentic\Authentication\Authenticator\AbstractAuthenticator;
 use Phauthentic\Authentication\Identifier\IdentifierInterface;
-use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
+use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase;
 
-class AbstractAuthenticatorTest extends TestCase
+class AbstractAuthenticatorTest extends AuthenticationTestCase
 {
 
     /**

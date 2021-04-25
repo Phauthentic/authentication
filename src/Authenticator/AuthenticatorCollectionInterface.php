@@ -22,7 +22,6 @@ use IteratorAggregate;
  */
 interface AuthenticatorCollectionInterface extends IteratorAggregate
 {
-
     /**
      * Adds a authenticator to the collection
      *

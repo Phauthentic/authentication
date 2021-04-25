@@ -22,13 +22,12 @@ use Phauthentic\Authentication\Identifier\IdentifierInterface;
  */
 trait CredentialFieldsTrait
 {
-
     /**
      * Credential fields
      *
-     * @var array
+     * @var array<string, string>
      */
-    protected $credentialFields = [
+    protected array $credentialFields = [
         IdentifierInterface::CREDENTIAL_USERNAME => 'username',
         IdentifierInterface::CREDENTIAL_PASSWORD => 'password'
     ];
