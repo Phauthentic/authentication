@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright (c) Phauthentic (https://github.com/Phauthentic)
  *
@@ -10,6 +11,7 @@
  * @link          https://github.com/Phauthentic
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
 namespace Phauthentic\Authentication\Test\TestCase\Middleware;
 
 use Phauthentic\Authentication\AuthenticationServiceProviderInterface;

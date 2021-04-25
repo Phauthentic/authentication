@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -13,6 +13,7 @@ declare(strict_types=1);
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
 namespace Phauthentic\Authentication\Identifier\Ldap;
 
 use ErrorException;
@@ -100,7 +101,7 @@ class ExtensionAdapter implements AdapterInterface
 
         if (is_array($options)) {
             foreach ($options as $option => $value) {
-                $this->setOption((string)$option, $value);
+                $this->setOption($option, $value);
             }
         }
     }
@@ -108,7 +109,7 @@ class ExtensionAdapter implements AdapterInterface
     /**
      *  Set the value of the given option
      *
-     * @param inst $option Option to set
+     * @param int $option Option to set
      * @param int|bool|string $value The new value for the specified option
      * @return void
      */

@@ -1,4 +1,5 @@
 <?php
+
 namespace Phauthentic\Authentication\Test\Resolver;
 
 use ArrayAccess;

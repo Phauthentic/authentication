@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -12,6 +13,7 @@
  * @since         1.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
 namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
 use ArrayObject;
@@ -167,7 +169,7 @@ class AuthenticationServiceTest extends TestCase
         );
 
         $authenticators = $this->createAuthenticators();
-        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory());
 
         $success = $service->authenticate($request);
         $this->assertTrue($success);
@@ -204,7 +206,7 @@ class AuthenticationServiceTest extends TestCase
         );
 
         $authenticators = $this->createAuthenticators();
-        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory());
 
         $success = $service->authenticate($request);
         $this->assertFalse($success);
@@ -258,7 +260,7 @@ class AuthenticationServiceTest extends TestCase
             $this->createFormAuthenticator(),
             $this->createSessionAuthenticator(null, $storage),
         ]);
-        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory());
 
         $success = $service->authenticate($request);
         $this->assertTrue($success);
@@ -304,7 +306,7 @@ class AuthenticationServiceTest extends TestCase
         $authenticators = new AuthenticatorCollection([
             new HttpBasicAuthenticator($identifier),
         ]);
-        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory());
 
         $this->expectException(UnauthorizedException::class);
         $this->expectExceptionCode(401);
@@ -329,7 +331,7 @@ class AuthenticationServiceTest extends TestCase
         $storage = $this->createMock(StorageInterface::class);
 
         $authenticators = $this->createAuthenticators(null, $storage);
-        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory());
 
         $success = $service->authenticate($request);
         $this->assertTrue($success);
@@ -368,7 +370,7 @@ class AuthenticationServiceTest extends TestCase
         $storage = $this->createMock(StorageInterface::class);
 
         $authenticators = $this->createAuthenticators(null, $storage);
-        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory());
 
         $identity = new Identity(new ArrayObject(['username' => 'robert']));
 
@@ -399,7 +401,7 @@ class AuthenticationServiceTest extends TestCase
         $storage = $this->createMock(StorageInterface::class);
 
         $authenticators = $this->createAuthenticators(null, $storage);
-        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory());
 
         $storage
             ->expects($this->once())
@@ -428,7 +430,7 @@ class AuthenticationServiceTest extends TestCase
             ['username' => 'robert', 'password' => 'robert']
         );
 
-        $service = new AuthenticationService(new AuthenticatorCollection(), new DefaultIdentityFactory);
+        $service = new AuthenticationService(new AuthenticatorCollection(), new DefaultIdentityFactory());
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('No authenticators loaded. You need to load at least one authenticator.');
@@ -466,7 +468,7 @@ class AuthenticationServiceTest extends TestCase
         );
 
         $authenticators = $this->createAuthenticators();
-        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory);
+        $service = new AuthenticationService($authenticators, new DefaultIdentityFactory());
 
         $success = $service->authenticate($request);
         $this->assertTrue($success);
