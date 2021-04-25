@@ -28,9 +28,9 @@ class Identity implements IdentityInterface
      *
      * - `fieldMap` Mapping of fields
      *
-     * @var array
+     * @var array<string, mixed>
      */
-    protected $defaultConfig = [
+    protected array $defaultConfig = [
         'fieldMap' => [
             'id' => 'id'
         ]
@@ -39,22 +39,22 @@ class Identity implements IdentityInterface
     /**
      * Config
      *
-     * @var array
+     * @var array<string, mixed>
      */
-    protected $config = [];
+    protected array $config = [];
 
     /**
      * Identity data
      *
-     * @var \ArrayAccess
+     * @var \ArrayAccess<mixed, mixed>
      */
-    protected $data;
+    protected ArrayAccess $data;
 
     /**
      * Constructor
      *
      * @param \ArrayAccess $data Identity data
-     * @param array $config Config options
+     * @param array<string, mixed> $config Config options
      * @throws \InvalidArgumentException When invalid identity data is passed.
      */
     public function __construct(ArrayAccess $data, array $config = [])

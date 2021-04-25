@@ -44,15 +44,6 @@ class CallbackIdentifier extends AbstractIdentifier
     {
         $callback = $this->callable;
 
-        $result = $callback($data);
-        if ($result === null || $result instanceof ArrayAccess) {
-            return $result;
-        }
-
-        throw new RuntimeException(sprintf(
-            'Invalid return type of `%s`. Expecting `%s` or `null`.',
-            gettype($result),
-            ArrayAccess::class
-        ));
+        return $callback($data);
     }
 }

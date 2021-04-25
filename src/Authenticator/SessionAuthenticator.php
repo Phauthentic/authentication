@@ -28,21 +28,21 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
 {
 
     /**
-     * @var array
+     * @var array<string, string>
      */
-    protected $credentialFields = [
+    protected array $credentialFields = [
         IdentifierInterface::CREDENTIAL_USERNAME => 'username',
     ];
 
     /**
      * @var bool
      */
-    protected $verify = false;
+    protected bool $verify = false;
 
     /**
      * @var \Phauthentic\Authentication\Authenticator\Storage\StorageInterface
      */
-    protected $storage;
+    protected StorageInterface $storage;
 
     /**
      * {@inheritDoc}
@@ -59,7 +59,7 @@ class SessionAuthenticator extends AbstractAuthenticator implements PersistenceI
     /**
      * Set the fields to use to verify a user by.
      *
-     * @param array $fields Credential fields.
+     * @param array<string, string> $fields Credential fields.
      * @return $this
      */
     public function setCredentialFields(array $fields): self

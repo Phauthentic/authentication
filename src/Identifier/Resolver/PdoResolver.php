@@ -18,7 +18,6 @@ use ArrayObject;
 use PDO;
 use PDOException;
 use PDOStatement;
-use Phauthentic\Authentication\Identifier\Resolver\ResolverInterface;
 use RuntimeException;
 
 /**
@@ -29,17 +28,17 @@ class PdoResolver implements ResolverInterface
     /**
      * @var \PDO
      */
-    protected $pdo;
+    protected PDO $pdo;
 
     /**
      * @var string
      */
-    protected $sql;
+    protected string $sql;
 
     /**
      * Constructor.
      *
-     * @param \PDO PDO Instance
+     * @param \PDO $pdo PDO Instance
      * @param string $sql SQL String
      */
     public function __construct(PDO $pdo, string $sql)
@@ -62,7 +61,7 @@ class PdoResolver implements ResolverInterface
             throw new PDOException($error[2], (int)$error[0]);
         }
 
-        if ($statement === false) {
+        if (!$statement instanceof PDOStatement) {
             throw new RuntimeException(sprintf(
                 'There was an error running your PDO resolver using this query: %s',
                 $this->sql

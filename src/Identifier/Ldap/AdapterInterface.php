@@ -24,17 +24,17 @@ interface AdapterInterface
      * @param string $password Bind password
      * @return bool
      */
-    public function bind($bind, $password);
+    public function bind(string $bind, string $password): bool;
 
     /**
      * Connect to an LDAP server
      *
      * @param string $host Hostname
      * @param int $port Port
-     * @param array $options Additional options
+     * @param array<int, bool|int|string> $options Additional options
      * @return void
      */
-    public function connect($host, $port, $options);
+    public function connect(string $host, int $port, array $options): void;
 
     /**
      * Unbind from LDAP directory

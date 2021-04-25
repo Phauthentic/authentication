@@ -18,12 +18,12 @@ class Failure implements FailureInterface
     /**
      * @var \Phauthentic\Authentication\Authenticator\AuthenticatorInterface
      */
-    protected $authenticator;
+    protected AuthenticatorInterface $authenticator;
 
     /**
      * @var \Phauthentic\Authentication\Authenticator\ResultInterface
      */
-    protected $result;
+    protected ResultInterface $result;
 
     /**
      * Constructor.

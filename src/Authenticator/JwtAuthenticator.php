@@ -32,28 +32,28 @@ class JwtAuthenticator extends TokenAuthenticator
      *
      * @var null|string
      */
-    protected $queryParam = 'token';
+    protected ?string $queryParam = 'token';
 
     /**
      * Header
      *
      * @var null|string
      */
-    protected $header = 'Authorization';
+    protected ?string $header = 'Authorization';
 
     /**
      * Token Prefix
      *
      * @var null|string
      */
-    protected $tokenPrefix = 'bearer';
+    protected ?string $tokenPrefix = 'bearer';
 
     /**
      * Hashing algorithms
      *
-     * @var array
+     * @var array<int, string>
      */
-    protected $algorithms = [
+    protected array $algorithms = [
         'HS256'
     ];
 
@@ -62,21 +62,21 @@ class JwtAuthenticator extends TokenAuthenticator
      *
      * @var bool
      */
-    protected $returnPayload = true;
+    protected bool $returnPayload = true;
 
     /**
      * Secret key
      *
      * @var null|string
      */
-    protected $secretKey = null;
+    protected ?string $secretKey;
 
     /**
      * Payload data.
      *
      * @var object|null
      */
-    protected $payload;
+    protected ?object $payload = null;
 
     /**
      * {@inheritDoc}
@@ -91,7 +91,7 @@ class JwtAuthenticator extends TokenAuthenticator
     /**
      * Sets algorithms to use
      *
-     * @param array $algorithms List of algorithms
+     * @param array<int, string> $algorithms List of algorithms
      * @return $this
      */
     public function setAlgorithms(array $algorithms): self

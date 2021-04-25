@@ -15,6 +15,7 @@
  */
 namespace Phauthentic\Authentication\Test\TestCase\Authentication;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException;
 use Phauthentic\Authentication\Authenticator\HttpDigestAuthenticator;
 use Phauthentic\Authentication\Authenticator\Result;
@@ -31,6 +32,20 @@ use Zend\Diactoros\ServerRequestFactory;
  */
 class HttpDigestAuthenticatorTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
+    /**
+     * @var \Phauthentic\Authentication\Identifier\PasswordIdentifier
+     */
+    private PasswordIdentifier $identifiers;
+    /**
+     * @var \Phauthentic\Authentication\Authenticator\HttpDigestAuthenticator
+     */
+    private HttpDigestAuthenticator $auth;
+    /**
+     * @var \PHPUnit\Framework\MockObject\MockObject|\Zend\Diactoros\Response
+     */
+    private $response;
 
     /**
      * setup
@@ -56,7 +71,7 @@ class HttpDigestAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testConstructor()
+    public function testConstructor(): void
     {
         $object = (new HttpDigestAuthenticator($this->identifiers))
             ->setCredentialFields('user', 'pass');
@@ -69,7 +84,7 @@ class HttpDigestAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticateNoData()
+    public function testAuthenticateNoData(): void
     {
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/posts/index']
@@ -85,7 +100,7 @@ class HttpDigestAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticateWrongUsername()
+    public function testAuthenticateWrongUsername(): void
     {
         $request = ServerRequestFactory::fromGlobals(
             ['REQUEST_URI' => '/posts/index'],
@@ -114,6 +129,7 @@ DIGEST;
      * test authenticate success
      *
      * @return void
+     * @throws \Exception
      */
     public function testAuthenticateSuccess()
     {
@@ -151,7 +167,7 @@ DIGEST;
      *
      * @return void
      */
-    public function testAuthenticateFailsOnBadNonce()
+    public function testAuthenticateFailsOnBadNonce(): void
     {
         $data = [
             'username' => 'digest',
@@ -182,7 +198,7 @@ DIGEST;
      *
      * @return void
      */
-    public function testAuthenticateFailsNonceWithTooManyParts()
+    public function testAuthenticateFailsNonceWithTooManyParts(): void
     {
         $data = [
             'username' => 'digest',
@@ -192,7 +208,11 @@ DIGEST;
             'cnonce' => '123',
             'qop' => 'auth',
         ];
-        $data['response'] = $this->auth->generateResponseHash($data, '09faa9931501bf30f0d4253fa7763022', 'GET');
+        $data['response'] = $this->auth->generateResponseHash(
+            $data,
+            '09faa9931501bf30f0d4253fa7763022',
+            'GET'
+        );
 
         $request = ServerRequestFactory::fromGlobals(
             [
@@ -213,7 +233,7 @@ DIGEST;
      *
      * @return void
      */
-    public function testAuthenticateFailsOnStaleNonce()
+    public function testAuthenticateFailsOnStaleNonce(): void
     {
 
         $data = [
@@ -252,7 +272,7 @@ DIGEST;
         } catch (UnauthorizedException $e) {
             $this->assertEquals(401, $e->getCode());
             $header = $e->getHeaders()['WWW-Authenticate'];
-            $this->assertRegexp(
+            $this->assertMatchesRegularExpression(
                 '/^Digest realm="localhost",qop="auth",nonce="[A-Za-z0-9=]+",opaque="123abc"/',
                 $header
             );
@@ -293,7 +313,7 @@ DIGEST;
         } catch (UnauthorizedException $e) {
             $this->assertSame(401, $e->getCode());
             $header = $e->getHeaders()['WWW-Authenticate'];
-            $this->assertRegexp(
+            $this->assertMatchesRegularExpression(
                 '/^Digest realm="localhost",qop="auth",nonce="[A-Za-z0-9=]+",opaque="123abc"/',
                 $header
             );
@@ -328,7 +348,7 @@ DIGEST;
         $this->assertNotEmpty($e);
 
         $header = $e->getHeaders()['WWW-Authenticate'];
-        $this->assertContains('stale=true', $header);
+        $this->assertStringContainsString('stale=true', $header);
     }
 
     /**
@@ -429,7 +449,7 @@ DIGEST;
      *
      * @return void
      */
-    public function testPassword()
+    public function testPassword(): void
     {
         $result = HttpDigestAuthenticator::generatePasswordHash('mark', 'password', 'localhost');
         $expected = md5('mark:localhost:password');
@@ -442,7 +462,7 @@ DIGEST;
      * @param array $data the data to convert into a header.
      * @return string
      */
-    protected function digestHeader($data)
+    protected function digestHeader(array $data): string
     {
         $data += [
             'username' => 'digest',
@@ -469,10 +489,10 @@ DIGEST;
      *
      * @param string|null $secret The secret to use
      * @param int $expires Number of seconds the nonce is valid for
-     * @param int $time The current time.
+     * @param null $time The current time.
      * @return string
      */
-    protected function generateNonce($secret = null, $expires = 300, $time = null)
+    protected function generateNonce($secret = null, $expires = 300, $time = null): string
     {
         $time = $time ?: microtime(true);
         $expiryTime = $time + $expires;

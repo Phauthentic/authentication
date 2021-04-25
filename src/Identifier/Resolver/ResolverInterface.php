@@ -25,7 +25,7 @@ interface ResolverInterface
      *
      * Should return `null` if the conditions cannot be resolved.
      *
-     * @param array $conditions Find conditions.
+     * @param array<mixed, mixed> $conditions Find conditions.
      * @return \ArrayAccess|null
      */
     public function find(array $conditions): ?ArrayAccess;

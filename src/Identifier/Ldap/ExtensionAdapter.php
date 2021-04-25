@@ -15,7 +15,6 @@ declare(strict_types=1);
  */
 namespace Phauthentic\Authentication\Identifier\Ldap;
 
-use Phauthentic\Authentication\Identifier\Ldap\AdapterInterface;
 use ErrorException;
 use RuntimeException;
 
@@ -60,7 +59,7 @@ class ExtensionAdapter implements AdapterInterface
      * @param string $password Bind password
      * @return bool
      */
-    public function bind($bind, $password)
+    public function bind(string $bind, string $password): bool
     {
         $this->setErrorHandler();
         $result = ldap_bind($this->getConnection(), $bind, $password);
@@ -89,10 +88,11 @@ class ExtensionAdapter implements AdapterInterface
      *
      * @param string $host Hostname
      * @param int $port Port
-     * @param array $options Additonal LDAP options
+     * @param array<int, int|bool|string> $options Additional LDAP options
      * @return void
+     * @throws \ErrorException
      */
-    public function connect($host, $port, $options)
+    public function connect(string $host, int $port, array $options): void
     {
         $this->setErrorHandler();
         $this->connection = ldap_connect($host, $port) ?: null;
@@ -100,7 +100,7 @@ class ExtensionAdapter implements AdapterInterface
 
         if (is_array($options)) {
             foreach ($options as $option => $value) {
-                $this->setOption($option, $value);
+                $this->setOption((string)$option, $value);
             }
         }
     }
@@ -108,11 +108,11 @@ class ExtensionAdapter implements AdapterInterface
     /**
      *  Set the value of the given option
      *
-     * @param int $option Option to set
-     * @param mixed $value The new value for the specified option
+     * @param inst $option Option to set
+     * @param int|bool|string $value The new value for the specified option
      * @return void
      */
-    public function setOption($option, $value)
+    public function setOption(int $option, $value)
     {
         $this->setErrorHandler();
         ldap_set_option($this->getConnection(), $option, $value);

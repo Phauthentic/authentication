@@ -25,21 +25,21 @@ class CollectionIdentifier implements IdentifierInterface
     /**
      * Errors
      *
-     * @var array
+     * @var array<mixed, mixed>
      */
-    protected $errors = [];
+    protected array $errors = [];
 
     /**
      * Identifier Collection
      *
-     * @var iterable
+     * @var iterable<\Phauthentic\Authentication\Identifier\IdentifierInterface>
      */
-    protected $collection;
+    protected iterable $collection;
 
     /**
      * Constructor
      *
-     * @param iterable $collection Identifier collection.
+     * @param iterable<\Phauthentic\Authentication\Identifier\IdentifierInterface> $collection Identifier collection.
      */
     public function __construct(iterable $collection)
     {
@@ -49,7 +49,7 @@ class CollectionIdentifier implements IdentifierInterface
     /**
      * Get errors
      *
-     * @return array
+     * @return array<mixed, mixed>
      */
     public function getErrors(): array
     {
@@ -59,7 +59,7 @@ class CollectionIdentifier implements IdentifierInterface
     /**
      * Identifies an user or service by the passed credentials
      *
-     * @param array $credentials Authentication credentials
+     * @param array<string, string> $credentials Authentication credentials
      * @return \ArrayAccess|null
      */
     public function identify(array $credentials): ?ArrayAccess

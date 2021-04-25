@@ -23,18 +23,17 @@ use Traversable;
  */
 class IdentifierCollection implements IdentifierCollectionInterface
 {
-
     /**
      * Identifier list
      *
-     * @var array
+     * @var array<\Phauthentic\Authentication\Identifier\IdentifierInterface>
      */
-    protected $identifiers;
+    protected array $identifiers;
 
     /**
      * Constructor
      *
-     * @param iterable $identifiers Identifier objects.
+     * @param iterable<\Phauthentic\Authentication\Identifier\IdentifierInterface> $identifiers Identifier objects.
      */
     public function __construct(iterable $identifiers = [])
     {

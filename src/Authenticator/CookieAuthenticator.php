@@ -30,7 +30,6 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class CookieAuthenticator extends AbstractAuthenticator implements PersistenceInterface
 {
-
     use CredentialFieldsTrait;
     use UrlAwareTrait;
 
@@ -103,7 +102,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
             ]);
         }
 
-        list($username, $tokenHash) = $token;
+        [$username, $tokenHash] = $token;
 
         $data = $this->identifier->identify([
             IdentifierInterface::CREDENTIAL_USERNAME => $username,
@@ -124,6 +123,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
 
     /**
      * {@inheritDoc}
+     * @throws \JsonException
      */
     public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, ArrayAccess $data): ResponseInterface
     {
@@ -165,11 +165,11 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
 
     /**
      * Creates a full cookie token serialized as a JSON sting.
-     *
      * Cookie token consists of a username and hashed username + password hash.
      *
      * @param \ArrayAccess $data Identity data.
      * @return string
+     * @throws \JsonException
      */
     protected function createToken(ArrayAccess $data): string
     {
@@ -178,7 +178,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
 
         $usernameField = $this->credentialFields[IdentifierInterface::CREDENTIAL_USERNAME];
 
-        return (string)json_encode([$data[$usernameField], $hash]);
+        return (string)json_encode([$data[$usernameField], $hash], JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -188,7 +188,7 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      * @param string $tokenHash Hashed part of a cookie token.
      * @return bool
      */
-    protected function checkToken(ArrayAccess $data, $tokenHash): bool
+    protected function checkToken(ArrayAccess $data, string $tokenHash): bool
     {
         $plain = $this->createPlainToken($data);
 

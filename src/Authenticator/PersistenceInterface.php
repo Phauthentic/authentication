@@ -24,7 +24,6 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 interface PersistenceInterface
 {
-
     /**
      * Persists the users data
      *

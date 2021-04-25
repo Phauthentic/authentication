@@ -24,22 +24,22 @@ use Throwable;
 class UnauthorizedException extends RuntimeException implements AuthenticationExceptionInterface
 {
     /**
-     * @var array
+     * @var array<string, string>
      */
-    protected $headers = [];
+    protected array $headers = [];
 
     /**
      * @var string
      */
-    protected $body = '';
+    protected string $body = '';
 
     /**
      * Constructor
      *
-     * @param array $headers The headers that should be sent in the unauthorized challenge response.
+     * @param array<string, string> $headers The headers that should be sent in the unauthorized challenge response.
      * @param string $body The response body that should be sent in the challenge response.
      * @param int $code The exception code that will be used as a HTTP status code
-     * @param Throwable $previous Previous exception
+     * @param \Throwable|null $previous Previous exception
      */
     public function __construct(array $headers, string $body = '', $code = 401, Throwable $previous = null)
     {
@@ -51,7 +51,7 @@ class UnauthorizedException extends RuntimeException implements AuthenticationEx
     /**
      * Get the headers.
      *
-     * @return array
+     * @return array<string, string>
      */
     public function getHeaders(): array
     {

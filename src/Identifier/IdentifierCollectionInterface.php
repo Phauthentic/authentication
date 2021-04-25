@@ -22,7 +22,6 @@ use IteratorAggregate;
  */
 interface IdentifierCollectionInterface extends IteratorAggregate
 {
-
     /**
      * Adds an identifier to the collection
      *

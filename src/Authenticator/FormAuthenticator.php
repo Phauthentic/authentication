@@ -45,7 +45,7 @@ class FormAuthenticator extends AbstractAuthenticator
      * Checks the fields to ensure they are supplied.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @return array|null Username and password retrieved from a request body.
+     * @return array<string, string>|null Username and password retrieved from a request body.
      */
     protected function getData(ServerRequestInterface $request): ?array
     {
@@ -58,7 +58,7 @@ class FormAuthenticator extends AbstractAuthenticator
             }
 
             $value = $body[$field];
-            if (!is_string($value) || !strlen($value)) {
+            if (!is_string($value) || $value === '') {
                 return null;
             }
 

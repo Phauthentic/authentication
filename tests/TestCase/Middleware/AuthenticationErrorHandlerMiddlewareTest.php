@@ -64,7 +64,7 @@ class AuthenticationErrorHandlerMiddlewareTest extends TestCase
     /**
      * The :void return type declaration that should be here would cause a BC issue
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

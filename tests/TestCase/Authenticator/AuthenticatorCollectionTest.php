@@ -40,7 +40,7 @@ class AuthenticatorCollectionTest extends TestCase
      *
      * @return void
      */
-    public function testAdd()
+    public function testAdd(): void
     {
         $authenticator = $this->createMock(AuthenticatorInterface::class);
 
@@ -55,9 +55,8 @@ class AuthenticatorCollectionTest extends TestCase
      *
      * @return void
      */
-    public function testIsEmpty()
+    public function testIsEmpty(): void
     {
-        $identifiers = $this->createMock(IdentifierCollection::class);
         $collection = new AuthenticatorCollection();
         $this->assertTrue($collection->isEmpty());
 
@@ -70,7 +69,7 @@ class AuthenticatorCollectionTest extends TestCase
      *
      * @return void
      */
-    public function testIterator()
+    public function testIterator(): void
     {
         $authenticator = $this->createMock(AuthenticatorInterface::class);
 

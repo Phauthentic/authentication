@@ -25,20 +25,20 @@ class PersistenceResult implements PersistenceResultInterface
      * Response
      * @var \Psr\Http\Message\ResponseInterface
      */
-    protected $response;
+    protected ResponseInterface $response;
 
     /**
      * Request
      *
      * @var \Psr\Http\Message\ServerRequestInterface
      */
-    protected $request;
+    protected ServerRequestInterface $request;
 
     /**
      * Constructor
      *
-     * @param \Psr\Http\Message\ServerRequestInterface
-     * @param \Psr\Http\Message\ResponseInterface
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      */
     public function __construct(ServerRequestInterface $request, ResponseInterface $response)
     {

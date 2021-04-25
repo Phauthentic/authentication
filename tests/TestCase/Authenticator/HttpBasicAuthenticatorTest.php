@@ -14,6 +14,7 @@
  */
 namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException;
 use Phauthentic\Authentication\Authenticator\HttpBasicAuthenticator;
 use Phauthentic\Authentication\Identifier\PasswordIdentifier;
@@ -25,6 +26,16 @@ use Zend\Diactoros\ServerRequestFactory;
 
 class HttpBasicAuthenticatorTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
+    /**
+     * @var \Zend\Diactoros\Response
+     */
+    private Response $response;
+    /**
+     * @var \Phauthentic\Authentication\Authenticator\HttpBasicAuthenticator
+     */
+    private HttpBasicAuthenticator $auth;
 
     /**
      * @inheritdoc
@@ -34,8 +45,8 @@ class HttpBasicAuthenticatorTest extends TestCase
         parent::setUp();
 
         $resolver = new TestResolver($this->getConnection()->getConnection());
-        $this->identifiers = new PasswordIdentifier($resolver, new DefaultPasswordHasher());
-        $this->auth = new HttpBasicAuthenticator($this->identifiers);
+        $identifiers = new PasswordIdentifier($resolver, new DefaultPasswordHasher());
+        $this->auth = new HttpBasicAuthenticator($identifiers);
         $this->response = new Response();
     }
 
@@ -97,7 +108,7 @@ class HttpBasicAuthenticatorTest extends TestCase
      *
      * @return void
      */
-    public function testAuthenticateInjection()
+    public function testAuthenticateInjection(): void
     {
         $request = ServerRequestFactory::fromGlobals(
             [
@@ -115,8 +126,9 @@ class HttpBasicAuthenticatorTest extends TestCase
      * Test that username of 0 works.
      *
      * @return void
+     * @throws \Exception
      */
-    public function testAuthenticateUsernameZero()
+    public function testAuthenticateUsernameZero(): void
     {
         $_SERVER['PHP_AUTH_USER'] = '0';
         $_SERVER['PHP_AUTH_PW'] = 'robert';

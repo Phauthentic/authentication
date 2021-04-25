@@ -23,16 +23,16 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
     /**
      * Config
      *
-     * @var array
+     * @var mixed[]
      */
-    protected $config = [];
+    protected array $config = [];
 
     /**
      * Identifier or identifiers collection.
      *
      * @var \Phauthentic\Authentication\Identifier\IdentifierInterface
      */
-    protected $identifier;
+    protected IdentifierInterface $identifier;
 
     /**
      * Constructor

@@ -10,7 +10,7 @@ class UsersSchema implements SchemaInterface
     /**
      * @var string
      */
-    static private $sql =
+    private static $sql =
         "CREATE TABLE IF NOT EXISTS users (
             id INT(11),
             username VARCHAR(128),

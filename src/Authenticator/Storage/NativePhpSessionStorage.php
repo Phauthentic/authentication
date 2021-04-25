@@ -21,7 +21,6 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class NativePhpSessionStorage implements StorageInterface
 {
-
     /**
      * @var string
      */

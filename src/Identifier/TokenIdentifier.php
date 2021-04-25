@@ -29,21 +29,21 @@ class TokenIdentifier extends AbstractIdentifier
      *
      * @var \Phauthentic\Authentication\Identifier\Resolver\ResolverInterface
      */
-    protected $resolver;
+    protected ResolverInterface $resolver;
 
     /**
      * Token Field
      *
      * @var string
      */
-    protected $tokenField = 'token';
+    protected string $tokenField = 'token';
 
     /**
      * Data field
      *
      * @var string|null
      */
-    protected $dataField = self::CREDENTIAL_TOKEN;
+    protected ?string $dataField = self::CREDENTIAL_TOKEN;
 
     /**
      * Constructor

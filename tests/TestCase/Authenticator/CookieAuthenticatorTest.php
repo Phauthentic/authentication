@@ -33,7 +33,7 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
      * @param StorageInterface $storage Storage instance.
      * @return CookieAuthenticator
      */
-    protected function createAuthenticator(StorageInterface $storage)
+    protected function createAuthenticator(StorageInterface $storage): CookieAuthenticator
     {
         $hasher = new DefaultPasswordHasher();
         $resolver = new TestResolver($this->getConnection()->getConnection());
@@ -47,7 +47,7 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
      *
      * @return void
      */
-    public function testAuthenticateInvalidTokenMissingUsername()
+    public function testAuthenticateInvalidTokenMissingUsername(): void
     {
         $storage = $this->createMock(StorageInterface::class);
         $storage
@@ -72,7 +72,7 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
      *
      * @return void
      */
-    public function testAuthenticateSuccess()
+    public function testAuthenticateSuccess(): void
     {
         $storage = $this->createMock(StorageInterface::class);
         $storage
@@ -96,7 +96,7 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
      *
      * @return void
      */
-    public function testAuthenticateUnknownUser()
+    public function testAuthenticateUnknownUser(): void
     {
         $storage = $this->createMock(StorageInterface::class);
         $storage
@@ -120,7 +120,7 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
      *
      * @return void
      */
-    public function testCredentialsNotPresent()
+    public function testCredentialsNotPresent(): void
     {
         $storage = $this->createMock(StorageInterface::class);
         $storage
@@ -144,7 +144,7 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
      *
      * @return void
      */
-    public function testAuthenticateInvalidToken()
+    public function testAuthenticateInvalidToken(): void
     {
         $storage = $this->createMock(StorageInterface::class);
         $storage
@@ -168,7 +168,7 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
      *
      * @return void
      */
-    public function testPersistIdentity()
+    public function testPersistIdentity(): void
     {
         $response = new Response();
         $storage = $this->createMock(StorageInterface::class);
@@ -192,8 +192,7 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
         ]);
         $result = $authenticator->persistIdentity($request, $response, $identity);
 
-        $this->assertInstanceOf(ResponseInterface::class, $result);
-        $this->assertContains('CookieAuth=%5B%22robert%22%2C%22%242y%2410%24', $result->getHeaderLine('Set-Cookie'));
+        $this->assertStringContainsString('CookieAuth=%5B%22robert%22%2C%22%242y%2410%24', $result->getHeaderLine('Set-Cookie'));
     }
 
     /**
@@ -201,7 +200,7 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
      *
      * @return void
      */
-    public function testPersistIdentityOtherField()
+    public function testPersistIdentityOtherField(): void
     {
         $response = new Response();
         $storage = $this->createMock(StorageInterface::class);
@@ -227,7 +226,7 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
 
         $result = $authenticator->persistIdentity($request, $response, $identity);
         $this->assertInstanceOf(ResponseInterface::class, $result);
-        $this->assertContains('CookieAuth=%5B%22robert%22%2C%22%242y%2410%24', $result->getHeaderLine('Set-Cookie'));
+        $this->assertStringContainsString('CookieAuth=%5B%22robert%22%2C%22%242y%2410%24', $result->getHeaderLine('Set-Cookie'));
     }
 
     /**
@@ -256,8 +255,8 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
             'password' => '$2y$10$VFTg46xeZ8/hU4zI.dtZVOfuz4AeIKAgZaB.uraGfcljXzid/xERa'
         ]);
         $result = $authenticator->persistIdentity($request, $response, $identity);
-        $this->assertInstanceOf(ResponseInterface::class, $result);
-        $this->assertNotContains('CookieAuth', $result->getHeaderLine('Set-Cookie'));
+
+        $this->assertStringNotContainsString('CookieAuth', $result->getHeaderLine('Set-Cookie'));
     }
 
     /**
@@ -285,8 +284,7 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
         ]);
         $result = $authenticator->persistIdentity($request, $response, $identity);
 
-        $this->assertInstanceOf(ResponseInterface::class, $result);
-        $this->assertNotContains('CookieAuth=%5B%22robert%22%2C%22%242y%2410%24', $result->getHeaderLine('Set-Cookie'));
+        $this->assertStringNotContainsString('CookieAuth=%5B%22robert%22%2C%22%242y%2410%24', $result->getHeaderLine('Set-Cookie'));
     }
 
     /**

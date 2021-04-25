@@ -30,21 +30,21 @@ class TokenAuthenticator extends AbstractAuthenticator implements StatelessInter
      *
      * @var null|string
      */
-    protected $queryParam = null;
+	protected ?string $queryParam = null;
 
     /**
      * Header
      *
      * @var null|string
      */
-    protected $header = null;
+    protected ?string $header = null;
 
     /**
      * Token Prefix
      *
      * @var null|string
      */
-    protected $tokenPrefix = null;
+    protected ?string $tokenPrefix = null;
 
     /**
      * Sets the header name to get the token from

@@ -21,14 +21,14 @@ abstract class AbstractIdentifier implements IdentifierInterface
     /**
      * Errors
      *
-     * @var array
+     * @var array<int, string>
      */
-    protected $errors = [];
+    protected array $errors = [];
 
     /**
      * Returns errors
      *
-     * @return array
+     * @return array<int, string>
      */
     public function getErrors(): array
     {
