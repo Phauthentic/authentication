@@ -32,7 +32,7 @@ class PdoStatementResolver implements ResolverInterface
      *
      * @var \PDOStatement
      */
-    protected $statement;
+    protected PDOStatement $statement;
 
     /**
      * Constructor.

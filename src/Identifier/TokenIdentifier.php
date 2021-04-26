@@ -24,7 +24,6 @@ use Phauthentic\Authentication\Identifier\Resolver\ResolverInterface;
  */
 class TokenIdentifier extends AbstractIdentifier
 {
-
     /**
      * Resolver
      *

@@ -27,7 +27,6 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class SessionAuthenticator extends AbstractAuthenticator implements PersistenceInterface
 {
-
     /**
      * @var array<string, string>
      */

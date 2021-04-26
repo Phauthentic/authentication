@@ -18,7 +18,6 @@ namespace Phauthentic\Authentication\Identifier;
 
 abstract class AbstractIdentifier implements IdentifierInterface
 {
-
     /**
      * Errors
      *

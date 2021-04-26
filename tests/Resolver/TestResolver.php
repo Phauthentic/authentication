@@ -9,13 +9,20 @@ use PDO;
 
 class TestResolver implements ResolverInterface
 {
-    protected $pdo;
+    protected PDO $pdo;
 
+    /**
+     * @param \PDO $pdo
+     */
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
 
+    /**
+     * @param array $conditions
+     * @return \ArrayAccess|null
+     */
     public function find(array $conditions): ?ArrayAccess
     {
         $where = [];
