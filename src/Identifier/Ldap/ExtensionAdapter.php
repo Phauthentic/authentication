@@ -29,7 +29,6 @@ use RuntimeException;
  */
 class ExtensionAdapter implements AdapterInterface
 {
-
     /**
      * LDAP Object
      *
@@ -59,6 +58,7 @@ class ExtensionAdapter implements AdapterInterface
      * @param string $bind Bind rdn
      * @param string $password Bind password
      * @return bool
+     * @throws \ErrorException
      */
     public function bind(string $bind, string $password): bool
     {

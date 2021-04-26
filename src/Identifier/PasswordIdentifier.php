@@ -31,7 +31,6 @@ use Phauthentic\PasswordHasher\PasswordHasherInterface;
  */
 class PasswordIdentifier extends AbstractIdentifier
 {
-
     /**
      * Credential fields
      *

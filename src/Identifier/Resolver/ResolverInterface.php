@@ -20,7 +20,6 @@ use ArrayAccess;
 
 interface ResolverInterface
 {
-
     /**
      * Returns identity for given conditions.
      *

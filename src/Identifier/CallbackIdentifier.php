@@ -17,21 +17,19 @@
 namespace Phauthentic\Authentication\Identifier;
 
 use ArrayAccess;
-use RuntimeException;
 
 /**
  * Callback Identifier
  */
 class CallbackIdentifier extends AbstractIdentifier
 {
-
     /**
      * @var callable
      */
     protected $callable;
 
     /**
-     * {@inheritDoc}
+     * @param callable $callable
      */
     public function __construct(callable $callable)
     {

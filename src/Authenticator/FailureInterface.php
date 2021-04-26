@@ -16,7 +16,6 @@ namespace Phauthentic\Authentication\Authenticator;
 
 interface FailureInterface
 {
-
     /**
      * Returns failed authenticator.
      *

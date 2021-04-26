@@ -34,7 +34,7 @@ class JwtSubjectIdentifier extends TokenIdentifier
     /**
      * Data field
      *
-     * @var string
+     * @var string|null
      */
     protected ?string $dataField = self::CREDENTIAL_JWT_SUBJECT;
 }

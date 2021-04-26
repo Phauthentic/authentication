@@ -20,7 +20,6 @@ use Phauthentic\Authentication\Identifier\IdentifierInterface;
 
 abstract class AbstractAuthenticator implements AuthenticatorInterface
 {
-
     /**
      * Config
      *
