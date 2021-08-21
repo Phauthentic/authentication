@@ -8,6 +8,11 @@
 /bin
 /.phpunit.result.cache
 
+#Phive
+######
+/phive.phar
+/phive.phar.asc
+
 # OS generated files #
 ######################
 .DS_Store
