@@ -24,7 +24,6 @@ use Phauthentic\Authentication\Test\Fixture\UsersFixture;
  */
 class AuthenticationTestCase extends FixturizedTestCase
 {
-
     /**
      * Returns users fixture.
      *
