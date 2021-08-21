@@ -17,13 +17,11 @@
         "ext-json": "*"
     },
     "require-dev": {
+        "ext-pdo": "*",
         "dms/phpunit-arraysubset-asserts": "^0.3.0",
         "firebase/php-jwt": "~4.0",
         "misantron/dbunit": "dev-master",
-        "phpstan/phpstan": "^0.12.84",
-        "phpunit/phpunit": "^9.5.4",
         "roave/security-advisories": "dev-master",
-        "squizlabs/php_codesniffer": "^3.3",
         "laminas/laminas-diactoros": "^2.5.0"
     },
     "suggest": {
@@ -40,14 +38,24 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "AuthTest\\": "tests/test_app/Plugin/AuthTest/src/",
-            "Phauthentic\\Authentication\\Test\\": "tests/",
-            "Phauthentic\\Authentication\\Test\\App\\": "tests/test_app/App/",
-            "TestApp\\": "tests/test_app/TestApp/",
-            "TestPlugin\\": "tests/test_app/Plugin/TestPlugin/src/"
+            "Phauthentic\\Authentication\\Test\\": "tests"
         }
     },
+    "authors": [
+        {
+            "name": "Florian Krämer"
+        }
+    ],
     "scripts": {
+        "post-install-cmd": [
+            "php config/composer_post_install.php"
+        ],
+        "post-update-cmd": [
+            "php config/composer_post_install.php"
+        ],
+        "phive": [
+            "php ./config/composer_phive.php"
+        ],
         "check": [
             "@cs-check",
             "@test"
