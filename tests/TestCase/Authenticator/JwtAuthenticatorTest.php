@@ -25,13 +25,11 @@ use Phauthentic\Authentication\Test\Resolver\TestResolver;
 use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Exception;
 use Firebase\JWT\JWT;
+use Nyholm\Psr7\Response;
 use stdClass;
-use Zend\Diactoros\Response;
-use Zend\Diactoros\ServerRequestFactory;
 
 class JwtAuthenticatorTest extends TestCase
 {
-
     /**
      * Test token
      *
@@ -73,14 +71,17 @@ class JwtAuthenticatorTest extends TestCase
      */
     public function testAuthenticateViaHeaderToken()
     {
-        $this->request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/']
-        );
-        $this->request = $this->request->withAddedHeader('Authorization', 'Bearer ' . $this->token);
+        $request = $this->getMockRequest([
+            'path' => '/'
+        ]);
+        $request->expects($this->once())
+            ->method('getHeaderLine')
+            ->with('Authorization')
+            ->willReturn('Bearer ' . $this->token);
 
         $authenticator = (new JwtAuthenticator($this->identifiers, 'secretKey'));
 
-        $result = $authenticator->authenticate($this->request, $this->response);
+        $result = $authenticator->authenticate($request, $this->response);
         $this->assertEquals(Result::SUCCESS, $result->getStatus());
         $this->assertInstanceOf(ArrayAccess::class, $result->getData());
     }
@@ -92,14 +93,22 @@ class JwtAuthenticatorTest extends TestCase
      */
     public function testAuthenticateViaQueryParamToken(): void
     {
-        $this->request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/'],
-            ['token' => $this->token]
-        );
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getQueryParams')
+            ->willReturn(['token' => $this->token]);
+
+        $request = $this->getMockRequest([
+            'path' => '/',
+        ]);
+        $request->expects($this->once())
+            ->method('getHeaderLine')
+            ->with('Authorization')
+            ->willReturn('Bearer ' . $this->token);
 
         $authenticator = (new JwtAuthenticator($this->identifiers, 'secretKey'));
 
-        $result = $authenticator->authenticate($this->request, $this->response);
+        $result = $authenticator->authenticate($request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
         $this->assertEquals(Result::SUCCESS, $result->getStatus());
         $this->assertInstanceOf(ArrayAccess::class, $result->getData());
@@ -112,10 +121,10 @@ class JwtAuthenticatorTest extends TestCase
      */
     public function testAuthenticationViaIdentifierAndSubject(): void
     {
-        $this->request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/'],
-            ['token' => $this->token]
-        );
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getQueryParams')
+            ->willReturn(['token' => $this->token]);
 
         $this->identifiers = $this->createMock(JwtSubjectIdentifier::class);
         $this->identifiers->expects($this->once())
@@ -133,7 +142,7 @@ class JwtAuthenticatorTest extends TestCase
         $authenticator = (new JwtAuthenticator($this->identifiers, 'secretKey'))
             ->setReturnPayload(false);
 
-        $result = $authenticator->authenticate($this->request, $this->response);
+        $result = $authenticator->authenticate($request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
         $this->assertEquals(Result::SUCCESS, $result->getStatus());
         $this->assertInstanceOf(ArrayAccess::class, $result->getData());
@@ -148,10 +157,10 @@ class JwtAuthenticatorTest extends TestCase
      */
     public function testAuthenticateInvalidPayloadNotAnObject(): void
     {
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/'],
-            ['token' => $this->token]
-        );
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getQueryParams')
+            ->willReturn(['token' => $this->token]);
 
         $response = new Response();
 
@@ -170,6 +179,7 @@ class JwtAuthenticatorTest extends TestCase
             ->willReturn('no an object');
 
         $result = $authenticator->authenticate($request, $response);
+
         $this->assertInstanceOf(Result::class, $result);
         $this->assertEquals(Result::FAILURE_CREDENTIALS_INVALID, $result->getStatus());
         $this->assertNull($result->getData());
@@ -182,10 +192,10 @@ class JwtAuthenticatorTest extends TestCase
      */
     public function testAuthenticateInvalidPayloadEmpty(): void
     {
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/'],
-            ['token' => $this->token]
-        );
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getQueryParams')
+            ->willReturn(['token' => $this->token]);
 
         $response = new Response();
 
@@ -211,14 +221,14 @@ class JwtAuthenticatorTest extends TestCase
 
     public function testInvalidToken()
     {
-        $this->request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/'],
-            ['token' => 'should cause an exception']
-        );
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getQueryParams')
+            ->willReturn(['token' => 'should cause an exception']);
 
         $authenticator = (new JwtAuthenticator($this->identifiers, 'secretKey'));
 
-        $result = $authenticator->authenticate($this->request, $this->response);
+        $result = $authenticator->authenticate($request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
         $this->assertEquals(Result::FAILURE_CREDENTIALS_INVALID, $result->getStatus());
         $this->assertNUll($result->getData());
@@ -235,17 +245,17 @@ class JwtAuthenticatorTest extends TestCase
      */
     public function testGetPayload()
     {
-        $this->request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/'],
-            ['token' => $this->token]
-        );
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getQueryParams')
+            ->willReturn(['token' => $this->token]);
 
         $authenticator = (new JwtAuthenticator($this->identifiers, 'secretKey'));
 
         $result = $authenticator->getPayload();
         $this->assertNull($result);
 
-        $authenticator->authenticate($this->request, $this->response);
+        $authenticator->authenticate($request, $this->response);
 
         $expected = [
             'sub' => 3,

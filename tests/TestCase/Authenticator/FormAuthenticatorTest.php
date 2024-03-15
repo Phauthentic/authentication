@@ -17,6 +17,7 @@
 namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
 use ArrayObject;
+use Nyholm\Psr7\Response;
 use Phauthentic\Authentication\Authenticator\FormAuthenticator;
 use Phauthentic\Authentication\Authenticator\Result;
 use Phauthentic\Authentication\Identifier\IdentifierInterface;
@@ -26,8 +27,6 @@ use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Phauthentic\Authentication\UrlChecker\DefaultUrlChecker;
 use Phauthentic\Authentication\UrlChecker\RegexUrlChecker;
 use Phauthentic\PasswordHasher\DefaultPasswordHasher;
-use Zend\Diactoros\Response;
-use Zend\Diactoros\ServerRequestFactory;
 
 /**
  * FormAuthenticatorTest
@@ -49,11 +48,15 @@ class FormAuthenticatorTest extends TestCase
     public function testAuthenticate(): void
     {
         $identifier = $this->getIdentifier();
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath'],
-            [],
-            ['username' => 'florian', 'password' => 'florian']
-        );
+
+        $request = $this->getMockRequest([
+            'method' => 'POST',
+            'parsedBody' => [
+                'username' => 'florian',
+                'password' => 'florian'
+            ]
+        ]);
+
         $response = new Response();
 
         $form = new FormAuthenticator($identifier, new DefaultUrlChecker());
@@ -72,11 +75,11 @@ class FormAuthenticatorTest extends TestCase
     {
         $identifier = $this->getIdentifier();
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/does-not-match'],
-            [],
-            []
-        );
+        $request = $this->getMockRequest([
+            'path' => '/users/does-not-match',
+            'method' => 'POST',
+            'parsedBody' => []
+        ]);
         $response = new Response();
 
         $urlChecker = new DefaultUrlChecker();
@@ -98,11 +101,20 @@ class FormAuthenticatorTest extends TestCase
     {
         $identifier = $this->getIdentifier();
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/does-not-match'],
-            [],
-            ['username' => '', 'password' => '']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/users/does-not-match',
+            'host' => 'localhost',
+            'parsedBody' => [
+                'username' => '',
+                'password' => ''
+            ]
+        ]);
+
+        $request->getUri()
+            ->expects($this->any())
+            ->method('__toString')
+            ->willReturn('http://localhost/users/does-not-match');
+
         $response = new Response();
 
         $urlChecker = new DefaultUrlChecker();
@@ -124,14 +136,20 @@ class FormAuthenticatorTest extends TestCase
     {
         $identifier = $this->getIdentifier();
 
-        $request = ServerRequestFactory::fromGlobals(
-            [
-                'REQUEST_URI' => '/users/does-not-match',
-                'HTTP_HOST' => 'localhost',
-            ],
-            [],
-            ['username' => 'florian', 'password' => 'florian']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/users/does-not-match',
+            'host' => 'localhost',
+            'parsedBody' => [
+                'username' => 'florian',
+                'password' => 'florian'
+            ]
+        ]);
+
+        $request->getUri()
+            ->expects($this->any())
+            ->method('__toString')
+            ->willReturn('http://localhost/users/does-not-match');
+
         $response = new Response();
 
         $urlChecker = new DefaultUrlChecker();
@@ -154,14 +172,20 @@ class FormAuthenticatorTest extends TestCase
     {
         $identifier = $this->getIdentifier();
 
-        $request = ServerRequestFactory::fromGlobals(
-            [
-                'REQUEST_URI' => '/users/does-not-match',
-                'HTTP_HOST' => 'localhost',
-            ],
-            [],
-            ['username' => 'florian', 'password' => 'florian']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/users/does-not-match',
+            'host' => 'localhost',
+            'parsedBody' => [
+                'username' => 'florian',
+                'password' => 'florian'
+            ]
+        ]);
+
+        $request->getUri()
+            ->expects($this->any())
+            ->method('__toString')
+            ->willReturn('http://localhost/users/does-not-match');
+
         $response = new Response();
 
         $urlChecker = new DefaultUrlChecker();
@@ -186,12 +210,13 @@ class FormAuthenticatorTest extends TestCase
     public function testSingleLoginUrlSuccess(): void
     {
         $identifier = $this->getIdentifier();
-
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/Users/login'],
-            [],
-            ['username' => 'florian', 'password' => 'florian']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/Users/login',
+            'parsedBody' => [
+                'username' => 'florian',
+                'password' => 'florian'
+            ]
+        ]);
         $response = new Response();
 
         $urlChecker = new DefaultUrlChecker();
@@ -214,11 +239,13 @@ class FormAuthenticatorTest extends TestCase
     {
         $identifier = $this->getIdentifier();
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/de/users/login'],
-            [],
-            ['username' => 'florian', 'password' => 'florian']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/de/users/login',
+            'parsedBody' => [
+                'username' => 'florian',
+                'password' => 'florian'
+            ]
+        ]);
         $response = new Response();
 
         $urlChecker = new DefaultUrlChecker();
@@ -244,11 +271,14 @@ class FormAuthenticatorTest extends TestCase
     {
         $identifier = $this->getIdentifier();
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/de/users/login'],
-            [],
-            ['username' => 'florian', 'password' => 'florian']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/de/users/login',
+            'parsedBody' => [
+                'username' => 'florian',
+                'password' => 'florian'
+            ]
+        ]);
+
         $response = new Response();
 
         $urlChecker = (new RegexUrlChecker());
@@ -272,14 +302,21 @@ class FormAuthenticatorTest extends TestCase
     {
         $identifier = $this->getIdentifier();
 
-        $request = ServerRequestFactory::fromGlobals(
-            [
-                'REQUEST_URI' => '/de/users/login',
-                'HTTP_HOST' => 'localhost',
-            ],
-            [],
-            ['username' => 'florian', 'password' => 'florian']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/de/users/login',
+            'host' => 'localhost',
+            'method' => 'POST',
+            'parsedBody' => [
+                'username' => 'florian',
+                'password' => 'florian'
+            ]
+        ]);
+
+        $request->getUri()
+            ->expects($this->any())
+            ->method('__toString')
+            ->willReturn('http://localhost/de/users/login');
+
         $response = new Response();
 
         $urlChecker = (new RegexUrlChecker())
@@ -304,14 +341,21 @@ class FormAuthenticatorTest extends TestCase
     {
         $identifier = $this->getIdentifier();
 
-        $request = ServerRequestFactory::fromGlobals(
-            [
-                'REQUEST_URI' => '/de/users/login',
-                'SERVER_NAME' => 'auth.localhost'
-            ],
-            [],
-            ['username' => 'florian', 'password' => 'florian']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/de/users/login',
+            'host' => 'auth.localhost',
+            'method' => 'POST',
+            'parsedBody' => [
+                'username' => 'florian',
+                'password' => 'florian'
+            ]
+        ]);
+
+        $request->getUri()
+            ->expects($this->once())
+            ->method('__toString')
+            ->willReturn('http://auth.localhost/de/users/login');
+
         $response = new Response();
 
         $urlChecker = (new RegexUrlChecker())
@@ -336,11 +380,14 @@ class FormAuthenticatorTest extends TestCase
     {
         $identifier = $this->createMock(IdentifierInterface::class);
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/login'],
-            [],
-            ['email' => 'florian@cakephp.org', 'secret' => 'florian']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/users/login',
+            'parsedBody' => [
+                'email' => 'florian@cakephp.org',
+                'secret' => 'florian'
+            ]
+        ]);
+
         $response = new Response();
 
         $form = (new FormAuthenticator($identifier, new DefaultUrlChecker()))
@@ -370,11 +417,16 @@ class FormAuthenticatorTest extends TestCase
     {
         $identifier = $this->createMock(IdentifierInterface::class);
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/users/login'],
-            [],
-            ['id' => 1, 'username' => 'florian', 'password' => 'florian']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/users/login',
+            'method' => 'POST',
+            'parsedBody' => [
+                'id' => 1,
+                'username' => 'florian',
+                'password' => 'florian'
+            ]
+        ]);
+
         $response = new Response();
 
         $form = (new FormAuthenticator($identifier, new DefaultUrlChecker()))

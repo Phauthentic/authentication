@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  php:
+    build: ./docker/php
+    container_name: phpunit-container
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: "tail -f /dev/null"
+    depends_on:
+      - mysql
+    networks:
+      - phpnet
+    environment:
+      PDO_DB_DSN: "mysql:host=mysql;dbname=test"
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: changeme
+      MYSQL_DATABASE: test
+      MYSQL_USER: test
+      MYSQL_PASSWORD: changeme
+    ports:
+      - "3306:3306"
+    networks:
+      - phpnet
+
+networks:
+  phpnet:
+    driver: bridge

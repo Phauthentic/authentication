@@ -40,7 +40,6 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class HttpDigestAuthenticator extends HttpBasicAuthenticator
 {
-
     /**
      * A string that must be returned unchanged by clients. Defaults to `md5($config['realm'])`
      *

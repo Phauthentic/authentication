@@ -22,7 +22,6 @@ use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase;
 
 class AbstractAuthenticatorTest extends AuthenticationTestCase
 {
-
     /**
      * testGetIdentifier
      *

@@ -18,7 +18,6 @@ use ArrayAccess;
 
 interface IdentityFactoryInterface
 {
-
     /**
      * Creates identity object.
      *

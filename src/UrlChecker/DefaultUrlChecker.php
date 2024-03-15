@@ -24,7 +24,6 @@ use Psr\Http\Message\UriInterface;
  */
 class DefaultUrlChecker implements UrlCheckerInterface
 {
-
     /**
      * @var bool
      */

@@ -24,7 +24,6 @@ use PHPUnit\Framework\TestCase;
 
 class PasswordIdentifierTest extends TestCase
 {
-
     /**
      * testIdentifyValid
      *

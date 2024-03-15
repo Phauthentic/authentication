@@ -23,20 +23,14 @@ use Phauthentic\Authentication\Identifier\PasswordIdentifier;
 use Phauthentic\Authentication\Test\Resolver\TestResolver;
 use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Phauthentic\PasswordHasher\DefaultPasswordHasher;
-use Zend\Diactoros\Response;
-use Zend\Diactoros\ServerRequestFactory;
+use Psr\Http\Message\ResponseInterface;
 
 class HttpBasicAuthenticatorTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    /**
-     * @var \Zend\Diactoros\Response
-     */
-    private Response $response;
-    /**
-     * @var \Phauthentic\Authentication\Authenticator\HttpBasicAuthenticator
-     */
+    private ResponseInterface $response;
+
     private HttpBasicAuthenticator $auth;
 
     /**
@@ -49,7 +43,7 @@ class HttpBasicAuthenticatorTest extends TestCase
         $resolver = new TestResolver($this->getConnection()->getConnection());
         $identifiers = new PasswordIdentifier($resolver, new DefaultPasswordHasher());
         $this->auth = new HttpBasicAuthenticator($identifiers);
-        $this->response = new Response();
+        $this->response = $this->getMockResponse();
     }
 
     /**
@@ -59,11 +53,10 @@ class HttpBasicAuthenticatorTest extends TestCase
      */
     public function testAuthenticateNoData()
     {
-        $request = ServerRequestFactory::fromGlobals(
-            [
-                'REQUEST_URI' => '/posts/index',
-            ]
-        );
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getServerParams')
+            ->willReturn([]);
 
         $result = $this->auth->authenticate($request, $this->response);
         $this->assertFalse($result->isValid());
@@ -76,12 +69,13 @@ class HttpBasicAuthenticatorTest extends TestCase
      */
     public function testAuthenticateNoUsername()
     {
-        $request = ServerRequestFactory::fromGlobals(
-            [
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getServerParams')
+            ->willReturn([
                 'REQUEST_URI' => '/posts/index',
                 'PHP_AUTH_PW' => 'foobar',
-            ]
-        );
+            ]);
 
         $result = $this->auth->authenticate($request, $this->response);
         $this->assertFalse($result->isValid());
@@ -94,12 +88,13 @@ class HttpBasicAuthenticatorTest extends TestCase
      */
     public function testAuthenticateNoPassword()
     {
-        $request = ServerRequestFactory::fromGlobals(
-            [
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getServerParams')
+            ->willReturn([
                 'REQUEST_URI' => '/posts/index',
                 'PHP_AUTH_USER' => 'robert',
-            ]
-        );
+            ]);
 
         $result = $this->auth->authenticate($request, $this->response);
         $this->assertFalse($result->isValid());
@@ -112,13 +107,14 @@ class HttpBasicAuthenticatorTest extends TestCase
      */
     public function testAuthenticateInjection(): void
     {
-        $request = ServerRequestFactory::fromGlobals(
-            [
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getServerParams')
+            ->willReturn([
                 'REQUEST_URI' => '/posts/index',
                 'PHP_AUTH_USER' => '> 1',
                 'PHP_AUTH_PW' => "' OR 1 = 1"
-            ]
-        );
+            ]);
 
         $result = $this->auth->authenticate($request, $this->response);
         $this->assertFalse($result->isValid());
@@ -132,21 +128,20 @@ class HttpBasicAuthenticatorTest extends TestCase
      */
     public function testAuthenticateUsernameZero(): void
     {
-        $_SERVER['PHP_AUTH_USER'] = '0';
-        $_SERVER['PHP_AUTH_PW'] = 'robert';
-
-        $request = ServerRequestFactory::fromGlobals(
-            [
+        $request = $this->getMockRequest([
+            'parsedBody' => [
+                'user' => '0',
+                'password' => 'robert'
+            ],
+        ]);
+        $request->expects($this->any())
+            ->method('getServerParams')
+            ->willReturn([
                 'REQUEST_URI' => '/posts/index',
                 'SERVER_NAME' => 'localhost',
                 'PHP_AUTH_USER' => '0',
                 'PHP_AUTH_PW' => 'robert'
-            ],
-            [
-                'user' => '0',
-                'password' => 'robert'
-            ]
-        );
+            ]);
 
         $expected = [
             'id' => 3,
@@ -164,12 +159,13 @@ class HttpBasicAuthenticatorTest extends TestCase
      */
     public function testAuthenticateChallenge()
     {
-        $request = ServerRequestFactory::fromGlobals(
-            [
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getServerParams')
+            ->willReturn([
                 'REQUEST_URI' => '/posts/index',
                 'SERVER_NAME' => 'localhost',
-            ]
-        );
+            ]);
 
         try {
             $this->auth->unauthorizedChallenge($request);
@@ -188,13 +184,14 @@ class HttpBasicAuthenticatorTest extends TestCase
      */
     public function testAuthenticateSuccess()
     {
-        $request = ServerRequestFactory::fromGlobals(
-            [
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getServerParams')
+            ->willReturn([
                 'REQUEST_URI' => '/posts/index',
                 'PHP_AUTH_USER' => 'robert',
                 'PHP_AUTH_PW' => 'robert'
-            ]
-        );
+            ]);
 
         $result = $this->auth->authenticate($request, $this->response);
         $expected = [

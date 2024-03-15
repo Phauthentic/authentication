@@ -21,11 +21,13 @@ use Phauthentic\Authentication\Authenticator\TokenAuthenticator;
 use Phauthentic\Authentication\Identifier\TokenIdentifier;
 use Phauthentic\Authentication\Test\Resolver\TestResolver;
 use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
-use Zend\Diactoros\Response;
-use Zend\Diactoros\ServerRequestFactory;
 
 class TokenAuthenticatorTest extends TestCase
 {
+    protected $request;
+    protected $identifier;
+    protected $response;
+
     /**
      * Fixtures
      *
@@ -46,13 +48,17 @@ class TokenAuthenticatorTest extends TestCase
         $resolver = new TestResolver($this->getConnection()->getConnection());
         $this->identifier = (new TokenIdentifier($resolver))->setTokenField('username');
 
-        $this->request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath'],
-            [],
-            ['username' => 'florian', 'password' => 'password']
-        );
+        $this->request = $this->getMockRequest([
+            'method' => 'GET',
+            'path' => '/testpath',
+            'parsedBody' => [
+                'plugin' => null,
+                'controller' => 'Users',
+                'action' => 'token'
+            ],
+        ]);
 
-        $this->response = new Response();
+        $this->response = $this->getMockResponse();
     }
 
     /**
@@ -70,66 +76,89 @@ class TokenAuthenticatorTest extends TestCase
         $this->assertInstanceOf(Result::class, $result);
         $this->assertEquals(Result::FAILURE_CREDENTIALS_MISSING, $result->getStatus());
 
-        // Test header token
-        $requestWithHeaders = $this->request->withAddedHeader('Token', 'florian');
+        $this->request->expects($this->any())
+            ->method('getHeaderLine')
+            ->with('Token')
+            ->willReturn('florian');
+
         $tokenAuth = (new TokenAuthenticator($this->identifier))
             ->setHeaderName('Token');
 
-        $result = $tokenAuth->authenticate($requestWithHeaders, $this->response);
+        $result = $tokenAuth->authenticate($this->request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
         $this->assertEquals(Result::SUCCESS, $result->getStatus());
     }
 
     /**
-     * testViaQueryParamToken
-     *
      * @return void
      */
-    public function testViaQueryParamToken(): void
+    public function testValidQueryParamToken(): void
     {
-        // Test with query param token
-        $requestWithParams = $this->request->withQueryParams(['token' => 'florian']);
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getQueryParams')
+            ->willReturn(['token' => 'florian']);
+
         $tokenAuth = (new TokenAuthenticator($this->identifier))
             ->setQueryParam('token');
 
-        $result = $tokenAuth->authenticate($requestWithParams, $this->response);
+        $result = $tokenAuth->authenticate($request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
         $this->assertEquals(Result::SUCCESS, $result->getStatus());
+    }
 
-        // Test with valid query param but invalid token
-        $requestWithParams = $this->request->withQueryParams(['token' => 'does-not-exist']);
+    /**
+     * @return void
+     */
+    public function testInvalidQueryParamToken(): void
+    {
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getQueryParams')
+            ->willReturn(['token' => 'does-not-exist']);
+
         $tokenAuth = (new TokenAuthenticator($this->identifier))
             ->setQueryParam('token');
 
-        $result = $tokenAuth->authenticate($requestWithParams, $this->response);
+        $result = $tokenAuth->authenticate($request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
         $this->assertEquals(Result::FAILURE_IDENTITY_NOT_FOUND, $result->getStatus());
     }
 
     /**
-     * testTokenPrefix
-     *
      * @return void
      */
-    public function testTokenPrefix(): void
+    public function testValidTokenPrefix(): void
     {
-        //valid prefix
-        $requestWithHeaders = $this->request->withAddedHeader('Token', 'identity florian');
         $tokenAuth = (new TokenAuthenticator($this->identifier))
             ->setHeaderName('Token')
             ->setTokenPrefix('identity');
 
-        $result = $tokenAuth->authenticate($requestWithHeaders, $this->response);
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getHeaderLine')
+            ->willReturn('identity florian');
+
+        $result = $tokenAuth->authenticate($request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
         $this->assertEquals(Result::SUCCESS, $result->getStatus());
+    }
 
-        //invalid prefix
-        $requestWithHeaders = $this->request->withAddedHeader('Token', 'bearer florian');
+    /**
+     * @return void
+     */
+    public function testInvalidTokenPrefix(): void
+    {
+        $request = $this->getMockRequest();
+        $request->expects($this->any())
+            ->method('getHeaderLine')
+            ->willReturn('bearer florian');
+
         $tokenAuth = (new TokenAuthenticator($this->identifier))
             ->setHeaderName('Token')
             ->setTokenPrefix('identity');
 
-        $result = $tokenAuth->authenticate($requestWithHeaders, $this->response);
+        $result = $tokenAuth->authenticate($request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
         $this->assertEquals(Result::FAILURE_IDENTITY_NOT_FOUND, $result->getStatus());
     }

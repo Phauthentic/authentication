@@ -25,7 +25,6 @@ use PHPUnit\Framework\TestCase;
 
 class LdapIdentifierTest extends TestCase
 {
-
     /**
      * testIdentify
      *

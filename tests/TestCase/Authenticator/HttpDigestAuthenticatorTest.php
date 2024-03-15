@@ -26,8 +26,6 @@ use Phauthentic\Authentication\Identifier\PasswordIdentifier;
 use Phauthentic\Authentication\Test\Resolver\TestResolver;
 use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase as TestCase;
 use Phauthentic\PasswordHasher\DefaultPasswordHasher;
-use Zend\Diactoros\Response;
-use Zend\Diactoros\ServerRequestFactory;
 
 /**
  * Test case for HttpDigestAuthentication
@@ -65,7 +63,7 @@ class HttpDigestAuthenticatorTest extends TestCase
             ->setRealm('localhost')
             ->setOpaque('123abc');
 
-        $this->response = $this->getMockBuilder(Response::class)->getMock();
+        $this->response = $this->getMockResponse();
     }
 
     /**
@@ -88,9 +86,9 @@ class HttpDigestAuthenticatorTest extends TestCase
      */
     public function testAuthenticateNoData(): void
     {
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/posts/index']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/posts/index'
+        ]);
 
         $result = $this->auth->authenticate($request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
@@ -104,11 +102,9 @@ class HttpDigestAuthenticatorTest extends TestCase
      */
     public function testAuthenticateWrongUsername(): void
     {
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/posts/index'],
-            [],
-            []
-        );
+        $request = $this->getMockRequest([
+            'path' => '/posts/index'
+        ]);
 
         $digest = <<<DIGEST
 Digest username="incorrect_user",
@@ -143,16 +139,29 @@ DIGEST;
             'cnonce' => '123',
             'qop' => 'auth',
         ];
-        $data['response'] = $this->auth->generateResponseHash($data, HttpDigestAuthenticator::generatePasswordHash('digest', 'password', 'localhost'), 'GET');
 
-        $request = ServerRequestFactory::fromGlobals(
-            [
-                'SERVER_NAME' => 'localhost',
-                'REQUEST_URI' => '/dir/index.html',
-                'REQUEST_METHOD' => 'GET',
-                'PHP_AUTH_DIGEST' => $this->digestHeader($data),
-            ]
+        $data['response'] = $this->auth->generateResponseHash(
+            $data,
+            HttpDigestAuthenticator::generatePasswordHash(
+                'digest',
+                'password',
+                'localhost'
+            ),
+            'GET'
         );
+
+        $request = $this->getMockRequest([
+            'path' => '/dir/index.html',
+            'method' => 'GET',
+        ]);
+
+        $request->expects($this->any())
+            ->method('getServerParams')
+            ->willReturn([
+                'REQUEST_METHOD' => 'GET',
+                'SERVER_NAME' => 'localhost',
+                'PHP_AUTH_DIGEST' => $this->digestHeader($data),
+            ]);
 
         $result = $this->auth->authenticate($request, $this->response);
         $expected = [
@@ -179,16 +188,21 @@ DIGEST;
             'cnonce' => '123',
             'qop' => 'auth',
         ];
+
         $data['response'] = $this->auth->generateResponseHash($data, '09faa9931501bf30f0d4253fa7763022', 'GET');
 
-        $request = ServerRequestFactory::fromGlobals(
-            [
-                'SERVER_NAME' => 'localhost',
-                'REQUEST_URI' => '/dir/index.html',
+        $request = $this->getMockRequest([
+            'path' => '/dir/index.html',
+            'method' => 'GET',
+        ]);
+
+        $request->expects($this->any())
+            ->method('getServerParams')
+            ->willReturn([
                 'REQUEST_METHOD' => 'GET',
+                'SERVER_NAME' => 'localhost',
                 'PHP_AUTH_DIGEST' => $this->digestHeader($data),
-            ]
-        );
+            ]);
 
         $result = $this->auth->authenticate($request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
@@ -210,20 +224,26 @@ DIGEST;
             'cnonce' => '123',
             'qop' => 'auth',
         ];
+
         $data['response'] = $this->auth->generateResponseHash(
             $data,
             '09faa9931501bf30f0d4253fa7763022',
             'GET'
         );
 
-        $request = ServerRequestFactory::fromGlobals(
-            [
-                'SERVER_NAME' => 'localhost',
-                'REQUEST_URI' => '/dir/index.html',
+        $request = $this->getMockRequest([
+            'path' => '/dir/index.html',
+            'method' => 'GET',
+        ]);
+
+        $request->expects($this->any())
+            ->method('getServerParams')
+            ->willReturn([
                 'REQUEST_METHOD' => 'GET',
+                'SERVER_NAME' => 'localhost',
                 'PHP_AUTH_DIGEST' => $this->digestHeader($data),
-            ]
-        );
+            ]);
+
 
         $result = $this->auth->authenticate($request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
@@ -245,12 +265,21 @@ DIGEST;
             'cnonce' => '123',
             'qop' => 'auth',
         ];
+
         $data['response'] = $this->auth->generateResponseHash($data, '09faa9931501bf30f0d4253fa7763022', 'GET');
-        $request = ServerRequestFactory::fromGlobals([
-            'REQUEST_URI' => '/posts/index',
-            'REQUEST_METHOD' => 'GET',
-            'PHP_AUTH_DIGEST' => $this->digestHeader($data),
+
+        $request = $this->getMockRequest([
+            'path' => '/posts/index',
+            'method' => 'GET',
         ]);
+
+        $request->expects($this->any())
+            ->method('getServerParams')
+            ->willReturn([
+                'REQUEST_METHOD' => 'GET',
+                'SERVER_NAME' => 'localhost',
+                'PHP_AUTH_DIGEST' => $this->digestHeader($data),
+            ]);
 
         $result = $this->auth->authenticate($request, $this->response);
         $this->assertInstanceOf(Result::class, $result);
@@ -264,9 +293,16 @@ DIGEST;
      */
     public function testUnauthorizedChallenge()
     {
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/posts/index', 'REQUEST_METHOD' => 'GET']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/posts/index',
+        ]);
+
+        $request->expects($this->any())
+            ->method('getServerParams')
+            ->willReturn([
+                'REQUEST_METHOD' => 'GET',
+                'SERVER_NAME' => 'localhost',
+            ]);
 
         try {
             $this->auth->unauthorizedChallenge($request);
@@ -301,13 +337,15 @@ response="6629fae49393a05397450978507c4ef1",
 opaque="123abc"
 DIGEST;
 
-        $request = ServerRequestFactory::fromGlobals(
-            [
-                'REQUEST_URI' => '/posts/index',
-                'REQUEST_METHOD' => 'GET',
-                'PHP_AUTH_DIGEST' => $digest
-            ]
-        );
+        $request = $this->getMockRequest([
+            'path' => '/posts/index',
+        ]);
+
+        $request->expects($this->any())
+            ->method('getServerParams')
+            ->willReturn(['REQUEST_METHOD' => 'GET',
+            'PHP_AUTH_DIGEST' => $digest
+            ]);
 
         try {
             $this->auth->unauthorizedChallenge($request);
@@ -336,12 +374,20 @@ DIGEST;
             'cnonce' => '123',
             'qop' => 'auth',
         ];
+
         $data['response'] = $this->auth->generateResponseHash($data, '09faa9931501bf30f0d4253fa7763022', 'GET');
-        $request = ServerRequestFactory::fromGlobals([
-            'REQUEST_URI' => '/posts/index',
-            'REQUEST_METHOD' => 'GET',
-            'PHP_AUTH_DIGEST' => $this->digestHeader($data)
+
+        $request = $this->getMockRequest([
+            'path' => '/posts/index',
         ]);
+
+        $request->expects($this->any())
+            ->method('getServerParams')
+            ->willReturn([
+                'REQUEST_METHOD' => 'GET',
+                'PHP_AUTH_DIGEST' => $this->digestHeader($data)
+            ]);
+
 
         try {
             $this->auth->unauthorizedChallenge($request);
@@ -410,6 +456,7 @@ DIGEST;
 
         $expected = 'http://192.168.0.2/pvcollection/sites/pull/HFD%200001.json#fragment';
         $result = $this->auth->parseAuthData($digest);
+
         $this->assertSame($expected, $result['uri']);
     }
 
@@ -455,6 +502,7 @@ DIGEST;
     {
         $result = HttpDigestAuthenticator::generatePasswordHash('mark', 'password', 'localhost');
         $expected = md5('mark:localhost:password');
+
         $this->assertEquals($expected, $result);
     }
 
@@ -471,6 +519,7 @@ DIGEST;
             'realm' => 'localhost',
             'opaque' => '123abc'
         ];
+
         $digest = <<<DIGEST
 Digest username="{$data['username']}",
 realm="{$data['realm']}",

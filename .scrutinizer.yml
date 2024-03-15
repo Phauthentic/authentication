@@ -18,7 +18,7 @@ build:
       tests-php80:
           environment:
               php:
-                  version: '8.0'
+                  version: '8.3'
                   ini:
                       phar.readonly: 'Off'
                   pecl_extensions:
