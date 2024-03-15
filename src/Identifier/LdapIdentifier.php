@@ -80,7 +80,7 @@ class LdapIdentifier extends AbstractIdentifier
     /**
      * List of errors
      *
-     * @var array<mixed, mixed>
+     * @var array<int, string>
      */
     protected array $errors = [];
 

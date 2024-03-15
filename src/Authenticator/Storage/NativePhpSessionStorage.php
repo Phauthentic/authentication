@@ -30,7 +30,7 @@ class NativePhpSessionStorage implements StorageInterface
     /**
      * Constructor
      *
-     * @var string $key Key
+     * @param string $sessionKey Session key.
      */
     public function __construct(string $sessionKey)
     {
