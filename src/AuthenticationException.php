@@ -9,5 +9,6 @@ use Exception;
 /**
  * Authentication Exception
  */
-class AuthenticationException extends Exception {
+class AuthenticationException extends Exception
+{
 }
