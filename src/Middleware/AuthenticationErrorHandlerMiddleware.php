@@ -72,7 +72,7 @@ class AuthenticationErrorHandlerMiddleware implements MiddlewareInterface
     /**
      * Creates an unauthorized response.
      *
-     * @param \Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException $e Exception.
+     * @param \Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException $exception Exception.
      * @return \Psr\Http\Message\ResponseInterface
      */
     protected function createUnauthorizedResponse(UnauthorizedException $exception): ResponseInterface
