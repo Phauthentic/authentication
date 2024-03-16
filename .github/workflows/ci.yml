@@ -26,21 +26,24 @@ jobs:
 
     - name: Composer install
       run: |
-        if [[ ${{ matrix.prefer-lowest == '8.0' }} ]]; then
+        if [[ ${{ matrix.prefer-lowest == '8.3' }} ]]; then
           composer update --prefer-lowest --prefer-stable
         else
           composer install
         fi
     - name: Run PHPUnit
       run: |
-        if [[ ${{ matrix.php-version }} == '8.0' ]]; then
+        if [[ ${{ matrix.php-version }} == '8.3' ]]; then
           bin/phpunit --coverage-clover=coverage.xml
         else
           bin/phpunit
         fi
     - name: Code Coverage Report
-      if: success() && matrix.php-version == '8.0'
+      if: success() && matrix.php-version == '8.3'
       uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: burzum/authentication
 
   validation:
     name: Coding Standard & Static Analysis
@@ -54,7 +57,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.0'
+        php-version: '8.3'
         extensions: json, pdo, ldap
         coverage: none
         tools: pecl
