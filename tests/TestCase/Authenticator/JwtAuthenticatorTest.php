@@ -58,7 +58,7 @@ class JwtAuthenticatorTest extends TestCase
             'firstname' => 'larry'
         ];
 
-        $this->token = JWT::encode($data, 'secretKey');
+        $this->token = JWT::encode($data, 'secretKey', 'HS256');
         $resolver = new TestResolver($this->getConnection()->getConnection());
         $this->identifiers = new JwtSubjectIdentifier($resolver);
         $this->response = new Response();
