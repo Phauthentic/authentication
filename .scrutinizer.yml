@@ -3,7 +3,7 @@ build:
       tests-php74:
           environment:
               php:
-                  version: '7.4'
+                  version: '8.0'
                   ini:
                       phar.readonly: 'Off'
                   pecl_extensions:
