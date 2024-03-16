@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<phpmd-baseline>
+    <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="src/AuthenticationService.php"/>
+    <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="src/Authenticator/JwtAuthenticator.php"/>
+    <violation rule="PHPMD\Rule\UnusedFormalParameter" file="src/Identifier/Ldap/ExtensionAdapter.php"/>
+    <violation rule="PHPMD\Rule\UnusedFormalParameter" file="src/Identity/Identity.php"/>
+</phpmd-baseline>
