@@ -15,7 +15,8 @@
 
 namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
-use ArrayObject;
+use Nyholm\Psr7\Factory\Psr17Factory;
+use Nyholm\Psr7\Response;
 use Phauthentic\Authentication\Authenticator\CookieAuthenticator;
 use Phauthentic\Authentication\Authenticator\Result;
 use Phauthentic\Authentication\Authenticator\Storage\StorageInterface;
@@ -25,12 +26,9 @@ use Phauthentic\Authentication\Test\TestCase\AuthenticationTestCase;
 use Phauthentic\Authentication\UrlChecker\DefaultUrlChecker;
 use Phauthentic\PasswordHasher\DefaultPasswordHasher;
 use Psr\Http\Message\ResponseInterface;
-use Zend\Diactoros\Response;
-use Zend\Diactoros\ServerRequestFactory;
 
 class CookieAuthenticatorTest extends AuthenticationTestCase
 {
-
     /**
      * @param StorageInterface $storage Storage instance.
      * @return CookieAuthenticator
@@ -58,10 +56,8 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
 
         $authenticator = $this->createAuthenticator($storage);
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath']
-        );
-        $response = new Response();
+        $request = $this->getMockRequest();
+        $response = $this->getMockResponse();
 
         $result = $authenticator->authenticate($request, $response);
 
@@ -79,13 +75,15 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
         $storage = $this->createMock(StorageInterface::class);
         $storage
             ->method('read')
-            ->willReturn(["robert","$2y$10$2sqDmq10vv7cbIsnRymfhe0Hii.eabOK0x1WVWSn8pL1csV6NnwV2"]);
+            ->willReturn([
+                'robert',
+                '$2y$10$2sqDmq10vv7cbIsnRymfhe0Hii.eabOK0x1WVWSn8pL1csV6NnwV2'
+            ]);
+
         $authenticator = $this->createAuthenticator($storage);
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath']
-        );
-        $response = new Response();
+        $request = $this->getMockRequest();
+        $response = $this->getMockResponse();
 
         $result = $authenticator->authenticate($request, $response);
 
@@ -106,10 +104,8 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
             ->willReturn(["unknown","$2y$10$2sqDmq10vv7cbIsnRymfhe0Hii.eabOK0x1WVWSn8pL1csV6NnwV2"]);
         $authenticator = $this->createAuthenticator($storage);
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath']
-        );
-        $response = new Response();
+        $request = $this->getMockRequest();
+        $response = $this->getMockResponse();
 
         $result = $authenticator->authenticate($request, $response);
 
@@ -130,10 +126,8 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
             ->willReturn(null);
         $authenticator = $this->createAuthenticator($storage);
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath']
-        );
-        $response = new Response();
+        $request = $this->getMockRequest();
+        $response = $this->getMockResponse();
 
         $result = $authenticator->authenticate($request, $response);
 
@@ -154,10 +148,8 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
             ->willReturn(["robert","$2y$10$1bE1SgasKoz9WmEvUfuZLeYa6pQgxUIJ5LAoS/asdasdsadasd"]);
         $authenticator = $this->createAuthenticator($storage);
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath']
-        );
-        $response = new Response();
+        $request = $this->getMockRequest();
+        $response = $this->getMockResponse();
 
         $result = $authenticator->authenticate($request, $response);
 
@@ -172,29 +164,31 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
      */
     public function testPersistIdentity(): void
     {
-        $response = new Response();
+        $response = $this->getMockResponse();
+        $response->expects($this->once())
+            ->method('getHeaderLine', 'Set-Cookie')
+            ->willReturn('CookieAuth=%5B%22robert%22%2C%22%242y%2410%241bE1SgasKoz9WmEvUfuZLeYa6pQgxUIJ5LAoS%5C%2FKGmC1hNuWkUG7ES%22%5D; path=/');
+
         $storage = $this->createMock(StorageInterface::class);
         $storage
             ->method('write')
-            ->willReturn($response->withHeader(
-                'Set-Cookie',
-                'CookieAuth=%5B%22robert%22%2C%22%242y%2410%241bE1SgasKoz9WmEvUfuZLeYa6pQgxUIJ5LAoS%5C%2FKGmC1hNuWkUG7ES%22%5D; path=/'
-            ));
+            ->willReturn($response);
+
         $authenticator = $this->createAuthenticator($storage);
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath']
-        )->withParsedBody([
-            'remember_me' => 1
+        $request = $this->getMockRequest([
+            'parsedBody' => [
+                'remember_me' => 1
+            ]
         ]);
 
-        $identity = new ArrayObject([
-            'username' => 'robert',
-            'password' => '$2y$10$VFTg46xeZ8/hU4zI.dtZVOfuz4AeIKAgZaB.uraGfcljXzid/xERa'
-        ]);
+        $identity = $this->getIdentity();
         $result = $authenticator->persistIdentity($request, $response, $identity);
 
-        $this->assertStringContainsString('CookieAuth=%5B%22robert%22%2C%22%242y%2410%24', $result->getHeaderLine('Set-Cookie'));
+        $this->assertStringContainsString(
+            'CookieAuth=%5B%22robert%22%2C%22%242y%2410%24',
+            $result->getHeaderLine('Set-Cookie')
+        );
     }
 
     /**
@@ -204,27 +198,26 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
      */
     public function testPersistIdentityOtherField(): void
     {
-        $response = new Response();
+        $response = $this->getMockResponse();
+        $response->expects($this->once())
+            ->method('getHeaderLine', 'Set-Cookie')
+            ->willReturn('CookieAuth=%5B%22robert%22%2C%22%242y%2410%241bE1SgasKoz9WmEvUfuZLeYa6pQgxUIJ5LAoS%5C%2FKGmC1hNuWkUG7ES%22%5D; path=/');
+
         $storage = $this->createMock(StorageInterface::class);
         $storage
             ->method('write')
-            ->willReturn($response->withHeader(
-                'Set-Cookie',
-                'CookieAuth=%5B%22robert%22%2C%22%242y%2410%241bE1SgasKoz9WmEvUfuZLeYa6pQgxUIJ5LAoS%5C%2FKGmC1hNuWkUG7ES%22%5D; path=/'
-            ));
+            ->willReturn($response);
+
         $authenticator = $this->createAuthenticator($storage);
         $authenticator->setRememberMeField('other_field');
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath']
-        )->withParsedBody([
-            'other_field' => 1
+        $request = $this->getMockRequest([
+            'parsedBody' => [
+                'other_field' => 1
+            ]
         ]);
 
-        $identity = new ArrayObject([
-            'username' => 'robert',
-            'password' => '$2y$10$VFTg46xeZ8/hU4zI.dtZVOfuz4AeIKAgZaB.uraGfcljXzid/xERa'
-        ]);
+        $identity = $this->getIdentity();
 
         $result = $authenticator->persistIdentity($request, $response, $identity);
         $this->assertInstanceOf(ResponseInterface::class, $result);
@@ -248,14 +241,12 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
             ));
         $authenticator = $this->createAuthenticator($storage);
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath']
-        );
-
-        $identity = new ArrayObject([
-            'username' => 'robert',
-            'password' => '$2y$10$VFTg46xeZ8/hU4zI.dtZVOfuz4AeIKAgZaB.uraGfcljXzid/xERa'
+        $request = $this->getMockRequest([
+            'path' => '/users/login',
         ]);
+
+        $identity = $this->getIdentity();
+
         $result = $authenticator->persistIdentity($request, $response, $identity);
 
         $this->assertStringNotContainsString('CookieAuth', $result->getHeaderLine('Set-Cookie'));
@@ -272,21 +263,17 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
         $authenticator = $this->createAuthenticator($storage);
         $authenticator->addLoginUrl('/users/login');
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath']
-        );
-        $request = $request->withParsedBody([
-            'remember_me' => 1
-        ]);
+        $request = (new Psr17Factory())->createServerRequest('GET', '/invalid-url');
         $response = new Response();
 
-        $identity = new ArrayObject([
-            'username' => 'robert',
-            'password' => '$2y$10$VFTg46xeZ8/hU4zI.dtZVOfuz4AeIKAgZaB.uraGfcljXzid/xERa'
-        ]);
+        $identity = $this->getIdentity();
+
         $result = $authenticator->persistIdentity($request, $response, $identity);
 
-        $this->assertStringNotContainsString('CookieAuth=%5B%22robert%22%2C%22%242y%2410%24', $result->getHeaderLine('Set-Cookie'));
+        $this->assertStringNotContainsString(
+            'CookieAuth=%5B%22robert%22%2C%22%242y%2410%24',
+            $result->getHeaderLine('Set-Cookie')
+        );
     }
 
     /**
@@ -303,9 +290,7 @@ class CookieAuthenticatorTest extends AuthenticationTestCase
             ->willReturn($response->withHeader('Set-Cookie', 'CookieAuth=; expires=Thu, 01-Jan-1970 00:00:01 UTC; path=/'));
         $authenticator = $this->createAuthenticator($storage);
 
-        $request = ServerRequestFactory::fromGlobals(
-            ['REQUEST_URI' => '/testpath']
-        );
+        $request = (new Psr17Factory())->createServerRequest('GET', '/testpath');
 
         $result = $authenticator->clearIdentity($request, $response);
         $this->assertInstanceOf(ResponseInterface::class, $result);

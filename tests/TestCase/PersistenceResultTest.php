@@ -25,7 +25,6 @@ use Psr\Http\Message\ResponseInterface;
  */
 class PersistenceResultTest extends AuthenticationTestCase
 {
-
     /**
      * @inheritdoc
      */

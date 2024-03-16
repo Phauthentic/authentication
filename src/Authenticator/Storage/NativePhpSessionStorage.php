@@ -12,6 +12,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+declare(strict_types=1);
+
 namespace Phauthentic\Authentication\Authenticator\Storage;
 
 use Psr\Http\Message\ResponseInterface;
@@ -30,7 +32,7 @@ class NativePhpSessionStorage implements StorageInterface
     /**
      * Constructor
      *
-     * @var string $key Key
+     * @param string $sessionKey Session key.
      */
     public function __construct(string $sessionKey)
     {

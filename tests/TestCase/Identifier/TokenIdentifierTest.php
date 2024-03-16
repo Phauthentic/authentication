@@ -23,7 +23,6 @@ use PHPUnit\Framework\TestCase;
 
 class TokenIdentifierTest extends TestCase
 {
-
     /**
      * Resolver Mock
      */

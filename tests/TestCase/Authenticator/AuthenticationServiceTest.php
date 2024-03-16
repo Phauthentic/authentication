@@ -17,6 +17,7 @@
 namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
 use ArrayObject;
+use Nyholm\Psr7\Response;
 use Phauthentic\Authentication\AuthenticationService;
 use Phauthentic\Authentication\Authenticator\AuthenticatorCollection;
 use Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException;
@@ -40,7 +41,6 @@ use Phauthentic\PasswordHasher\DefaultPasswordHasher;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use RuntimeException;
-use Zend\Diactoros\Response;
 
 /**
  * Authentication Service Test
@@ -65,8 +65,10 @@ class AuthenticationServiceTest extends TestCase
      *
      * @return \Phauthentic\Authentication\Authenticator\SessionAuthenticator
      */
-    protected function createSessionAuthenticator(IdentifierInterface $identifier = null, StorageInterface $storage = null)
-    {
+    protected function createSessionAuthenticator(
+        IdentifierInterface $identifier = null,
+        StorageInterface $storage = null
+    ) {
         if (!$identifier) {
             $identifier = $this->createPasswordIdentifier();
         }
@@ -82,8 +84,10 @@ class AuthenticationServiceTest extends TestCase
      *
      * @return \Phauthentic\Authentication\Authenticator\FormAuthenticator
      */
-    protected function createFormAuthenticator(IdentifierInterface $identifier = null, UrlCheckerInterface $urlChecker = null)
-    {
+    protected function createFormAuthenticator(
+        IdentifierInterface $identifier = null,
+        UrlCheckerInterface $urlChecker = null
+    ) {
         if (!$identifier) {
             $identifier = $this->createPasswordIdentifier();
         }
@@ -123,7 +127,7 @@ class AuthenticationServiceTest extends TestCase
      * @param array §server Server environment
      * @return mixed
      */
-    protected function getMockRequest($path, $body, $server = [])
+    public function getMockRequest(array $options = [])
     {
         $request = $this->getMockBuilder(ServerRequestInterface::class)
             ->getMock();
@@ -133,11 +137,11 @@ class AuthenticationServiceTest extends TestCase
 
         $uri->expects($this->any())
             ->method('getPath')
-            ->willReturn($path);
+            ->willReturn($options['path']);
 
         $uri->expects($this->any())
             ->method('__toString')
-            ->willReturn('http://localhost' . $path);
+            ->willReturn('http://localhost' . $options['path']);
 
         $request->expects($this->any())
             ->method('getUri')
@@ -145,12 +149,12 @@ class AuthenticationServiceTest extends TestCase
 
         $request->expects($this->any())
             ->method('getParsedBody')
-            ->willReturn($body);
+            ->willReturn($options['parsedBody']);
 
-        if (!empty($server)) {
+        if (!empty($options['server'])) {
             $request->expects($this->any())
                 ->method('getServerParams')
-                ->willReturn($server);
+                ->willReturn($options['server']);
         }
 
         return $request;
@@ -163,10 +167,10 @@ class AuthenticationServiceTest extends TestCase
      */
     public function testAuthenticate(): void
     {
-        $request = $this->getMockRequest(
-            '/testpath',
-            ['username' => 'robert', 'password' => 'robert']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/testpath',
+            'parsedBody' => ['username' => 'robert', 'password' => 'robert']
+        ]);
 
         $authenticators = $this->createAuthenticators();
         $service = new AuthenticationService($authenticators, new DefaultIdentityFactory());
@@ -200,10 +204,10 @@ class AuthenticationServiceTest extends TestCase
      */
     public function testAuthenticateFailure(): void
     {
-        $request = $this->getMockRequest(
-            '/testpath',
-            ['username' => 'robert', 'password' => 'invalid']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/testpath',
+            'parsedBody' => ['username' => 'robert', 'password' => 'invalid']
+        ]);
 
         $authenticators = $this->createAuthenticators();
         $service = new AuthenticationService($authenticators, new DefaultIdentityFactory());
@@ -243,10 +247,10 @@ class AuthenticationServiceTest extends TestCase
      */
     public function testAuthenticateStorage(): void
     {
-        $request = $this->getMockRequest(
-            '/testpath',
-            []
-        );
+        $request = $this->getMockRequest([
+            'path' => '/testpath',
+            'parsedBody' => ''
+        ]);
 
         $storage = $this->createMock(StorageInterface::class);
         $identity = new Identity(new ArrayObject(['username' => 'robert']));
@@ -291,16 +295,16 @@ class AuthenticationServiceTest extends TestCase
      */
     public function testAuthenticateWithChallenge(): void
     {
-        $request = $this->getMockRequest(
-            '/testpath',
-            [],
-            [
+        $request = $this->getMockRequest([
+            'path' => '/testpath',
+            'parsedBody' => '',
+            'server' => [
                 'SERVER_NAME' => 'example.com',
                 'REQUEST_URI' => '/testpath',
                 'PHP_AUTH_USER' => 'robert',
                 'PHP_AUTH_PW' => 'WRONG'
             ]
-        );
+        ]);
 
         $identifier = $this->createPasswordIdentifier();
         $authenticators = new AuthenticatorCollection([
@@ -321,10 +325,10 @@ class AuthenticationServiceTest extends TestCase
      */
     public function testPersistAuthenticatedIdentity(): void
     {
-        $request = $this->getMockRequest(
-            '/testpath',
-            ['username' => 'robert', 'password' => 'robert']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/testpath',
+            'parsedBody' => ['username' => 'robert', 'password' => 'robert']
+        ]);
 
         $response = new Response();
 
@@ -360,10 +364,10 @@ class AuthenticationServiceTest extends TestCase
      */
     public function testPersistCustomIdentity(): void
     {
-        $request = $this->getMockRequest(
-            '/testpath',
-            ['username' => 'robert', 'password' => 'robert']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/testpath',
+            'parsedBody' => ['username' => 'robert', 'password' => 'robert']
+        ]);
 
         $response = new Response();
 
@@ -392,10 +396,10 @@ class AuthenticationServiceTest extends TestCase
      */
     public function testClearIdentity(): void
     {
-        $request = $this->getMockRequest(
-            '/testpath',
-            ['username' => 'robert', 'password' => 'robert']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/testpath',
+            'parsedBody' => ['username' => 'robert', 'password' => 'robert']
+        ]);
         $response = new Response();
 
         $storage = $this->createMock(StorageInterface::class);
@@ -425,10 +429,10 @@ class AuthenticationServiceTest extends TestCase
      */
     public function testNoAuthenticatorsLoadedException(): void
     {
-        $request = $this->getMockRequest(
-            '/testpath',
-            ['username' => 'robert', 'password' => 'robert']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/testpath',
+            'parsedBody' => ['username' => 'robert', 'password' => 'robert']
+        ]);
 
         $service = new AuthenticationService(new AuthenticatorCollection(), new DefaultIdentityFactory());
 
@@ -462,10 +466,10 @@ class AuthenticationServiceTest extends TestCase
 
     public function testGetIdentity(): void
     {
-        $request = $this->getMockRequest(
-            '/testpath',
-            ['username' => 'robert', 'password' => 'robert']
-        );
+        $request = $this->getMockRequest([
+            'path' => '/testpath',
+            'parsedBody' => ['username' => 'robert', 'password' => 'robert']
+        ]);
 
         $authenticators = $this->createAuthenticators();
         $service = new AuthenticationService($authenticators, new DefaultIdentityFactory());

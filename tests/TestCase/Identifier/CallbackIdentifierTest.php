@@ -25,7 +25,6 @@ use RuntimeException;
 // phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
 class MyCallback
 {
-
     public static function callme($data)
     {
         return new ArrayObject();

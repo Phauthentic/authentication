@@ -14,6 +14,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+declare(strict_types=1);
+
 namespace Phauthentic\Authentication\Identity;
 
 use ArrayAccess;
@@ -121,7 +123,7 @@ class Identity implements IdentityInterface
      * @param mixed $offset Offset
      * @return bool
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return $this->get($offset) !== null;
     }
@@ -133,7 +135,7 @@ class Identity implements IdentityInterface
      * @param mixed $offset Offset
      * @return mixed
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->get($offset);
     }
@@ -145,9 +147,9 @@ class Identity implements IdentityInterface
      * @param mixed $offset The offset to assign the value to.
      * @param mixed $value Value
      * @throws \BadMethodCallException
-     * @return mixed
+     * @return void
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         throw new BadMethodCallException('Identity does not allow wrapped data to be mutated.');
     }
@@ -160,7 +162,7 @@ class Identity implements IdentityInterface
      * @throws \BadMethodCallException
      * @return void
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         throw new BadMethodCallException('Identity does not allow wrapped data to be mutated.');
     }

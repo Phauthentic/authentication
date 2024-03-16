@@ -14,6 +14,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+declare(strict_types=1);
+
 namespace Phauthentic\Authentication;
 
 use ArrayAccess;
@@ -138,7 +140,7 @@ class AuthenticationService implements AuthenticationServiceInterface
                 return true;
             }
 
-            if (!$result->isValid()) {
+            if ($result->isValid() === false) {
                 if ($authenticator instanceof StatelessInterface) {
                     $authenticator->unauthorizedChallenge($request);
                 }

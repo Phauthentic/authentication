@@ -14,6 +14,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+declare(strict_types=1);
+
 namespace Phauthentic\Authentication\Identifier\Ldap;
 
 use ErrorException;
@@ -32,7 +34,7 @@ class ExtensionAdapter implements AdapterInterface
     /**
      * LDAP Object
      *
-     * @var resource|null
+     * @var \LDAP\Connection|null
      */
     protected $connection;
 

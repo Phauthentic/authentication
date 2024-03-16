@@ -14,6 +14,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+declare(strict_types=1);
+
 namespace Phauthentic\Authentication\Identifier;
 
 use ArrayAccess;
@@ -80,7 +82,7 @@ class LdapIdentifier extends AbstractIdentifier
     /**
      * List of errors
      *
-     * @var array<mixed, mixed>
+     * @var array<int, string>
      */
     protected array $errors = [];
 

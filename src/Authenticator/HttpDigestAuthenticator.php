@@ -13,6 +13,8 @@
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
+declare(strict_types=1);
+
 namespace Phauthentic\Authentication\Authenticator;
 
 use Phauthentic\Authentication\Identifier\IdentifierInterface;
@@ -40,7 +42,6 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class HttpDigestAuthenticator extends HttpBasicAuthenticator
 {
-
     /**
      * A string that must be returned unchanged by clients. Defaults to `md5($config['realm'])`
      *
@@ -177,7 +178,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * Gets the digest headers from the request/environment.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @return array<mixed, mixed>|null Array of digest information.
+     * @return array<string, mixed>|null Array of digest information.
      */
     protected function getDigest(ServerRequestInterface $request): ?array
     {
@@ -214,7 +215,7 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
      * Parse the digest authentication headers and split them up.
      *
      * @param string $digest The raw digest authentication headers.
-     * @return array<mixed, mixed>|null An array of digest authentication headers
+     * @return array<string, mixed>|null An array of digest authentication headers
      */
     public function parseAuthData(string $digest): ?array
     {

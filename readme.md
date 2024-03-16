@@ -4,7 +4,6 @@
 [![Scrutinizer Coverage](https://img.shields.io/scrutinizer/coverage/g/Phauthentic/authentication/2.0.svg?style=flat-square)](https://scrutinizer-ci.com/g/Phauthentic/authentication/?branch=2.0)
 [![Code Quality](https://img.shields.io/scrutinizer/g/Phauthentic/authentication/2.0.svg?style=flat-square)](https://scrutinizer-ci.com/g/Phauthentic/authentication/?branch=2.0)
 ![phpstan Level 8](https://img.shields.io/badge/phpstan-Level%208-brightgreen?style=flat-square)
-![php 7.4](https://img.shields.io/badge/php-7.4-blue?style=flat-square)
 ![php 8.0](https://img.shields.io/badge/php-8.0-blue?style=flat-square)
 
 

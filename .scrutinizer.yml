@@ -3,7 +3,7 @@ build:
       tests-php74:
           environment:
               php:
-                  version: '7.4'
+                  version: '8.0'
                   ini:
                       phar.readonly: 'Off'
                   pecl_extensions:
@@ -18,7 +18,7 @@ build:
       tests-php80:
           environment:
               php:
-                  version: '8.0'
+                  version: '8.3'
                   ini:
                       phar.readonly: 'Off'
                   pecl_extensions:

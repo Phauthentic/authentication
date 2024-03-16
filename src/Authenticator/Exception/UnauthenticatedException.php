@@ -14,15 +14,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+declare(strict_types=1);
+
 namespace Phauthentic\Authentication\Authenticator\Exception;
 
-use RuntimeException;
+use Phauthentic\Authentication\AuthenticationException;
 use Throwable;
 
 /**
  * An exception that signals that authentication was required but missing.
  */
-class UnauthenticatedException extends RuntimeException implements AuthenticationExceptionInterface
+class UnauthenticatedException extends AuthenticationException
 {
     /**
      * {@inheritDoc}

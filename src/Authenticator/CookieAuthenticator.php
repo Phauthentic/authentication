@@ -14,6 +14,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+declare(strict_types=1);
+
 namespace Phauthentic\Authentication\Authenticator;
 
 use ArrayAccess;
@@ -126,8 +128,11 @@ class CookieAuthenticator extends AbstractAuthenticator implements PersistenceIn
      * {@inheritDoc}
      * @throws \JsonException
      */
-    public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, ArrayAccess $data): ResponseInterface
-    {
+    public function persistIdentity(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        ArrayAccess $data
+    ): ResponseInterface {
         $field = $this->rememberMeField;
         $bodyData = $request->getParsedBody();
 

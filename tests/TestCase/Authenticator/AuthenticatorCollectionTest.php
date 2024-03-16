@@ -18,12 +18,10 @@ namespace Phauthentic\Authentication\Test\TestCase\Authenticator;
 
 use Phauthentic\Authentication\Authenticator\AuthenticatorCollection;
 use Phauthentic\Authentication\Authenticator\AuthenticatorInterface;
-use Phauthentic\Authentication\Identifier\IdentifierCollection;
 use PHPUnit\Framework\TestCase;
 
 class AuthenticatorCollectionTest extends TestCase
 {
-
     /**
      * Test constructor.
      *

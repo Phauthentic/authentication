@@ -20,6 +20,7 @@ use ArrayObject;
 use Phauthentic\Authentication\Identifier\IdentifierInterface;
 use Exception;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Psr\Http\Message\ServerRequestInterface;
 use stdClass;
 
@@ -212,8 +213,7 @@ class JwtAuthenticator extends TokenAuthenticator
     {
         return JWT::decode(
             $token,
-            (string)$this->secretKey,
-            $this->algorithms
+            new Key((string)$this->secretKey, $this->algorithms[0])
         );
     }
 }

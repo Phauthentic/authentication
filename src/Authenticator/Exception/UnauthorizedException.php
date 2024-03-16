@@ -14,15 +14,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+declare(strict_types=1);
+
 namespace Phauthentic\Authentication\Authenticator\Exception;
 
-use RuntimeException;
+use Phauthentic\Authentication\AuthenticationException;
 use Throwable;
 
 /**
  * An exception that holds onto the headers/body for an unauthorized response.
  */
-class UnauthorizedException extends RuntimeException implements AuthenticationExceptionInterface
+class UnauthorizedException extends AuthenticationException
 {
     /**
      * @var array<string, string>

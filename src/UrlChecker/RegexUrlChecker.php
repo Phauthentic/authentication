@@ -14,6 +14,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+declare(strict_types=1);
+
 namespace Phauthentic\Authentication\UrlChecker;
 
 use Psr\Http\Message\ServerRequestInterface;
@@ -24,7 +26,6 @@ use Psr\Http\Message\UriInterface;
  */
 class RegexUrlChecker implements UrlCheckerInterface
 {
-
     /**
      * @var bool
      */
