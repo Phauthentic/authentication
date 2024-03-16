@@ -19,7 +19,7 @@
     "require-dev": {
         "ext-pdo": "*",
         "dms/phpunit-arraysubset-asserts": "^0.3.0",
-        "firebase/php-jwt": "^5.0",
+        "firebase/php-jwt": "6.*",
         "misantron/dbunit": "dev-master",
         "nyholm/psr7": "^1.8",
         "phpstan/phpstan": "^1.10",
