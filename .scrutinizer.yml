@@ -1,6 +1,6 @@
 build:
   nodes:
-      tests-php74:
+      tests-php80:
           environment:
               php:
                   version: '8.0'
@@ -15,7 +15,7 @@ build:
                   coverage:
                       file: 'coverage.xml'
                       format: 'php-clover'
-      tests-php80:
+      tests-php83:
           environment:
               php:
                   version: '8.3'
@@ -35,9 +35,9 @@ build:
               override:
               - php-scrutinizer-run --enable-security-analysis
               -
-                  command: './bin/phpcs'
+                  command: './bin/phpcs --report=checkstyle --standard=phpcs.xml src/ tests/'
               -
-                  command: './bin/phpstan'
+                  command: './bin/phpstan -V && bin/phpstan --error-format=github'
 filter:
     excluded_paths:
         - 'tests/*'

@@ -44,6 +44,8 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         slug: phauthentic/authentication
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   validation:
     name: Coding Standard & Static Analysis
