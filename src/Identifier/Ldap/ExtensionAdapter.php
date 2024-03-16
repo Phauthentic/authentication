@@ -130,6 +130,7 @@ class ExtensionAdapter implements AdapterInterface
      */
     public function getOption($option)
     {
+        $returnValue = null;
         $this->setErrorHandler();
         ldap_get_option($this->getConnection(), $option, $returnValue);
         $this->unsetErrorHandler();
