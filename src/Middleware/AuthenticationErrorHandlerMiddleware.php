@@ -72,20 +72,20 @@ class AuthenticationErrorHandlerMiddleware implements MiddlewareInterface
     /**
      * Creates an unauthorized response.
      *
-     * @param \Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException $e Exception.
+     * @param \Phauthentic\Authentication\Authenticator\Exception\UnauthorizedException $exception Exception.
      * @return \Psr\Http\Message\ResponseInterface
      */
-    protected function createUnauthorizedResponse(UnauthorizedException $e): ResponseInterface
+    protected function createUnauthorizedResponse(UnauthorizedException $exception): ResponseInterface
     {
         $body = $this->streamFactory->createStream();
-        $body->write($e->getBody());
+        $body->write($exception->getBody());
 
         $response = $this
             ->responseFactory
-            ->createResponse($e->getCode())
+            ->createResponse($exception->getCode())
             ->withBody($body);
 
-        foreach ($e->getHeaders() as $header => $value) {
+        foreach ($exception->getHeaders() as $header => $value) {
             $response = $response->withHeader($header, $value);
         }
 

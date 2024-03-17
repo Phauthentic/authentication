@@ -285,6 +285,16 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
         ];
     }
 
+    protected function formatOptions(string $key, mixed $value): string
+    {
+        if (is_bool($value)) {
+            $value = $value ? 'true' : 'false';
+            return sprintf('%s=%s', $key, $value);
+        }
+
+        return sprintf('%s="%s"', $key, $value);
+    }
+
     /**
      * Generate the login headers
      *
@@ -300,17 +310,12 @@ class HttpDigestAuthenticator extends HttpBasicAuthenticator
             $options['stale'] = true;
         }
 
-        $opts = [];
-        foreach ($options as $k => $v) {
-            if (is_bool($v)) {
-                $v = $v ? 'true' : 'false';
-                $opts[] = sprintf('%s=%s', $k, $v);
-            } else {
-                $opts[] = sprintf('%s="%s"', $k, $v);
-            }
+        $formattedOptions = [];
+        foreach ($options as $key => $value) {
+            $formattedOptions[] = $this->formatOptions($key, $value);
         }
 
-        return ['WWW-Authenticate' => 'Digest ' . implode(',', $opts)];
+        return ['WWW-Authenticate' => 'Digest ' . implode(',', $formattedOptions)];
     }
 
     /**
