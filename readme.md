@@ -1,10 +1,10 @@
 # Authentication
 
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
-[![Scrutinizer Coverage](https://img.shields.io/scrutinizer/coverage/g/Phauthentic/authentication/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/Phauthentic/authentication/?branch=2.0)
-[![Code Quality](https://img.shields.io/scrutinizer/g/Phauthentic/authentication/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/Phauthentic/authentication/?branch=2.0)
-![phpstan Level 8](https://img.shields.io/badge/phpstan-Level%208-brightgreen?style=flat-square)
-![php 8.0](https://img.shields.io/badge/php-8.0-blue?style=flat-square)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=for-the-badge)](LICENSE)
+![Codecov](https://img.shields.io/codecov/c/github/phauthentic/authentication/master?style=for-the-badge)
+[![Code Quality](https://img.shields.io/scrutinizer/g/Phauthentic/authentication/master.svg?style=for-the-badge)](https://scrutinizer-ci.com/g/Phauthentic/authentication/?branch=master)
+![phpstan Level 8](https://img.shields.io/badge/phpstan-Level%208-brightgreen?style=for-the-badge)
+![php 8.0](https://img.shields.io/badge/php-8.0-blue?style=for-the-badge)
 
 
 This library intends to provide a framework around authentication and user identification. Authorization is a [separate concern](https://en.wikipedia.org/wiki/Separation_of_concerns).
