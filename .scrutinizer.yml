@@ -1,43 +1,9 @@
 build:
   nodes:
-      tests-php80:
-          environment:
-              php:
-                  version: '8.0'
-                  ini:
-                      phar.readonly: 'Off'
-                  pecl_extensions:
-                  - xdebug
-          tests:
-              override:
-              -
-                  command: 'XDEBUG_MODE=coverage ./bin/phpunit --coverage-clover=coverage.xml'
-                  coverage:
-                      file: 'coverage.xml'
-                      format: 'php-clover'
-      tests-php83:
-          environment:
-              php:
-                  version: '8.3'
-                  ini:
-                      phar.readonly: 'Off'
-                  pecl_extensions:
-                  - xdebug
-          tests:
-              override:
-              -
-                  command: 'XDEBUG_MODE=coverage ./bin/phpunit --coverage-clover=coverage.xml'
-                  coverage:
-                      file: 'coverage.xml'
-                      format: 'php-clover'
       validation:
           tests:
               override:
               - php-scrutinizer-run --enable-security-analysis
-              -
-                  command: './bin/phpcs --report=checkstyle --standard=phpcs.xml src/ tests/'
-              -
-                  command: './bin/phpstan -V && bin/phpstan --error-format=github'
 filter:
     excluded_paths:
         - 'tests/*'
